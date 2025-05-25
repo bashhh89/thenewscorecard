@@ -560,3 +560,75 @@ body {
 .use-case-spotlight-card strong {
   color: #103138; /* Ensure strong text is also dark teal */
 }
+
+/* AI Animations for Landing Page */
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Custom classes for the landing page */
+.rounded-divine {
+  @apply rounded-xl;
+}
+
+.shadow-divine-card {
+  @apply shadow-lg;
+}
+
+.btn-primary-divine {
+  @apply bg-gradient-to-r from-sg-bright-green to-sg-light-blue text-white px-6 py-3 rounded-divine font-medium hover:shadow-lg transition-all duration-300;
+}
+
+.divine-card {
+  @apply bg-white rounded-divine shadow-divine-card border border-gray-100;
+}
+
+.bg-header-bg-animated {
+  background: linear-gradient(45deg, #0c3c47, #125f6a, #0c3c47, #125f6a);
+}
+
+.bg-size-400 {
+  background-size: 400% 400%;
+}
+
+.animate-divine-bg-shift {
+  animation: bgShift 15s ease infinite;
+}
+
+@keyframes bgShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
