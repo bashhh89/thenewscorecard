@@ -39,8 +39,23 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
   
   let html = template;
   
-  // Basic user information
-  html = html.replace(/{{UserInformation.UserName}}/g, data.UserInformation?.UserName || 'Not Provided');
+  // Get the user name with proper fallback
+  const userName = data.UserInformation?.UserName || 'Not Provided';
+  console.log('REPLACE_PLACEHOLDERS: Using userName:', userName);
+
+  // Basic user information - ensure UserName is replaced everywhere
+  html = html.replace(/{{UserInformation.UserName}}/g, userName);
+  
+  // Replace the generic "User" placeholder with the actual user's name
+  // This handles cases where "User" appears in assessment results text
+  if (userName !== 'Not Provided') {
+    // Using word boundary to replace only standalone "User" instances
+    const userRegex = new RegExp('\\bUser\\b', 'g');
+    html = html.replace(userRegex, userName);
+    
+    // Also replace "User's" with "[Name]'s"
+    html = html.replace(/\bUser's\b/g, `${userName}'s`);
+  }
   
   // Special handling for CompanyName - make sure it's clearly visible in multiple places
   const companyName = data.UserInformation?.CompanyName || 'Company Not Provided';
@@ -65,6 +80,56 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
   html = html.replace(/{{ReportDate}}/g, data.ReportDate || new Date().toLocaleDateString());
   html = html.replace(/{{CurrentYear}}/g, String(data.CurrentYear || new Date().getFullYear()));
   
+  // Enhanced formatting for the assessment results section
+  if (data.introText) {
+    // Add proper paragraph structure and emphasis to key points in the assessment results
+    let enhancedIntroText = data.introText;
+    
+    // Replace "User" placeholders with actual user name throughout the intro text
+    if (userName !== 'Not Provided') {
+      // Replace standalone "User" with the actual user name
+      enhancedIntroText = enhancedIntroText.replace(/\bUser\b/g, userName);
+      enhancedIntroText = enhancedIntroText.replace(/\bUser's\b/g, `${userName}'s`);
+      
+      // Also handle variations in assessment results text
+      enhancedIntroText = enhancedIntroText.replace(
+        /Based on (your|the user's|user) assessment results/gi, 
+        `Based on <strong>${userName}'s</strong> assessment results`
+      );
+    }
+    
+    // Enhance AI Tier formatting - make it bold when mentioned
+    const aiTier = data.ScoreInformation?.AITier;
+    if (aiTier && aiTier !== 'Not Available') {
+      // Bold the AI tier name when it appears in the text
+      const tierRegex = new RegExp(`\\b${aiTier}\\b`, 'gi');
+      enhancedIntroText = enhancedIntroText.replace(tierRegex, `<strong>${aiTier}</strong>`);
+      
+      // Also handle "tier" mentions
+      enhancedIntroText = enhancedIntroText.replace(
+        new RegExp(`\\b${aiTier}\\s+tier\\b`, 'gi'),
+        `<strong>${aiTier} Tier</strong>`
+      );
+    }
+    
+    // Add paragraph breaks for better readability - improved logic
+    enhancedIntroText = enhancedIntroText.replace(
+      /(\.)(\s+)([A-Z][^.]*(?:tier|score|assessment|result|recommendation))/gi, 
+      '$1</p><p>$3'
+    );
+    
+    // Ensure proper paragraph wrapping
+    if (!enhancedIntroText.startsWith('<p>')) {
+      enhancedIntroText = '<p>' + enhancedIntroText;
+    }
+    if (!enhancedIntroText.endsWith('</p>')) {
+      enhancedIntroText = enhancedIntroText + '</p>';
+    }
+    
+    // Apply the enhanced intro text
+    data.introText = enhancedIntroText;
+  }
+  
   // Report content sections
   html = html.replace(/{{introText}}/g, data.introText || '');
   html = html.replace(/{{sections.overallTier}}/g, data.sections?.overallTier || '');
@@ -78,7 +143,15 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
   // Handle dynamic sections if any
   let dynamicSectionsHtml = '';
   if (data.dynamicSections && data.dynamicSections.length > 0) {
-    dynamicSectionsHtml = data.dynamicSections.map(section => `
+    dynamicSectionsHtml = data.dynamicSections.map(section => {
+      // Replace User with actual name in dynamic section content
+      let sectionContent = section.content;
+      if (userName !== 'Not Provided') {
+        sectionContent = sectionContent.replace(/\bUser\b/g, userName);
+        sectionContent = sectionContent.replace(/\bUser's\b/g, `${userName}'s`);
+      }
+      
+      return `
       <div class="section-wrapper">
         <div class="section-asymmetric">
           <div class="section-sidebar">
@@ -86,12 +159,12 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
           </div>
           <div class="section-content">
             <div class="card">
-              ${section.content}
+              ${sectionContent}
             </div>
           </div>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   }
   html = html.replace(/{{#each dynamicSections}}[\s\S]*?{{\/each}}/g, dynamicSectionsHtml);
   
@@ -134,11 +207,25 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
     `;
     
     phaseMap[phase].forEach(item => {
+      // Replace User with actual name in questions and answers
+      let question = item.question;
+      let answer = item.answer;
+      let reasoning = item.reasoning || '';
+      
+      if (userName !== 'Not Provided') {
+        question = question.replace(/\bUser\b/g, userName);
+        question = question.replace(/\bUser's\b/g, `${userName}'s`);
+        answer = answer.replace(/\bUser\b/g, userName);
+        answer = answer.replace(/\bUser's\b/g, `${userName}'s`);
+        reasoning = reasoning.replace(/\bUser\b/g, userName);
+        reasoning = reasoning.replace(/\bUser's\b/g, `${userName}'s`);
+      }
+      
       qaHtml += `
         <div class="qa-item">
-          <div class="qa-question">${item.question}</div>
-          <div class="qa-answer">${item.answer}</div>
-          ${item.reasoning ? `<div class="qa-reasoning"><strong>Analysis:</strong> ${item.reasoning}</div>` : ''}
+          <div class="qa-question">${question}</div>
+          <div class="qa-answer">${answer}</div>
+          ${reasoning ? `<div class="qa-reasoning"><strong>Analysis:</strong> ${reasoning}</div>` : ''}
         </div>
       `;
     });
@@ -152,6 +239,13 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
   // Replace Q&A placeholder
   html = html.replace(/{{qaContent}}/g, qaHtml || '<p>No assessment responses available.</p>');
   
+  // Additional check to replace any remaining generic "User" placeholders in the entire HTML
+  if (userName !== 'Not Provided') {
+    // This is a safety measure to catch any remaining instances
+    html = html.replace(/\bUser\b/g, userName);
+    html = html.replace(/\bUser's\b/g, `${userName}'s`);
+  }
+  
   // Check for any remaining unprocessed placeholders and log warnings
   const remainingPlaceholders = html.match(/{{[^}]+}}/g);
   if (remainingPlaceholders && remainingPlaceholders.length > 0) {
@@ -160,4 +254,4 @@ export function replacePlaceholders(template: string, data: TemplateData): strin
   
   console.log('REPLACE_PLACEHOLDERS: Placeholder replacement completed');
   return html;
-} 
+}

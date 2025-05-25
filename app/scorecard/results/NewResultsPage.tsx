@@ -1242,7 +1242,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                         scorecardData={formatReportDataForPDF()}
                         className="btn-primary-divine bg-[#FEC401] text-[#103138] hover:bg-[#FEC401]/90"
                       >
-                        WeasyPrint PDF
+                        download pdf 2
                       </WeasyprintPDFButton>
                     </div>
                   </div>

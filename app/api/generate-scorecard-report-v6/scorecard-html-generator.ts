@@ -940,6 +940,11 @@ async function generateScorecardHTML(reportData: ScoreCardData): Promise<string>
     if (reportData.ScoreInformation?.FinalScore === null || reportData.ScoreInformation?.FinalScore === undefined) {
       console.warn('DEBUG - WARNING: FinalScore is null or undefined');
     }
+    if (!reportData.UserInformation?.UserName || reportData.UserInformation.UserName.trim() === '') {
+      console.warn('DEBUG - WARNING: UserName is missing or empty');
+    } else {
+      console.log('DEBUG - UserName found:', reportData.UserInformation.UserName);
+    }
 
     // Log the complete original data structure for debugging (excluding potentially large markdown/Q&A)
     console.log('ORIGINAL DATA - EXACT VALUES (Summary):', JSON.stringify({
@@ -957,12 +962,22 @@ async function generateScorecardHTML(reportData: ScoreCardData): Promise<string>
 
     // Ensure UserInformation and its fields exist
     if (!reportData.UserInformation) {
+      console.warn('DEBUG - Creating empty UserInformation object');
       reportData.UserInformation = {
         Industry: '',
         UserName: '',
         CompanyName: '',
         Email: ''
       };
+    } else {
+      // Make sure UserName is properly initialized (not undefined or null)
+      if (!reportData.UserInformation.UserName) {
+        console.log('DEBUG - Setting empty UserName to empty string instead of null/undefined');
+        reportData.UserInformation.UserName = '';
+      } else if (typeof reportData.UserInformation.UserName === 'string') {
+        reportData.UserInformation.UserName = reportData.UserInformation.UserName.trim();
+        console.log('DEBUG - Trimmed UserName:', reportData.UserInformation.UserName);
+      }
     }
     // No data modifications, preserve all original values
 
@@ -1021,6 +1036,28 @@ async function generateScorecardHTML(reportData: ScoreCardData): Promise<string>
       dynamicSections,
       QuestionAnswerHistory: reportData.QuestionAnswerHistory,
     };
+
+    // Additional User placeholder replacement in all sections before template processing
+    const userName = reportData.UserInformation?.UserName;
+    if (userName && userName.trim() !== '' && userName !== 'Not Provided') {
+      console.log('SCORECARD_GENERATOR: Applying additional User placeholder replacement for:', userName);
+      
+      // Replace User placeholders in all section content
+      Object.keys(templateData.sections).forEach(sectionKey => {
+        if (templateData.sections[sectionKey]) {
+          templateData.sections[sectionKey] = templateData.sections[sectionKey]
+            .replace(/\bUser\b/g, userName)
+            .replace(/\bUser's\b/g, `${userName}'s`);
+        }
+      });
+      
+      // Replace User placeholders in dynamic sections
+      templateData.dynamicSections.forEach(section => {
+        section.content = section.content
+          .replace(/\bUser\b/g, userName)
+          .replace(/\bUser's\b/g, `${userName}'s`);
+      });
+    }
 
     // Log the template data structure to ensure Q&A data is properly included
     console.log('DEBUG - Template data structure for Q&A:',
