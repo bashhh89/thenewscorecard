@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase'; // Import db from firebase config
 import { getDoc, doc } from 'firebase/firestore'; // Import firestore functions
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Get report ID from query parameters
@@ -54,4 +56,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       { status: 500 }
     );
   }
-} 
+}

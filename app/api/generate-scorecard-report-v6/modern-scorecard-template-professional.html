@@ -18,7 +18,7 @@
         margin-top: 1cm;
       }
       @bottom-right {
-        content: "© 2024 AI Efficiency Report";
+        content: "© {{currentYear}} Social Garden";
         font-family: 'Inter', sans-serif;
         font-size: 9pt;
         color: #9ca3af;
@@ -43,10 +43,10 @@
 
     /* Professional Color Palette */
     :root {
-      --primary: #1e40af;        /* Deep blue */
-      --primary-light: #3b82f6;  /* Lighter blue */
+      --primary: #008080;        /* Teal */
+      --primary-light: #20B2AA;  /* Light Sea Green */
       --secondary: #0f172a;      /* Dark slate */
-      --accent: #06b6d4;         /* Cyan accent */
+      --accent: #008B8B;         /* Dark Cyan */
       --success: #10b981;        /* Green */
       --warning: #f59e0b;        /* Amber */
       --danger: #ef4444;         /* Red */
@@ -99,17 +99,6 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 1.5rem;
-    }
-
-    .logo-placeholder {
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px dashed rgba(255, 255, 255, 0.4);
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 10pt;
-      font-weight: 600;
-      letter-spacing: 1px;
     }
 
     .report-date {
@@ -386,19 +375,33 @@
     .markdown-content h2,
     .markdown-content h3 {
       color: var(--primary);
-      font-weight: 600;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     .markdown-content h2 {
-      font-size: 16pt;
-      border-bottom: 2px solid var(--gray-200);
-      padding-bottom: 0.5rem;
+      font-size: 24pt;
+      padding-bottom: 1rem;
+      letter-spacing: -0.5pt;
+      position: relative;
+      border-bottom: none;
+    }
+    
+    .markdown-content h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
     }
 
     .markdown-content h3 {
-      font-size: 14pt;
+      font-size: 18pt;
+      color: var(--gray-800);
     }
 
     .markdown-content p {
@@ -409,14 +412,26 @@
 
     .markdown-content ul,
     .markdown-content ol {
-      margin-bottom: 1rem;
-      padding-left: 1.5rem;
+      margin: 1.5rem 0;
+      padding-left: 2.5rem;
+      list-style-position: outside;
     }
 
     .markdown-content li {
-      margin-bottom: 0.5rem;
-      line-height: 1.5;
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
       color: var(--gray-700);
+      display: list-item;
+      padding-left: 0.5rem;
+      position: relative;
+    }
+
+    .markdown-content li:last-child {
+      margin-bottom: 0.75rem;
+    }
+
+    .markdown-content ul li::marker {
+      color: var(--primary);
     }
 
     .markdown-content strong {
@@ -436,7 +451,6 @@
     <header class="header">
       <div class="header-content">
         <div class="logo-area">
-          <div class="logo-placeholder">COMPANY LOGO</div>
           <div class="report-date">{{currentDate}}</div>
         </div>
         <h1 class="report-title">AI Efficiency Scorecard</h1>

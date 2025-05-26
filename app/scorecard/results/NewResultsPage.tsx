@@ -198,9 +198,16 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         });
         
         // Extract all necessary data with fallbacks
-        const reportMarkdownValue = reportData.reportMarkdown || reportData.markdown;
+        let reportMarkdownValue = reportData.reportMarkdown || reportData.markdown;
           if (!reportMarkdownValue) {
           throw new Error("Report markdown is missing from Firestore document");
+        }
+
+        // Remove the "Getting Started & Resources" section and everything after it
+        const gettingStartedIndex = reportMarkdownValue.indexOf('## Getting Started & Resources');
+        if (gettingStartedIndex !== -1) {
+            reportMarkdownValue = reportMarkdownValue.substring(0, gettingStartedIndex).trim();
+            console.log("RESULTS PAGE: Removed 'Getting Started & Resources' section from markdown.");
         }
         
         const questionAnswerHistoryValue = reportData.questionAnswerHistory || reportData.answers || [];
@@ -1416,7 +1423,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10 9H6M15.5 11C13.567 11 12 9.433 12 7.5C12 5.567 13.567 4 15.5 4C17.433 4 19 5.567 19 7.5C19 9.433 17.433 11 15.5 11ZM6.5 21C4.567 21 3 19.433 3 17.5C3 15.567 4.567 14 6.5 14C8.433 14 10 15.567 10 17.5C10 19.433 8.433 21 6.5 21ZM18 16.5H14M18 19.5H14M6 6L10 6" 
-                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       Detailed Analysis
                     </li>
@@ -1522,8 +1529,8 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                             <h4 className="font-semibold text-lg text-[#103138] mb-3 flex items-center">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 text-[#20E28F]">
                                 <path d="M9 10.5L11 12.5L15.5 8M7 18V20.3355C7 20.8684 7 21.1348 7.10923 21.2716C7.20422 21.3906 7.34827 21.4599 7.50054 21.4597C7.67563 21.4595 7.88367 21.2931 8.29976 20.9602L10.6852 19.0518C11.1725 18.662 11.4162 18.4671 11.6875 18.3285C11.9282 18.2055 12.1844 18.1156 12.4492 18.0613C12.7477 18 13.0597 18 13.6837 18H16.2C17.8802 18 18.7202 18 19.362 17.673C19.9265 17.3854 20.3854 16.9265 20.673 16.362C21 15.7202 21 14.8802 21 13.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V14C3 14.93 3 15.395 3.10222 15.7765C3.37962 16.8117 4.18827 17.6204 5.22354 17.8978C5.60504 18 6.07003 18 7 18Z" 
-                                stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                               Your Assessment Results
                             </h4>
                             <p className="text-[#103138]/80 leading-relaxed">
@@ -1534,50 +1541,6 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                         </div>
                         
                         <div className="p-6 border-t border-gray-100">
-                          <h4 className="font-semibold text-[#103138] mb-4">What This Means for Your Organization</h4>
-                          
-                          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                            <div className="bg-[#F3FDF5]/30 p-4 rounded-lg border border-[#20E28F]/10">
-                              <h5 className="font-medium text-[#103138] mb-2 flex items-center">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 text-[#20E28F]">
-                                  <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" 
-                                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Your Strengths
-                              </h5>
-                              <ul className="space-y-2">
-                                {getTierStrengths(userTier).map((strength, index) => (
-                                  <li key={index} className="flex items-start gap-2 text-sm">
-                                    <span className="text-[#20E28F] mt-1">•</span>
-                                    <span className="text-[#103138]/80">{strength}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                              <h5 className="font-medium text-[#103138] mb-2 flex items-center">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 text-[#103138]">
-                                  <path d="M19.5 12c0-1.2-3.8-7.5-7.5-7.5S4.5 10.8 4.5 12c0 3.2 3.4 7.5 7.5 7.5s7.5-4.3 7.5-7.5z" 
-                                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                  <path d="M12 16a4 4 0 100-8 4 4 0 000 8z" 
-                                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Focus Areas
-                              </h5>
-                              <ul className="space-y-2">
-                                {getTierFocusAreas(userTier).map((area, index) => (
-                                  <li key={index} className="flex items-start gap-2 text-sm">
-                                    <span className="text-[#103138] mt-1">•</span>
-                                    <span className="text-[#103138]/80">{area}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="p-6 bg-gray-50 border-t border-gray-100">
                           <div className="flex items-center justify-between">
                             <h4 className="font-semibold text-[#103138]">Next Steps</h4>
                             <button onClick={() => handleTabChange('Strategic Action Plan')} className="text-sm text-[#20E28F] font-medium hover:text-[#103138] transition-colors flex items-center gap-1">

@@ -12,7 +12,7 @@ interface SeekPDFButtonProps {
 const SeekPDFButton: React.FC<SeekPDFButtonProps> = ({
   scorecardData,
   children,
-  className = 'bg-[#103138] text-[#20E28F] hover:bg-[#0F2A30]'
+  className = 'bg-gradient-to-r from-[#008080] to-[#20B2AA] text-white hover:from-[#006666] hover:to-[#188F8F] border-2 border-[#008080] focus:ring-2 focus:ring-[#008080]/50'
 }) => {
   return (
     <Button
