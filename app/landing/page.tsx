@@ -721,14 +721,8 @@ export default function LandingPage() {
           </div>
           
           <div className="mt-16 text-center">
-            <Link href="/learning-hub" className="btn-primary-divine inline-flex items-center text-center justify-center">
-              Explore All Learning Resources
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
-            <p className="mt-4 text-sm text-gray-500">
-              Take the AI Efficiency Scorecard to unlock personalized learning recommendations
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Take the AI Efficiency Scorecard to unlock personalized learning recommendations tailored to your maturity level
             </p>
           </div>
         </div>
