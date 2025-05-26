@@ -267,8 +267,13 @@ async function generateScorecardHTML(reportData: ScoreCardData): Promise<string>
       day: 'numeric'
     });
 
-    // Process the full markdown content
-    const fullReportContent = parseMarkdown(FullReportMarkdown || '');
+    // Process the full markdown content, but remove any score lines
+    let filteredMarkdown = FullReportMarkdown || '';
+    filteredMarkdown = filteredMarkdown
+      .split('\n')
+      .filter(line => !/^\s*Final Score:/i.test(line.trim()))
+      .join('\n');
+    const fullReportContent = parseMarkdown(filteredMarkdown);
     console.log('Processed markdown content length:', fullReportContent.length);
 
     // Generate Q&A history section HTML if there are questions
@@ -711,7 +716,6 @@ async function generateScorecardHTML(reportData: ScoreCardData): Promise<string>
             <div class="maturity-showcase">
               <div class="maturity-label">AI Maturity Level</div>
               <div class="maturity-value">${escapeHtml(AITier)}</div>
-              <div class="maturity-score">Overall Score: ${FinalScore}/100</div>
             </div>
           </div>
         </div>

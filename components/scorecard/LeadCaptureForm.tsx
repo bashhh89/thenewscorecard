@@ -10,6 +10,7 @@ interface LeadCaptureFormProps {
   reportMarkdown: string | null;
   questionAnswerHistory: any[];
   industry: string; // Add the industry prop
+  reportId?: string | null; // Added reportId as optional
 }
 
 interface FormData {
@@ -25,7 +26,8 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   onSubmitSuccess,
   reportMarkdown,
   questionAnswerHistory,
-  industry // Destructure the industry prop
+  industry, // Destructure the industry prop
+  reportId // Destructure reportId
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

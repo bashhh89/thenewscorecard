@@ -18,18 +18,19 @@ const SeekPDFButton: React.FC<SeekPDFButtonProps> = ({
     <Button
       onClick={async () => {
         console.log('SeekPDFButton scorecardData:', JSON.stringify(scorecardData, null, 2));
+        console.log('Specific finalScore value:', scorecardData.finalScore, 'Type:', typeof scorecardData.finalScore);
         try {
           // Transform the data to match the expected format
           const transformedData = {
             UserInformation: {
               UserName: scorecardData.userName || 'User',
-              CompanyName: scorecardData.userIndustry || 'Company',
+              CompanyName: scorecardData.userCompany || 'Company', // Corrected to use userCompany
               Email: scorecardData.userEmail || 'N/A',
               Industry: scorecardData.userIndustry || 'Unknown'
             },
             ScoreInformation: {
               AITier: scorecardData.userTier || 'Unknown',
-              FinalScore: scorecardData.finalScore || null,
+              FinalScore: scorecardData.finalScore !== null && scorecardData.finalScore !== undefined ? scorecardData.finalScore : 0,
               ReportID: scorecardData.reportId || 'unknown'
             },
             FullReportMarkdown: scorecardData.reportMarkdown || '',

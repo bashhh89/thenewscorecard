@@ -81,18 +81,23 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
   const [isPresentationPdfLoading, setIsPresentationPdfLoading] = useState(false);
   const [finalScore, setFinalScore] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userCompany, setUserCompany] = useState<string | null>(null); // Add state for company name
   const [processedReportMarkdown, setProcessedReportMarkdown] = useState<string | null>(null);
 
-  // Calculate final score from question history
+  // Calculate final score from question history IF NOT ALREADY SET from Firestore
   useEffect(() => {
-    if (questionAnswerHistory?.length) {
+    // Only calculate if finalScore hasn't been set by Firestore data and we have history
+    if (finalScore === null && questionAnswerHistory?.length > 0) {
+      console.log("RESULTS PAGE: Calculating FinalScore from questionAnswerHistory as it was not found/prioritized in Firestore reportData.");
       const calculatedScore = questionAnswerHistory.reduce((acc, q) => {
         const points = q.answerType === 'scale' ? parseInt(q.answer) || 0 : 0;
         return acc + points;
       }, 0);
       setFinalScore(calculatedScore);
+    } else if (finalScore !== null) {
+        console.log("RESULTS PAGE: FinalScore is already set (likely from Firestore or previous calculation), not recalculating from history. Current score:", finalScore);
     }
-  }, [questionAnswerHistory]);
+  }, [questionAnswerHistory, finalScore]); // Add finalScore to dependency array
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [leadCaptured, setLeadCaptured] = useState(false);
   
@@ -182,12 +187,14 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         }
         
         const reportData = reportSnapshot.data();
-        console.log("RESULTS PAGE: Full Firestore report data:", {
+        console.log("RESULTS PAGE: Full Firestore report data sample:", {
           id: reportSnapshot.id,
-          reportMarkdownPreview: reportData.reportMarkdown?.substring(0, 100) + '...',
+          hasMarkdown: !!reportData.reportMarkdown,
+          hasScoreInfo: !!reportData.ScoreInformation,
+          scoreInScoreInfo: reportData.ScoreInformation?.FinalScore,
+          scoreAtRoot: reportData.finalScore,
           tier: reportData.tier || reportData.userAITier || reportData.aiTier,
           answersCount: reportData.questionAnswerHistory?.length || 0,
-          timestamp: reportData.timestamp?.toDate?.() || reportData.timestamp,
         });
         
         // Extract all necessary data with fallbacks
@@ -241,12 +248,25 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
           userTierValue = extractTierFromMarkdown(reportMarkdownValue) || 'Unknown';
         }
         
-        // Extract industry from report markdown
-        const userIndustryValue = extractIndustryFromMarkdown(reportMarkdownValue) || extractIndustryFromHistory(questionAnswerHistoryValue);
+        // Extract industry from report data or markdown/history
+        let userIndustryValue = reportData.industry || reportData.userIndustry || reportData.leadIndustry;
+        if (!userIndustryValue) {
+           userIndustryValue = extractIndustryFromMarkdown(reportMarkdownValue) || extractIndustryFromHistory(questionAnswerHistoryValue);
+        }
         if (userIndustryValue) {
           console.log("RESULTS PAGE: Extracted industry:", userIndustryValue);
         }
         
+        // Extract company name from report data or storage
+        let userCompanyValue = reportData.companyName || reportData.leadCompany;
+        if (!userCompanyValue && typeof window !== 'undefined') {
+           userCompanyValue = sessionStorage.getItem('scorecardLeadCompany') || localStorage.getItem('scorecardLeadCompany');
+        }
+        if (userCompanyValue) {
+          console.log("RESULTS PAGE: Extracted company name:", userCompanyValue);
+        }
+
+
         // Extract sections
         const extractedStrengths = extractStrengthsFromMarkdown(reportMarkdownValue);
         const extractedWeaknesses = extractWeaknessesFromMarkdown(reportMarkdownValue);
@@ -262,6 +282,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         setUserName(userNameValue);
         setUserTier(userTierValue);
         setUserIndustry(userIndustryValue);
+        setUserCompany(userCompanyValue); // Set company name state
           setStrengths(extractedStrengths);
           setWeaknesses(extractedWeaknesses);
           setActionItems(extractedActions);
@@ -274,12 +295,14 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             sessionStorage.setItem('questionAnswerHistory', JSON.stringify(questionAnswerHistoryValue));
             sessionStorage.setItem('userAITier', userTierValue);
             sessionStorage.setItem('reportId', fetchedReportId);
+            if (userCompanyValue) sessionStorage.setItem('scorecardLeadCompany', userCompanyValue); // Store company name
             
             // Local storage backup
             localStorage.setItem('reportMarkdown', reportMarkdownValue);
             localStorage.setItem('questionAnswerHistory', JSON.stringify(questionAnswerHistoryValue));
             localStorage.setItem('userAITier', userTierValue);
             localStorage.setItem('reportId', fetchedReportId);
+            if (userCompanyValue) localStorage.setItem('scorecardLeadCompany', userCompanyValue); // Store company name
           } catch (storageError) {
             console.error("Failed to backup to storage:", storageError);
             // Non-critical error, don't throw
@@ -290,10 +313,16 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         if (typeof window !== 'undefined') {
           const leadEmail = sessionStorage.getItem('scorecardLeadEmail') || localStorage.getItem('scorecardLeadEmail');
           const leadName = sessionStorage.getItem('scorecardLeadName') || localStorage.getItem('scorecardLeadName');
-          
+          const leadCompany = sessionStorage.getItem('scorecardLeadCompany') || localStorage.getItem('scorecardLeadCompany'); // Get company from storage
+
           if (leadEmail) {
             setUserEmail(leadEmail);
           }
+          // Also set company from storage if available
+          if (leadCompany) {
+            setUserCompany(leadCompany);
+          }
+
 
           if (!leadEmail || !leadName) {
             console.log('RESULTS PAGE: Report exists but no lead info found, showing lead form');
@@ -332,6 +361,10 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         
         if (email) {
           setUserEmail(email);
+        }
+        // Set company name state from storage
+        if (companyName) {
+          setUserCompany(companyName);
         }
                 
         sessionStorage.setItem('scorecardUserName', capturedName.trim());
@@ -1274,10 +1307,13 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                           finalScore: finalScore,
                           reportId: reportId,
                           userEmail: userEmail,
+                          userCompany: userCompany, // Include userCompany in scorecardData
                         }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-gradient-to-r from-[#20E28F] to-[#01CEFE] text-white font-bold py-3 px-7 rounded-xl shadow-lg flex items-center gap-2 hover:from-[#1CC47E] hover:to-[#01B6D6] transition-all duration-200 border-2 border-[#20E28F] focus:outline-none focus:ring-2 focus:ring-[#20E28F]/50"
                       >
-                        SeekPDF
+                        {/* Download icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v12" /></svg>
+                        Download Report
                       </SeekPDFButton>
                       {/* WeasyPrint PDF button - Hidden but implementation preserved */}
                       <WeasyprintPDFButton 

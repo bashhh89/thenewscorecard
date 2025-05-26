@@ -5,6 +5,8 @@ export async function POST(request: Request) {
   try {
     const reportData = await request.json();
     console.log('SeekPDF request data:', JSON.stringify(reportData, null, 2));
+    console.log('Specific ScoreInformation:', reportData.ScoreInformation);
+    console.log('FinalScore from request:', reportData.ScoreInformation?.FinalScore);
     
     if (!reportData?.FullReportMarkdown) {
       console.error('Missing FullReportMarkdown in request');
