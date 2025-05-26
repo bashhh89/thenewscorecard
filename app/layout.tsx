@@ -35,6 +35,9 @@ export default function RootLayout({
   return (
     // Removed Geist variables from html className
     <html lang="en" className={`${plusJakartaSans.variable}`}>
+      <head>
+        <link rel="icon" href="/favicon.svg" />
+      </head>
       <body className="font-plus-jakarta bg-sg-light-mint min-h-screen">
         {children}
       </body>

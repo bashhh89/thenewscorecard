@@ -532,11 +532,18 @@ export default function LandingPage() {
                 <div className="md:col-span-2 mt-6 md:mt-0">
                   <div className="bg-white overflow-hidden rounded-xl shadow-md border border-gray-100">
                     <div className="p-1">
-                      <img 
-                        src="https://placehold.co/600x400/e0f7f5/20E28F/?text=AI+Basics+Course" 
-                        alt="AI Basics Course"
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
+                      <div 
+                        className="w-full h-48 bg-gradient-to-r from-[#e0f7f5] to-[#e7f5fd] flex items-center justify-center rounded-t-lg"
+                      >
+                        <div className="text-center">
+                          <div className="w-10 h-10 bg-sg-light-blue/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-sg-light-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <h4 className="text-lg font-bold text-sg-dark-teal">Advanced AI Course</h4>
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4">
                       <span className="inline-block px-2 py-1 bg-sg-orange/10 rounded text-xs text-sg-orange font-medium mb-2">Recommended for Dabblers</span>
@@ -603,19 +610,26 @@ export default function LandingPage() {
                 <div className="md:col-span-2 md:order-1 mt-6 md:mt-0">
                   <div className="bg-white overflow-hidden rounded-xl shadow-md border border-gray-100">
                     <div className="p-1">
-                      <img 
-                        src="https://placehold.co/600x400/e0f7f5/01CEFE/?text=Advanced+AI+Course" 
-                        alt="Advanced AI Course"
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
+                      <div 
+                        className="w-full h-48 bg-gradient-to-r from-[#e0f7f5] to-[#f3fdf5] flex items-center justify-center rounded-t-lg"
+                      >
+                        <div className="text-center">
+                          <div className="w-10 h-10 bg-sg-bright-green/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                          </div>
+                          <h4 className="text-lg font-bold text-sg-dark-teal">AI Basics Course</h4>
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4">
-                      <span className="inline-block px-2 py-1 bg-sg-light-blue/10 rounded text-xs text-sg-light-blue font-medium mb-2">Recommended for Enablers</span>
-                      <h4 className="font-bold text-lg text-sg-dark-teal mb-2">Advanced Prompting Techniques</h4>
+                      <span className="inline-block px-2 py-1 bg-sg-orange/10 rounded text-xs text-sg-orange font-medium mb-2">Recommended for Dabblers</span>
+                      <h4 className="font-bold text-lg text-sg-dark-teal mb-2">AI Foundations for Marketers</h4>
                       <p className="text-sm text-gray-600 mb-4">
-                        Take your AI implementation to the next level with advanced prompting strategies and optimization methods.
+                        Master the basics of AI in marketing with practical examples and simple implementation steps.
                       </p>
-                      <Link href="/learning-hub/advanced-prompting-techniques" className="text-sm text-sg-bright-green font-medium hover:text-sg-dark-teal transition-colors inline-flex items-center">
+                      <Link href="/learning-hub/ai-foundations" className="text-sm text-sg-bright-green font-medium hover:text-sg-dark-teal transition-colors inline-flex items-center">
                         View Course
                         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -674,11 +688,18 @@ export default function LandingPage() {
                 <div className="md:col-span-2 mt-6 md:mt-0">
                   <div className="bg-white overflow-hidden rounded-xl shadow-md border border-gray-100">
                     <div className="p-1">
-                      <img 
-                        src="https://placehold.co/600x400/e0f7f5/20E28F/?text=Enterprise+AI+Masterclass" 
-                        alt="Enterprise AI Masterclass"
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
+                      <div 
+                        className="w-full h-48 bg-gradient-to-r from-[#e6fbf1] to-[#f3fdf5] flex items-center justify-center rounded-t-lg"
+                      >
+                        <div className="text-center">
+                          <div className="w-10 h-10 bg-sg-bright-green/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                          </div>
+                          <h4 className="text-lg font-bold text-sg-dark-teal">Enterprise AI Masterclass</h4>
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4">
                       <span className="inline-block px-2 py-1 bg-sg-bright-green/10 rounded text-xs text-sg-bright-green font-medium mb-2">Recommended for Leaders</span>
@@ -1004,7 +1025,7 @@ export default function LandingPage() {
             </div>
             
             <div className="text-center text-gray-400 text-sm mb-8">
-              <p>© {new Date().getFullYear()} Social Garden. All rights reserved.</p>
+              <p>© 2024 Social Garden. All rights reserved.</p>
               <p className="mt-2">Your trusted partner for AI-powered marketing solutions.</p>
             </div>
 
