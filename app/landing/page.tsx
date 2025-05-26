@@ -11,20 +11,8 @@ export default function LandingPage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-sg-dark-teal via-[#0d2c33] to-[#0a1f24] text-white pb-20">
         {/* AI-themed background patterns */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div 
-                key={i}
-                className="absolute rounded-full bg-sg-bright-green/30"
-                style={{
-                  width: `${Math.random() * 10 + 2}px`,
-                  height: `${Math.random() * 10 + 2}px`,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animation: `pulse ${Math.random() * 4 + 2}s infinite alternate`,
-                }}
-              />
-            ))}
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#20E28F30_1px,transparent_1px)] bg-[size:20px_20px]">
+            {/* Static background pattern instead of random dots */}
           </div>
           <div className="absolute bottom-0 right-0 w-1/2 h-1/2 opacity-20">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -344,20 +332,13 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-sg-dark-teal to-[#135e69] text-white relative overflow-hidden">
         {/* AI-themed background patterns */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full">
-            {Array.from({ length: 15 }).map((_, i) => (
-              <div 
-                key={i}
-                className="absolute rounded-full bg-sg-bright-green/30"
-                style={{
-                  width: `${Math.random() * 15 + 5}px`,
-                  height: `${Math.random() * 15 + 5}px`,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animation: `pulse ${Math.random() * 6 + 3}s infinite alternate`,
-                }}
-              />
-            ))}
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#20E28F30_1px,transparent_1px)] bg-[size:20px_20px]">
+            {/* Static background pattern instead of random dots */}
+          </div>
+          <div className="absolute bottom-0 right-0 w-1/2 h-1/2 opacity-20">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#20E28F" d="M47.5,-57.2C59.9,-46.8,67.2,-30.6,71.2,-13.2C75.3,4.1,76.2,22.6,68.1,35.5C60,48.5,43,55.9,25.8,62.5C8.6,69.1,-8.8,74.9,-24.8,71.2C-40.9,67.5,-55.6,54.3,-65.2,38.1C-74.9,21.9,-79.5,2.8,-75.3,-13.8C-71,-30.5,-57.8,-44.7,-43.1,-54.5C-28.4,-64.3,-12.3,-69.7,2.7,-72.8C17.8,-75.9,35.1,-76.8,47.5,-67.5Z" transform="translate(100 100)" />
+            </svg>
           </div>
         </div>
 
@@ -365,14 +346,9 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <div className="relative">
-                {/* Animated binary effect */}
+                {/* Static binary pattern (replacing animated one to fix hydration errors) */}
                 <div className="absolute inset-0 flex items-center justify-center overflow-hidden opacity-20">
-                  <div className="text-xs font-mono w-full h-full flex flex-wrap">
-                    {Array.from({ length: 200 }).map((_, i) => (
-                      <span key={i} className="inline-block" style={{ animation: `flicker ${Math.random() * 5 + 2}s infinite` }}>
-                        {Math.random() > 0.5 ? '1' : '0'}
-                      </span>
-                    ))}
+                  <div className="text-xs font-mono w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(32,226,143,0.1)_25%,rgba(32,226,143,0.1)_50%,transparent_50%,transparent_75%,rgba(32,226,143,0.1)_75%)] bg-[size:20px_20px]">
                   </div>
                 </div>
                 <div className="relative p-2 bg-white/10 backdrop-blur-sm rounded-divine border border-white/20">
