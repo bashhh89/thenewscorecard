@@ -1064,8 +1064,18 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
     if (!markdown) return null;
     
     console.log('EXTRACT INDUSTRY: Extracting industry from markdown');
+
+    // Pattern 1: Look for "Industry:" or similar labels near the beginning
+    // Search within the first 500 characters for efficiency and relevance
+    const beginningMarkdown = markdown.substring(0, Math.min(markdown.length, 500));
+    const labeledMatch = beginningMarkdown.match(/Industry:?\s*([^\n]+)/i);
+    if (labeledMatch && labeledMatch[1]) {
+      const extracted = labeledMatch[1].trim();
+      console.log('EXTRACT INDUSTRY: Found industry via label pattern near beginning:', extracted);
+      return extracted;
+    }
     
-    // Pattern 1: Look for "X industry" pattern with emphasis
+    // Pattern 2: Look for "X industry" pattern with emphasis
     const emphasisMatch = markdown.match(/\*\*([^*]+) industry\*\*/i);
     if (emphasisMatch && emphasisMatch[1]) {
       const extracted = emphasisMatch[1].trim();
@@ -1073,7 +1083,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       return extracted;
     }
     
-    // Pattern 2: Look for "in the X industry" pattern
+    // Pattern 3: Look for "in the X industry" pattern
     const phraseMatch = markdown.match(/in the ([^\.]+) industry/i);
     if (phraseMatch && phraseMatch[1]) {
       const extracted = phraseMatch[1].trim();
@@ -1081,7 +1091,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       return extracted;
     }
     
-    // Pattern 3: Look for "for the X industry" pattern
+    // Pattern 4: Look for "for the X industry" pattern
     const forPhraseMatch = markdown.match(/for the ([^\.]+) industry/i);
     if (forPhraseMatch && forPhraseMatch[1]) {
       const extracted = forPhraseMatch[1].trim();
@@ -1089,7 +1099,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       return extracted;
     }
     
-    // Pattern 4: Look for "in the X sector" pattern
+    // Pattern 5: Look for "in the X sector" pattern
     const sectorMatch = markdown.match(/in the ([^\.]+) sector/i);
     if (sectorMatch && sectorMatch[1]) {
       const extracted = sectorMatch[1].trim();
