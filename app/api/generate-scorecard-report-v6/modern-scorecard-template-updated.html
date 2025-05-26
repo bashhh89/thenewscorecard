@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Efficiency Scorecard - {{userName}} at {{companyName}}</title>
+  <style>
+    @font-face {
+      font-family: 'Plus Jakarta Sans';
+      src: url('/fonts/PlusJakartaSans-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Plus Jakarta Sans';
+      src: url('/fonts/PlusJakartaSans-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    @page {
+      size: A4;
+      margin: 2cm 2.5cm;
+      @top-right {
+        content: "";
+        width: 100%;
+        height: 5mm;
+      }
+      @bottom-center {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 9pt;
+        color: #555;
+        padding-top: 0.5cm;
+      }
+      @bottom-left {
+        content: "Report ID: {{reportId}}";
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 9pt;
+        color: #555;
+      }
+      @bottom-right {
+        content: "© {{currentYear}} {{companyName}}";
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 9pt;
+        color: #555;
+      }
+    }
+
+    /* Reset styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Base typography */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.6;
+      font-size: 11pt;
+      color: #263238;
+      background-color: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      text-align: left;
+    }
+
+    /* Modern color palette */
+    :root {
+      --primary: #103138; /* Dark teal for professional look */
+      --secondary: #0288d1; /* Lighter blue for accents */
+      --accent: #20E28F; /* Accent green */
+      --light-bg: #F3FDF5; /* Light mint background */
+      --card-bg: #FFFFFF; /* White card background */
+      --border: #e3eaf2; /* Subtle border color */
+      --text-dark: #263238; /* Dark text */
+      --text-medium: #455a64; /* Medium text */
+      --text-light: #78909c; /* Light text */
+      --warning: #FE7F01; /* Warning orange */
+      --highlight: #FEC401; /* Highlight yellow */
+      --cream-bg: #FFF9F2; /* Cream background */
+      --cream-alt-bg: #FFFCF2; /* Alternate cream background */
+      --shadow: rgba(0, 41, 63, 0.1); /* Subtle shadow */
+    }
+
+    /* Main container */
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: var(--card-bg);
+      padding: 1.5em 2em;
+    }
+
+    /* Typography system */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--primary);
+      line-height: 1.3;
+      margin-bottom: 0.8em;
+      page-break-after: avoid;
+    }
+
+    h1 {
+      font-size: 28pt;
+      font-weight: bold;
+      margin-top: 1em;
+      color: var(--primary);
+      letter-spacing: -0.5pt;
+    }
+
+    h2 {
+      font-size: 20pt;
+      font-weight: bold;
+      margin-top: 1.5em;
+      color: var(--primary);
+      padding-bottom: 0.3em;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    h3 {
+      font-size: 16pt;
+      font-weight: bold;
+      margin-top: 1.2em;
+      color: var(--secondary);
+    }
+
+    p {
+      margin-bottom: 1em;
+      line-height: 1.6;
+      color: var(--text-dark);
+    }
+
+    /* Header */
+    .header {
+      padding: 1.5cm 0 1cm 0;
+      text-align: center;
+      position: relative;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 1.5em;
+    }
+
+    .logo-placeholder {
+      position: absolute;
+      top: 1.5cm;
+      left: 2.5cm;
+      width: 120px;
+      height: 50px;
+      background-color: var(--light-bg);
+      border: 1px dashed var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      font-size: 9pt;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .report-title {
+      font-size: 32pt;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 0.3em;
+      letter-spacing: -0.5pt;
+    }
+
+    .report-subtitle {
+      font-size: 16pt;
+      color: var(--text-medium);
+      margin-bottom: 0.5em;
+    }
+
+    .report-date {
+      font-size: 12pt;
+      color: var(--text-light);
+    }
+
+    /* Two-column layout */
+    .two-column {
+      display: flex;
+      gap: 2em;
+      margin: 1.5em 0;
+      page-break-inside: avoid;
+    }
+
+    .column {
+      flex: 1;
+    }
+
+    /* Modern card design */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 3px 8px var(--shadow);
+      padding: 2em;
+      margin-bottom: 2em;
+      page-break-inside: avoid;
+      border: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 16pt;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .info-row {
+      display: flex;
+      margin-bottom: 0.7em;
+      align-items: flex-start;
+    }
+
+    .info-label {
+      font-weight: bold;
+      width: 140px;
+      color: var(--text-medium);
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      flex: 1;
+      color: var(--text-dark);
+    }
+
+    /* Maturity tier highlight */
+    .maturity-tier {
+      background-color: var(--light-bg);
+      border-radius: 10px;
+      padding: 2em;
+      margin: 2em 0;
+      text-align: center;
+      border-left: 6px solid var(--accent);
+      box-shadow: 0 3px 8px var(--shadow);
+    }
+
+    .maturity-tier-label {
+      font-size: 14pt;
+      color: var(--text-medium);
+      margin-bottom: 0.5em;
+    }
+
+    .maturity-tier-value {
+      font-size: 28pt;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .maturity-tier-score {
+      font-size: 14pt;
+      color: var(--text-medium);
+      margin-top: 0.5em;
+    }
+
+    /* Section styling */
+    .section {
+      margin: 3em 0;
+      page-break-inside: avoid;
+    }
+
+    .section-title {
+      font-size: 20pt;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 1.5em;
+      padding-bottom: 0.5em;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    /* List styling */
+    ul, ol {
+      margin-bottom: 1.5em;
+      padding-left: 1.5em;
+      color: var(--text-medium);
+    }
+
+    li {
+      margin-bottom: 0.8em;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    ul li::marker {
+      color: var(--accent);
+    }
+
+    /* Q&A section styling */
+    .qa-section {
+      margin: 3em 0;
+      page-break-before: always;
+    }
+
+    .qa-section-title {
+      font-size: 20pt;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 1em;
+      padding-bottom: 0.3em;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .qa-phase {
+      margin: 2em 0;
+    }
+
+    .qa-phase-title {
+      font-size: 16pt;
+      font-weight: bold;
+      color: var(--secondary);
+      margin-bottom: 1em;
+    }
+
+    .qa-item {
+      margin-bottom: 1.5em;
+      padding: 1.5em;
+      background-color: var(--light-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .qa-question {
+      font-weight: bold;
+      color: var(--text-dark);
+      margin-bottom: 0.7em;
+    }
+
+    .qa-answer {
+      color: var(--text-medium);
+      white-space: pre-wrap;
+    }
+
+    .qa-options {
+      margin-top: 0.7em;
+      font-size: 10pt;
+      color: var(--text-light);
+    }
+
+    /* Page break utility */
+    .page-break {
+      page-break-before: always;
+    }
+
+    /* Markdown content styling */
+    .markdown-content h2,
+    .markdown-content h3 {
+      font-size: 18pt;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 1.2em;
+      margin-bottom: 0.8em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .markdown-content h4,
+    .markdown-content h5,
+    .markdown-content h6 {
+      margin-top: 1em;
+      margin-bottom: 0.6em;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .markdown-content p {
+      margin-bottom: 0.8em;
+      line-height: 1.6;
+      font-size: 12pt;
+      color: var(--text-medium);
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+      margin-bottom: 1em;
+      padding-left: 1.2em;
+    }
+
+    .markdown-content ul li {
+      position: relative;
+      padding: 0.4em 0;
+      list-style-type: disc;
+      margin-bottom: 0.5em;
+      line-height: 1.6;
+      color: var(--text-medium);
+    }
+
+    .markdown-content ul li::marker {
+      color: var(--accent);
+    }
+
+    .markdown-content ol li {
+      list-style-position: outside;
+      margin-bottom: 0.5em;
+      line-height: 1.6;
+      padding: 0.4em 0;
+      color: var(--text-medium);
+    }
+
+    /* Debugging utility */
+    .debug {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with logo placeholder -->
+    <header class="header">
+      <div class="logo-placeholder">LOGO</div>
+      <h1 class="report-title">AI Efficiency Scorecard</h1>
+      <p class="report-subtitle">For {{userName}} at {{companyName}}</p>
+      <p class="report-date">{{currentDate}}</p>
+    </header>
+
+    <!-- Client Information Section -->
+    <div class="card">
+      <div class="two-column">
+        <div class="column">
+          <h3 class="card-title">Client Information</h3>
+          <div class="info-row">
+            <div class="info-label">Name:</div>
+            <div class="info-value">{{userName}}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Company:</div>
+            <div class="info-value">{{companyName}}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Email:</div>
+            <div class="info-value">{{email}}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Industry:</div>
+            <div class="info-value">{{industry}}</div>
+          </div>
+        </div>
+        
+        <div class="column">
+          <h3 class="card-title">Assessment Results</h3>
+          <div class="maturity-tier">
+            <div class="maturity-tier-label">AI Maturity Tier</div>
+            <div class="maturity-tier-value">{{aiTier}}</div>
+            <div class="maturity-tier-score">Final Score: {{finalScore}} / 100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Findings Section -->
+    <div class="page-break"></div>
+    <section class="section">
+      <h2 class="section-title">Key Findings</h2>
+      <div class="two-column">
+        <div class="column">
+          <div class="card">
+            <h3 class="card-title">Strengths</h3>
+            <div class="markdown-content">
+              {{strengthsSection}}
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="card">
+            <h3 class="card-title">Weaknesses</h3>
+            <div class="markdown-content">
+              {{weaknessesSection}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Strategic Action Plan -->
+    <div class="page-break"></div>
+    <section class="section">
+      <h2 class="section-title">Strategic Action Plan</h2>
+      <div class="card">
+        <div class="markdown-content">
+          {{actionPlanSection}}
+        </div>
+      </div>
+    </section>
+
+    <!-- Getting Started & Resources -->
+    <div class="page-break"></div>
+    <section class="section">
+      <h2 class="section-title">Getting Started & Resources</h2>
+      <div class="card">
+        <div class="markdown-content">
+          {{resourcesSection}}
+        </div>
+      </div>
+    </section>
+
+    <!-- Illustrative Benchmarks -->
+    <div class="page-break"></div>
+    <section class="section">
+      <h2 class="section-title">Illustrative Benchmarks</h2>
+      <div class="card">
+        <div class="markdown-content">
+          {{benchmarksSection}}
+        </div>
+      </div>
+    </section>
+
+    <!-- Personalized Learning Path -->
+    <div class="page-break"></div>
+    <section class="section">
+      <h2 class="section-title">Your Personalized AI Learning Path</h2>
+      <div class="card">
+        <div class="markdown-content">
+          {{learningPathSection}}
+        </div>
+      </div>
+    </section>
+
+    <!-- Question & Answer History -->
+    {{qaHistorySection}}
+  </div>
+</body>
+</html>

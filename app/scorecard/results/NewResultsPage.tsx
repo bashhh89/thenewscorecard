@@ -13,6 +13,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { ToastProvider, useToast, Toaster } from '@/components/ui/toast-provider';
 import PresentationPDFButton from '@/components/ui/pdf-download/PresentationPDFButton';
+import SeekPDFButton from '@/components/ui/pdf-download/SeekPDFButton';
 import { toast as sonnerToast } from 'sonner';
 
 // Import all section components
@@ -78,6 +79,20 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isPresentationPdfLoading, setIsPresentationPdfLoading] = useState(false);
+  const [finalScore, setFinalScore] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [processedReportMarkdown, setProcessedReportMarkdown] = useState<string | null>(null);
+
+  // Calculate final score from question history
+  useEffect(() => {
+    if (questionAnswerHistory?.length) {
+      const calculatedScore = questionAnswerHistory.reduce((acc, q) => {
+        const points = q.answerType === 'scale' ? parseInt(q.answer) || 0 : 0;
+        return acc + points;
+      }, 0);
+      setFinalScore(calculatedScore);
+    }
+  }, [questionAnswerHistory]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [leadCaptured, setLeadCaptured] = useState(false);
   
@@ -98,6 +113,29 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
   // Important: Make this safe for SSG by checking if window is defined
   const searchParams = useSearchParams();
   
+  // Data fetching - Protect for SSG environment
+  useEffect(() => {
+    if (reportMarkdown && finalScore !== null) {
+      let updatedMarkdown = reportMarkdown;
+      const scoreRegex = /^(Final Score:\s*)(\d+)(\s*\/100)/im;
+      const overallTierRegex = /^(## Overall Tier:\s*.*?)$/im;
+
+      if (scoreRegex.test(updatedMarkdown)) {
+        updatedMarkdown = updatedMarkdown.replace(scoreRegex, `$1${finalScore}$3`);
+      } else if (overallTierRegex.test(updatedMarkdown)) {
+        // If "Overall Tier" exists but "Final Score" doesn't, add it after
+        updatedMarkdown = updatedMarkdown.replace(overallTierRegex, `$1\n\nFinal Score: ${finalScore}/100`);
+      } else {
+        // If neither exists, prepend it (less ideal, but covers edge cases)
+        // This might need adjustment based on typical markdown structure
+        updatedMarkdown = `## Overall Tier: ${userTier || 'N/A'}\n\nFinal Score: ${finalScore}/100\n\n${updatedMarkdown}`;
+      }
+      setProcessedReportMarkdown(updatedMarkdown);
+    } else if (reportMarkdown) {
+      setProcessedReportMarkdown(reportMarkdown); // Pass through if finalScore isn't ready
+    }
+  }, [reportMarkdown, finalScore, userTier]);
+
   // Data fetching - Protect for SSG environment
   useEffect(() => {
     async function fetchReportData() {
@@ -218,7 +256,8 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         // Remove bold markdown (**) from the report markdown
         const cleanedReportMarkdown = reportMarkdownValue.replace(/\*\*/g, '');
 
-        setReportMarkdown(cleanedReportMarkdown);
+        setReportMarkdown(cleanedReportMarkdown); // This will trigger the processedReportMarkdown update
+        // setProcessedReportMarkdown(cleanedReportMarkdown); // Set initial value, will be updated by the other useEffect
         setQuestionAnswerHistory(questionAnswerHistoryValue);
         setUserName(userNameValue);
         setUserTier(userTierValue);
@@ -230,7 +269,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         // Backup to storage
         if (typeof window !== 'undefined') {
           try {
-            // Session storage
+            // Session storage - store the original cleaned one, processing is for display/PDF
             sessionStorage.setItem('reportMarkdown', cleanedReportMarkdown);
             sessionStorage.setItem('questionAnswerHistory', JSON.stringify(questionAnswerHistoryValue));
             sessionStorage.setItem('userAITier', userTierValue);
@@ -252,6 +291,10 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
           const leadEmail = sessionStorage.getItem('scorecardLeadEmail') || localStorage.getItem('scorecardLeadEmail');
           const leadName = sessionStorage.getItem('scorecardLeadName') || localStorage.getItem('scorecardLeadName');
           
+          if (leadEmail) {
+            setUserEmail(leadEmail);
+          }
+
           if (!leadEmail || !leadName) {
             console.log('RESULTS PAGE: Report exists but no lead info found, showing lead form');
             setShowLeadForm(true);
@@ -282,10 +325,14 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       
       // Store the name in multiple places for redundancy
       if (typeof window !== 'undefined') {
-        const companyName = sessionStorage.getItem('scorecardLeadCompany') || 
+        const companyName = sessionStorage.getItem('scorecardLeadCompany') ||
                            localStorage.getItem('scorecardLeadCompany');
-        const email = sessionStorage.getItem('scorecardLeadEmail') || 
+        const email = sessionStorage.getItem('scorecardLeadEmail') ||
                      localStorage.getItem('scorecardLeadEmail');
+        
+        if (email) {
+          setUserEmail(email);
+        }
                 
         sessionStorage.setItem('scorecardUserName', capturedName.trim());
         sessionStorage.setItem('scorecardLeadName', capturedName.trim());
@@ -735,82 +782,57 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
 
   // Handler for presentation-style PDF using WeasyPrint
   const handlePresentationPdf = async () => {
+    setIsPresentationPdfLoading(true);
+    
     try {
-      setIsPresentationPdfLoading(true);
-      
-      // First, fetch the complete user data from Firestore to get CompanyName and Email
-      if (!reportId) {
-        throw new Error("Report ID is missing, cannot fetch user data");
+      // Instead of checking reportData which doesn't exist, check if we have the required state variables
+      if (!reportMarkdown) {
+        throw new Error('No report content available');
       }
       
-      console.log("PRESENTATION PDF: Fetching complete user data for report:", reportId);
+      // Use companyName from session storage or other available sources
+      // Get lead data from storage
+      const companyName = sessionStorage.getItem('scorecardLeadCompany') || '';
+      const userEmail = sessionStorage.getItem('scorecardLeadEmail') || '';
+      const userIndustry = sessionStorage.getItem('scorecardLeadIndustry') || '';
       
-      // Fetch the complete report data from Firestore
-      const reportRef = doc(db, 'scorecardReports', reportId);
-      const reportSnapshot = await getDoc(reportRef);
-      
-      if (!reportSnapshot.exists()) {
-        throw new Error(`No report found with ID: ${reportId}`);
-      }
-      
-      const reportData = reportSnapshot.data();
-      console.log("PRESENTATION PDF: Retrieved Firestore data:", {
-        reportId,
-        hasUserInfo: !!reportData.userInformation,
-        hasCompanyName: !!reportData.userInformation?.companyName,
-        hasEmail: !!reportData.userInformation?.email
-      });
-      
-      // Get company name from all possible sources
-      let companyName = null;
-      
-      // Try to get from Firestore first
-      const userInfo = reportData.userInformation || {};
-      if (userInfo.companyName) {
-        companyName = userInfo.companyName;
-      } else if (reportData.companyName) {
-        companyName = reportData.companyName;
-      }
-      
-      // If not in Firestore, check session/local storage
-      if (!companyName && typeof window !== 'undefined') {
-        companyName = sessionStorage.getItem('scorecardLeadCompany') || 
-                     localStorage.getItem('scorecardLeadCompany');
-      }
-      
-      // Fallback to industry if we still don't have a company name
-      if (!companyName) {
-        companyName = userIndustry || "Company";
-      }
-      
-      // Get email with fallbacks
-      const email = userInfo.email || 
-                  reportData.email || 
-                  sessionStorage.getItem('scorecardLeadEmail') || 
-                  localStorage.getItem('scorecardLeadEmail') || 
-                  "user@example.com";
-      
-      console.log("PRESENTATION PDF: Using company name:", companyName);
-      
-      // Format the report data for the PDF with correct company name and email
+      // Create the PDF data object using available state variables
       const pdfReportData = {
         UserInformation: {
-          Industry: userIndustry || reportData.industry || 'Property/Real Estate',
-          UserName: userName || reportData.userName || 'Ahmad Basheer',
+          UserName: userName || 'User',
+          Industry: userIndustry || '', // Remove fallback to 'General Business'
           CompanyName: companyName,
-          Email: email
+          Email: typeof window !== 'undefined' ? 
+            (sessionStorage.getItem('scorecardLeadEmail') || 
+             localStorage.getItem('scorecardLeadEmail') || '') : ''
         },
         ScoreInformation: {
-          AITier: userTier || reportData.tier || reportData.userAITier || 'Enabler',
-          FinalScore: reportData.finalScore || null, // Use the actual score if available
-          ReportID: reportId
+          AITier: userTier || 'Enabler',
+          FinalScore: finalScore, // Make sure this comes from state/props
+          ReportID: reportId || `REPORT-${new Date().getTime().toString().substring(0, 6)}`
         },
-        QuestionAnswerHistory: questionAnswerHistory || reportData.questionAnswerHistory || [],
-        FullReportMarkdown: reportMarkdown || reportData.reportMarkdown || '',
+        QuestionAnswerHistory: questionAnswerHistory || [],
+        FullReportMarkdown: reportMarkdown || '',
+        section1_items: [
+          { title: "AI Implementation", description: "Strong foundation in basic AI tools" },
+          { title: "Data Strategy", description: "Need improvement in data governance" }
+        ],
+        section3_items: [
+          { number: 1, title: "Implement Training", description: "Start AI literacy program" },
+          { number: 2, title: "Upgrade Infrastructure", description: "Migrate to cloud-based AI platform" }
+        ],
+        benchmarks: [
+          { metric: "AI Adoption Rate", value: "35%" },
+          { metric: "Industry Average", value: "42%" }
+        ],
+        resources: [
+          { title: "AI Implementation Guide", url: "https://example.com/guide" },
+          { title: "Cloud Migration Checklist", url: "https://example.com/checklist" }
+        ]
       };
       
       // Log the data being sent to the PDF generator
-      console.log("PRESENTATION PDF: Sending data to PDF generator:", {
+      console.log("PRESENTATION PDF: Full data payload:", {
         UserName: pdfReportData.UserInformation.UserName,
         CompanyName: pdfReportData.UserInformation.CompanyName,
         Industry: pdfReportData.UserInformation.Industry,
@@ -819,8 +841,8 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         FinalScore: pdfReportData.ScoreInformation.FinalScore
       });
       
-      // Call the WeasyPrint API endpoint
-      const response = await fetch('/api/generate-presentation-weasyprint-report', {
+      // Call the new PDFShift-based API endpoint instead of WeasyPrint
+      const response = await fetch('/api/simple-presentation-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -832,7 +854,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         // Try to get error details if available
         try {
           const errorData = await response.json();
-          throw new Error(errorData.error || `Error: ${response.status}`);
+          throw new Error(errorData.error || errorData.details || `Error: ${response.status}`);
         } catch (e) {
           throw new Error(`Error: ${response.status}`);
         }
@@ -846,8 +868,11 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      // Use the actual company name in the filename
-      a.download = `${pdfReportData.UserInformation.UserName}_${companyName}_AI_Scorecard_Presentation.pdf`.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      
+      // Use a sanitized filename
+      const safeCompanyName = companyName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      const safeUserName = (userName || 'user').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      a.download = `${safeUserName}_${safeCompanyName}_AI_Scorecard_Presentation.pdf`;
       
       // Append to document, click and remove
       document.body.appendChild(a);
@@ -1106,7 +1131,7 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
       UserInformation: {
         UserName: userName || 'User',
         CompanyName: companyName,
-        Industry: userIndustry || 'Industry',
+        Industry: userIndustry || '', // Remove fallback to 'Industry'
         Email: email,
       },
       ScoreInformation: {
@@ -1230,17 +1255,34 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                     </Link>
 
                     {/* PDF download button */}
-                    <div id="pdf-download-container" className="flex gap-2">
-                      {/* PresentationPDFButton as the only PDF download option */}
-                      <PresentationPDFButton 
+                    <div id="pdf-download-container" className="flex gap-4">
+                      <PresentationPDFButton
                         onGeneratePDF={handlePresentationPdf}
                         isLoading={isPresentationPdfLoading}
-                        className="btn-primary-divine bg-[#20E28F] text-[#103138] hover:bg-[#20E28F]/90"
+                        className="btn-primary-divine bg-[#20E28F] text-[#103138] hover:bg-[#20E28F]/90 hidden"
                       />
-                      {/* WeasyPrint PDF button */}
+                      <SeekPDFButton
+                        scorecardData={{
+                          reportMarkdown: processedReportMarkdown, // Use processed markdown
+                          questionAnswerHistory: questionAnswerHistory,
+                          userName: userName,
+                          userTier: userTier,
+                          userIndustry: userIndustry,
+                          strengths: strengths,
+                          weaknesses: weaknesses,
+                          actionItems: actionItems,
+                          finalScore: finalScore,
+                          reportId: reportId,
+                          userEmail: userEmail,
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        SeekPDF
+                      </SeekPDFButton>
+                      {/* WeasyPrint PDF button - Hidden but implementation preserved */}
                       <WeasyprintPDFButton 
                         scorecardData={formatReportDataForPDF()}
-                        className="btn-primary-divine bg-[#FEC401] text-[#103138] hover:bg-[#FEC401]/90"
+                        className="btn-primary-divine bg-[#FEC401] text-[#103138] hover:bg-[#FEC401]/90 hidden"
                       >
                         download pdf 2
                       </WeasyprintPDFButton>

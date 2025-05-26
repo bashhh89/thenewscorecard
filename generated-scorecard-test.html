@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Efficiency Scorecard - John Smith at TechCorp Inc</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    @page {
+      size: A4;
+      margin: 1.5cm 2cm;
+      @bottom-center {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Inter', sans-serif;
+        font-size: 10pt;
+        color: #6b7280;
+        margin-top: 1cm;
+      }
+      @bottom-right {
+        content: "© 2024 AI Efficiency Report";
+        font-family: 'Inter', sans-serif;
+        font-size: 9pt;
+        color: #9ca3af;
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+      color: #1f2937;
+      background: #ffffff;
+      font-size: 11pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Professional Color Palette */
+    :root {
+      --primary: #1e40af;
+      --primary-light: #3b82f6;
+      --secondary: #0f172a;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Modern Header Design */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 2rem 2.5rem;
+      margin: -1.5cm -2cm 2rem -2cm;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(50%, -50%);
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-placeholder {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 10pt;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .report-date {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 11pt;
+      font-weight: 400;
+    }
+
+    .report-title {
+      font-size: 36pt;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5pt;
+    }
+
+    .report-subtitle {
+      font-size: 16pt;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    /* Modern Card System */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+
+    .card-header {
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .card-title {
+      font-size: 16pt;
+      font-weight: 600;
+      color: var(--secondary);
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Grid System */
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Info Rows */
+    .info-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 500;
+      color: var(--gray-600);
+      min-width: 120px;
+      font-size: 10pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: var(--gray-800);
+      font-size: 12pt;
+    }
+
+    /* Maturity Tier Highlight */
+    .maturity-showcase {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .maturity-showcase::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .maturity-label {
+      font-size: 12pt;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .maturity-value {
+      font-size: 32pt;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .maturity-score {
+      font-size: 14pt;
+      font-weight: 500;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Section Headers */
+    .section {
+      margin: 2rem 0;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .section-title {
+      font-size: 22pt;
+      font-weight: 700;
+      color: var(--secondary);
+      margin: 0;
+    }
+
+    .section-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 6px;
+      margin-right: 1rem;
+    }
+
+    /* Q&A Section */
+    .qa-section {
+      margin-top: 2rem;
+      page-break-before: always;
+    }
+
+    .qa-item {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+    }
+
+    .qa-question {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .qa-answer {
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+
+    /* Page Breaks */
+    .page-break {
+      page-break-before: always;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    /* Full Report Section */
+    .full-report-section {
+      margin: 2rem 0;
+    }
+
+    .full-report-section h1,
+    .full-report-section h2 {
+      font-size: 18pt;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .full-report-section h3 {
+      font-size: 16pt;
+      color: var(--secondary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .full-report-section h4 {
+      font-size: 14pt;
+      color: var(--gray-800);
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .full-report-section ul {
+      list-style-type: disc;
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .full-report-section li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .full-report-section p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      color: var(--gray-700);
+    }
+
+    .full-report-section strong {
+      color: var(--gray-800);
+      font-weight: 600;
+    }
+</head>
+<body>
+  <div class="container">
+    <!-- Professional Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo-area">
+          <div class="report-date">May 26, 2025</div>
+        </div>
+        <h1 class="report-title">AI Efficiency Scorecard</h1>
+        <p class="report-subtitle">Comprehensive Assessment Report for John Smith at TechCorp Inc</p>
+      </div>
+    </header>
+
+    <!-- Executive Summary Card -->
+    <div class="card avoid-break">
+      <div class="card-header">
+        <h2 class="card-title">Executive Summary</h2>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Client Name</span>
+                <span class="info-value">John Smith</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Company</span>
+                <span class="info-value">TechCorp Inc</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">john.smith@techcorp.com</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Industry</span>
+                <span class="info-value">Technology</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Report ID</span>
+                <span class="info-value">RPT-2024-001</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="maturity-showcase">
+              <div class="maturity-label">AI Maturity Level</div>
+              <div class="maturity-value">Enabler</div>
+              <div class="maturity-score">Overall Score: 75/100</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Report Content -->
+    <div class="page-break"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-icon"></div>
+        <h2 class="section-title">Complete Assessment Report</h2>
+      </div>
+      
+      <div class="card">
+        <div class="card-body">
+          <div class="full-report-section">
+            <h1>AI Efficiency Assessment Report</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Your organization, TechCorp Inc, has been assessed as an <strong>Enabler</strong> tier organization with a score of 75/100. This indicates that you have established foundational AI capabilities and are ready to expand your AI initiatives.</p>
+
+<h2>Key Findings</h2>
+
+<h3>Strengths</h3>
+<ul>
+<li><strong>Strategic Vision</strong>: Your organization demonstrates a clear understanding of AI's potential value</li>
+<li><strong>Data Infrastructure</strong>: Good data quality and management practices are in place</li>
+<li><strong>Leadership Support</strong>: Management shows commitment to AI initiatives</li>
+</ul>
+
+<h3>Areas for Improvement</h3>
+<ul>
+<li><strong>Technical Skills</strong>: Need to develop more specialized AI expertise</li>
+<li><strong>Process Integration</strong>: AI workflows need better integration with existing processes</li>
+<li><strong>Measurement Framework</strong>: Establish better metrics for AI success</li>
+</ul>
+
+<h2>Strategic Action Plan</h2>
+
+<h3>Phase 1: Foundation Building (0-6 months)</h3>
+<ol>
+<li><strong>Skill Development</strong>: Invest in AI training for key personnel</li>
+<li><strong>Data Preparation</strong>: Enhance data quality and accessibility</li>
+<li><strong>Pilot Projects</strong>: Launch 2-3 small-scale AI pilots</li>
+</ol>
+
+<h3>Phase 2: Scaling (6-18 months)</h3>
+<ol>
+<li><strong>Technology Platform</strong>: Implement comprehensive AI platform</li>
+<li><strong>Process Integration</strong>: Integrate AI into core business processes</li>
+<li><strong>Performance Metrics</strong>: Establish KPIs for AI initiatives</li>
+</ol>
+
+<h3>Phase 3: Optimization (18+ months)</h3>
+<ol>
+<li><strong>Advanced Analytics</strong>: Deploy sophisticated AI models</li>
+<li><strong>Automation</strong>: Automate routine decision-making processes</li>
+<li><strong>Innovation</strong>: Explore cutting-edge AI applications</li>
+</ol>
+
+<h2>Getting Started & Resources</h2>
+
+<h3>Sample AI Goal-Setting Meeting Agenda</h3>
+<ol>
+<li><strong>Current State Assessment</strong> (30 minutes)</li>
+</ol>
+<ul>
+<li>Review existing AI initiatives</li>
+<li>Identify gaps and opportunities</li>
+</ul>
+
+<ol>
+<li><strong>Vision Setting</strong> (45 minutes)</li>
+</ol>
+<ul>
+<li>Define AI success metrics</li>
+<li>Align on strategic priorities</li>
+</ul>
+
+<ol>
+<li><strong>Action Planning</strong> (30 minutes)</li>
+</ol>
+<ul>
+<li>Assign responsibilities</li>
+<li>Set timelines and milestones</li>
+</ul>
+
+<h3>Example Prompts for AI Tools</h3>
+<ul>
+<li>"Analyze customer feedback trends from the last quarter"</li>
+<li>"Generate a summary of key performance indicators"</li>
+<li>"Identify potential process improvement opportunities"</li>
+</ul>
+
+<h3>Basic AI Data Audit Process</h3>
+<ol>
+<li><strong>Data Inventory</strong>: Catalog all available data sources</li>
+<li><strong>Quality Assessment</strong>: Evaluate data completeness and accuracy</li>
+<li><strong>Access Review</strong>: Ensure proper data governance and security</li>
+<li><strong>Gap Analysis</strong>: Identify missing data needed for AI initiatives</li>
+</ol>
+
+<h2>Illustrative Benchmarks</h2>
+
+<h3>Dabbler Tier Organizations</h3>
+<ul>
+<li>Limited AI awareness and experimentation</li>
+<li>Ad-hoc data management practices</li>
+<li>Minimal AI-related investments</li>
+<li>Score range: 0-40</li>
+</ul>
+
+<h3>Enabler Tier Organizations</h3>
+<ul>
+<li>Established AI strategy and governance</li>
+<li>Good data infrastructure and quality</li>
+<li>Moderate AI investments and pilot projects</li>
+<li>Score range: 41-75</li>
+</ul>
+
+<h3>Leader Tier Organizations</h3>
+<ul>
+<li>Advanced AI capabilities and innovation</li>
+<li>Excellent data management and analytics</li>
+<li>Significant AI investments and ROI</li>
+<li>Score range: 76-100</li>
+</ul>
+
+<h2>Your Personalized AI Learning Path</h2>
+
+<p>Based on your assessment results, we recommend the following learning sequence:</p>
+
+<ol>
+<li><strong>AI Fundamentals</strong> (2-4 weeks)</li>
+</ol>
+<ul>
+<li>Understanding machine learning basics</li>
+<li>AI use cases in your industry</li>
+<li>Data requirements for AI</li>
+</ul>
+
+<ol>
+<li><strong>Strategic Planning</strong> (4-6 weeks)</li>
+</ol>
+<ul>
+<li>AI strategy development</li>
+<li>ROI measurement frameworks</li>
+<li>Change management for AI</li>
+</ul>
+
+<ol>
+<li><strong>Implementation Skills</strong> (8-12 weeks)</li>
+</ol>
+<ul>
+<li>Project management for AI initiatives</li>
+<li>Vendor selection and management</li>
+<li>Risk assessment and mitigation</li>
+</ul>
+
+<ol>
+<li><strong>Advanced Topics</strong> (Ongoing)</li>
+</ol>
+<ul>
+<li>Emerging AI technologies</li>
+<li>Ethical AI considerations</li>
+<li>Industry-specific applications</li>
+</ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Question & Answer History -->
+    
+      <div class="page-break"></div>
+      <section class="qa-section">
+        <div class="section-header">
+          <div class="section-icon"></div>
+          <h2 class="section-title">Question & Answer History</h2>
+        </div>
+        
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Strategy &amp; Goals</h3>
+            </div>
+            <div class="card-body">
+              
+                <div class="qa-item">
+                  <div class="qa-question"><strong>Q:</strong> How would you rate your organization&#039;s current AI strategy?</div>
+                  <div class="qa-answer"><strong>A:</strong> 3: Comprehensive strategy</div>
+                </div>
+              
+                <div class="qa-item">
+                  <div class="qa-question"><strong>Q:</strong> What is your primary goal for AI implementation?</div>
+                  <div class="qa-answer"><strong>A:</strong> Improve operational efficiency</div>
+                </div>
+              
+            </div>
+          </div>
+        
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Data Readiness</h3>
+            </div>
+            <div class="card-body">
+              
+                <div class="qa-item">
+                  <div class="qa-question"><strong>Q:</strong> How would you describe your data quality?</div>
+                  <div class="qa-answer"><strong>A:</strong> 4: Excellent</div>
+                </div>
+              
+            </div>
+          </div>
+        
+      </section>
+    
+  </div>
+</body>
+</html>

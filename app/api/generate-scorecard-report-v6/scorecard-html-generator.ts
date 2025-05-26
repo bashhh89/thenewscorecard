@@ -917,200 +917,132 @@ function escapeRegExp(string: string): string {
  */
 async function generateScorecardHTML(reportData: ScoreCardData): Promise<string> {
   try {
-    // Validate the input data
-    if (!reportData) {
-      throw new Error('Report data is required');
-    }
+    // Extract relevant data
+    const {
+      UserInformation: { UserName, CompanyName, Email, Industry },
+      ScoreInformation: { AITier, FinalScore, ReportID },
+      QuestionAnswerHistory,
+      FullReportMarkdown
+    } = reportData;
 
-    // Log the incoming data for debugging
-    console.log('DEBUG - generateScorecardHTML input:', {
-      UserName: reportData.UserInformation?.UserName,
-      CompanyName: reportData.UserInformation?.CompanyName,
-      Industry: reportData.UserInformation?.Industry,
-      Email: reportData.UserInformation?.Email,
-      AITier: reportData.ScoreInformation?.AITier,
-      FinalScore: reportData.ScoreInformation?.FinalScore,
-      ReportID: reportData.ScoreInformation?.ReportID
+    // Extract sections from the full report
+    const sections = extractSections(FullReportMarkdown);
+    
+    // Get dynamic sections from markdown
+    const dynamicSections = extractDynamicSections(FullReportMarkdown);
+
+    // Group questions by phase
+    const groupedQuestions = groupQuestionsByPhase(QuestionAnswerHistory);
+
+    // Generate formatted date
+    const formattedDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
 
-    // Detailed logging for important fields
-    if (!reportData.UserInformation?.CompanyName || reportData.UserInformation.CompanyName.trim() === '') {
-      console.warn('DEBUG - WARNING: CompanyName is missing or empty');
-    }
-    if (reportData.ScoreInformation?.FinalScore === null || reportData.ScoreInformation?.FinalScore === undefined) {
-      console.warn('DEBUG - WARNING: FinalScore is null or undefined');
-    }
-    if (!reportData.UserInformation?.UserName || reportData.UserInformation.UserName.trim() === '') {
-      console.warn('DEBUG - WARNING: UserName is missing or empty');
-    } else {
-      console.log('DEBUG - UserName found:', reportData.UserInformation.UserName);
-    }
-
-    // Log the complete original data structure for debugging (excluding potentially large markdown/Q&A)
-    console.log('ORIGINAL DATA - EXACT VALUES (Summary):', JSON.stringify({
-      UserName: reportData.UserInformation?.UserName,
-      CompanyName: reportData.UserInformation?.CompanyName,
-      Industry: reportData.UserInformation?.Industry,
-      Email: reportData.UserInformation?.Email,
-      AITier: reportData.ScoreInformation?.AITier,
-      FinalScore: reportData.ScoreInformation?.FinalScore,
-      ReportID: reportData.ScoreInformation?.ReportID,
-      QuestionAnswerHistoryCount: reportData.QuestionAnswerHistory?.length || 0,
-      FullReportMarkdownLength: reportData.FullReportMarkdown?.length || 0
-    }));
-
-
-    // Ensure UserInformation and its fields exist
-    if (!reportData.UserInformation) {
-      console.warn('DEBUG - Creating empty UserInformation object');
-      reportData.UserInformation = {
-        Industry: '',
-        UserName: '',
-        CompanyName: '',
-        Email: ''
-      };
-    } else {
-      // Make sure UserName is properly initialized (not undefined or null)
-      if (!reportData.UserInformation.UserName) {
-        console.log('DEBUG - Setting empty UserName to empty string instead of null/undefined');
-        reportData.UserInformation.UserName = '';
-      } else if (typeof reportData.UserInformation.UserName === 'string') {
-        reportData.UserInformation.UserName = reportData.UserInformation.UserName.trim();
-        console.log('DEBUG - Trimmed UserName:', reportData.UserInformation.UserName);
-      }
-    }
-    // No data modifications, preserve all original values
-
-    // Ensure ScoreInformation and its fields exist
-    if (!reportData.ScoreInformation) {
-      reportData.ScoreInformation = {
-        AITier: 'Default',
-        FinalScore: null,
-        ReportID: ''
-      };
-    }
-
-    // Log raw data for Q&A and Markdown for detailed debugging if needed
-    console.log('DEBUG - Raw QuestionAnswerHistory data:', reportData.QuestionAnswerHistory);
-    console.log('DEBUG - FullReportMarkdown preview (' + (reportData.FullReportMarkdown?.length || 0) + ' chars):', reportData.FullReportMarkdown?.substring(0, 500) + '...');
-
-
-    // Read the HTML template
-    const templatePath = path.join(process.cwd(), 'app/api/generate-scorecard-report-v6/template-v3.html');
-    let template = await fsPromises.readFile(templatePath, 'utf8');
-
-    // Extract sections from markdown
-    const sections = extractSections(reportData.FullReportMarkdown || '');
-    console.log('DEBUG - Extracted sections from markdown:', Object.keys(sections).filter(key => sections[key]).join(', '));
-
-    // Extract dynamic sections
-    const dynamicSections = extractDynamicSections(reportData.FullReportMarkdown || '');
-    console.log(`DEBUG - Extracted ${dynamicSections.length} dynamic sections`);
-
-    // Group Q&A by phase
-    const groupedQuestionsByPhase = groupQuestionsByPhase(reportData.QuestionAnswerHistory);
-    console.log(`DEBUG - Grouped Q&A into ${groupedQuestionsByPhase.length} phases`);
-    
-    groupedQuestionsByPhase.forEach(phase => {
-      console.log(`DEBUG - Phase "${phase.phaseName}" has ${phase.questions.length} questions`);
-    });
-    console.log('DEBUG - Grouped Q&A:', groupedQuestionsByPhase); // Log the structure
-
-
-    // --- Manually construct Q&A HTML ---
-    // Note: We no longer generate Q&A HTML here as this is now handled directly in replacePlaceholders
-    console.log("DEBUG - Q&A HTML will be generated during template replacement");
-    
-    // Prepare data for template
-    const templateData = {
-      UserInformation: reportData.UserInformation,
-      ScoreInformation: reportData.ScoreInformation,
-      ReportDate: new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }),
-      CurrentYear: new Date().getFullYear(),
-      introText: sections.introText,
-      sections,
-      dynamicSections,
-      QuestionAnswerHistory: reportData.QuestionAnswerHistory,
-    };
-
-    // Additional User placeholder replacement in all sections before template processing
-    const userName = reportData.UserInformation?.UserName;
-    if (userName && userName.trim() !== '' && userName !== 'Not Provided') {
-      console.log('SCORECARD_GENERATOR: Applying additional User placeholder replacement for:', userName);
-      
-      // Replace User placeholders in all section content
-      Object.keys(templateData.sections).forEach(sectionKey => {
-        if (templateData.sections[sectionKey]) {
-          templateData.sections[sectionKey] = templateData.sections[sectionKey]
-            .replace(/\bUser\b/g, userName)
-            .replace(/\bUser's\b/g, `${userName}'s`);
-        }
-      });
-      
-      // Replace User placeholders in dynamic sections
-      templateData.dynamicSections.forEach(section => {
-        section.content = section.content
-          .replace(/\bUser\b/g, userName)
-          .replace(/\bUser's\b/g, `${userName}'s`);
-      });
-    }
-
-    // Log the template data structure to ensure Q&A data is properly included
-    console.log('DEBUG - Template data structure for Q&A:',
-      templateData.QuestionAnswerHistory ? 'Q&A data included' : 'No Q&A data included'
-    );
-    console.log('DEBUG - REPORT DATA KEYS:', Object.keys(reportData).join(', '));
-    console.log('DEBUG - FULLREPORTMARKDOWN EXISTS:', !!reportData.FullReportMarkdown);
-    console.log('DEBUG - FULLREPORTMARKDOWN LENGTH:', reportData.FullReportMarkdown?.length || 0);
-     console.log('DEBUG - FULLREPORTMARKDOWN PREVIEW:', reportData.FullReportMarkdown?.substring(0, 200) + '...');
-
-
-    // Replace placeholders in the template
-    let html = replacePlaceholders(template, templateData);
-
-    // Clean up any unprocessed template syntax (optional, but good practice)
-    // Ensure this cleanup doesn't remove valid HTML that might look like placeholders
-    html = cleanupUnprocessedTemplates(html);
-     console.log("DEBUG - HTML BEFORE FINAL CLEANUP (first 500 chars):", html.substring(0, 500) + "...");
-     console.log("DEBUG - HTML CONTAINS FULLREPORTMARKDOWN CONTENT:", html.includes(sections.introText) || Object.values(sections).some(content => content && html.includes(content)) || dynamicSections.some(section => html.includes(section.content)));
-    console.log("DEBUG - HTML CONTAINS Q&A CONTENT:", html.includes("qa-question") && html.includes("qa-answer"));
-
-    html = cleanHtmlOutput(html);
-
-    // Remove all redundant whitespace in the HTML output for cleaner rendering and performance
-    html = html.replace(/\s+/g, ' ').trim();
-
-    // Final safety check: Remove any remaining template variables that were unprocessed
-    // This is for safety to ensure no {{placeholders}} remain in the output document
-    // cleanedHtml = cleanedHtml.replace(/{{(?!#)(?!\/)(?!>).*?}}/g, ''); // Avoid removing handlebars-like comments or block helpers if they were expected
-
-    // Return the fully processed HTML document
-    return html;
-
-  } catch (error) {
-    console.error('Error generating scorecard HTML:', error);
-    // Return a simple error HTML page
-    return `<!DOCTYPE html>
+    // Load the modern template from file
+    const templatePath = path.join(process.cwd(), 'app/api/generate-scorecard-report-v6/modern-scorecard-template.html');
+    let template = '';
+    try {
+      template = await fsPromises.readFile(templatePath, 'utf8');
+    } catch (error) {
+      console.error('Error reading template file:', error);
+      // Fallback to the old template generation method if file reading fails
+      template = `<!DOCTYPE html>
 <html lang="en">
+<!-- Fallback template content -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Error Generating Report</title>
+  <title>AI Efficiency Scorecard</title>
   <style>
-    body { font-family: sans-serif; color: #333; margin: 20px; }
-    h1 { color: red; }
+    body { font-family: sans-serif; }
   </style>
 </head>
 <body>
-  <h1>Error Generating Report</h1>
-  <p>An error occurred while generating the HTML report. Please try again later or contact support.</p>
-  <p>Details: ${error instanceof Error ? error.message : String(error)}</p>
+  <h1>AI Efficiency Scorecard</h1>
+  <p>There was an error loading the template. Please contact support.</p>
 </body>
 </html>`;
+    }
+
+    // Generate Q&A history section HTML if there are questions
+    let qaHistorySection = '';
+    if (groupedQuestions.length > 0) {
+      qaHistorySection = `
+      <div class="page-break"></div>
+      <section class="qa-section">
+        <h2 class="qa-section-title">Question & Answer History</h2>
+        ${groupedQuestions.map(group => `
+          <div class="qa-phase">
+            <h3 class="qa-phase-title">${escapeHtml(group.phaseName || 'Assessment Questions')}</h3>
+            ${group.questions.map(item => `
+              <div class="qa-item">
+                <div class="qa-question">${escapeHtml(item.question)}</div>
+                <div class="qa-answer">${formatAnswer(item)}</div>
+                ${item.options ? `<div class="qa-options">${formatOptions(item.options)}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      </section>
+    `;
+    }
+
+    // Process the template
+    const html = replacePlaceholders(template, {
+      userName: UserName || 'User',
+      companyName: CompanyName || 'Company',
+      email: Email || 'N/A',
+      industry: Industry || 'N/A',
+      aiTier: AITier || 'N/A',
+      finalScore: FinalScore !== null && FinalScore !== undefined ? FinalScore : 'N/A',
+      reportId: ReportID || 'N/A',
+      currentDate: formattedDate,
+      currentYear: new Date().getFullYear(),
+      // Add sections
+      keyFindingsSection: parseMarkdown(sections['key-findings'] || ''),
+      strengthsSection: parseMarkdown(sections['strengths'] || ''),
+      weaknessesSection: parseMarkdown(sections['weaknesses'] || ''),
+      actionPlanSection: parseMarkdown(sections['strategic-action-plan'] || ''),
+      resourcesSection: parseMarkdown(sections['getting-started-resources'] || ''),
+      benchmarksSection: parseMarkdown(sections['illustrative-benchmarks'] || ''),
+      learningPathSection: parseMarkdown(sections['personalized-learning-path'] || ''),
+      qaHistorySection: qaHistorySection
+    });
+
+    // Process dynamic sections if any
+    let processedHtml = html;
+    if (dynamicSections.length > 0) {
+      const dynamicSectionsHtml = dynamicSections.map(section => `
+        <div class="page-break"></div>
+        <section class="section">
+          <h2 class="section-title">${escapeHtml(section.title)}</h2>
+          <div class="card">
+            <div class="markdown-content">
+              ${parseMarkdown(section.content)}
+            </div>
+          </div>
+        </section>
+      `).join('');
+      
+      // Replace dynamic sections placeholder if it exists, or append to the end before closing tags
+      if (processedHtml.includes('{{dynamicSections}}')) {
+        processedHtml = processedHtml.replace('{{dynamicSections}}', dynamicSectionsHtml);
+      } else {
+        processedHtml = processedHtml.replace('</div>\s*</body>', dynamicSectionsHtml + '</div></body>');
+      }
+    }
+
+    // Final cleanup
+    const cleanedHtml = cleanHtmlOutput(processedHtml);
+    const finalHtml = fixNestedLists(cleanedHtml);
+    
+    return cleanupUnprocessedTemplates(finalHtml);
+  } catch (error) {
+    console.error('Error generating scorecard HTML:', error);
+    return `<html><body><h1>Error Generating Report</h1><p>${error.message}</p></body></html>`;
   }
 }
 

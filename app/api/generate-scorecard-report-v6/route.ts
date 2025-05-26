@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateScorecardHTML } from './scorecard-html-generator';
+import { generateScorecardHTML } from './scorecard-html-generator-fixed';
 
 // Handle GET requests - redirect to preview page
 export async function GET(request: Request) {

@@ -10,6 +10,8 @@ interface PDFOptions {
   printBackground?: boolean;
   format?: string;
   landscape?: boolean;
+  headerTemplate?: string;
+  footerTemplate?: string;
 }
 
 /**
@@ -27,14 +29,30 @@ export async function convertHTMLToPDF(html: string, options: PDFOptions = {}): 
     
     const defaultOptions = {
       margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
+        top: '15mm',
+        right: '15mm',
+        bottom: '15mm',
+        left: '15mm'
       },
       printBackground: true,
       format: 'A4',
-      landscape: false
+      landscape: false,
+      // Improved CSS properties for the PDF
+      css: `
+        @media print {
+          @page {
+            size: A4;
+            margin: 2cm 2.5cm;
+          }
+          body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+          }
+          .page-break {
+            page-break-before: always;
+          }
+        }
+      `
     };
     
     // Merge default options with provided options
@@ -84,13 +102,27 @@ export async function generatePDF(request: Request): Promise<NextResponse> {
       });
     }
     
+    // Extract company name from the HTML to use in filename if available
+    let fileName = 'ai-scorecard-report.pdf';
+    try {
+      const companyMatch = html.match(/<div class="info-value">(.*?)<\/div>/);
+      if (companyMatch && companyMatch[1] && companyMatch[1] !== 'N/A') {
+        const companyName = companyMatch[1].replace(/[^\w\s-]/g, '').trim();
+        if (companyName) {
+          fileName = `ai-scorecard-${companyName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
+        }
+      }
+    } catch (e) {
+      console.error('Error extracting company name:', e);
+    }
+    
     const pdfBuffer = await convertHTMLToPDF(html);
     
     return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="ai-scorecard-report.pdf"',
+        'Content-Disposition': `attachment; filename="${fileName}"`,
       },
     });
   } catch (error) {
@@ -137,7 +169,10 @@ export async function convertHTMLToPDFWithPuppeteer(html: string, options: PDFOp
         bottom: '20px',
         left: '20px'
       },
-      landscape: options.landscape || false
+      landscape: options.landscape || false,
+      headerTemplate: options.headerTemplate || '',
+      footerTemplate: options.footerTemplate || '',
+      displayHeaderFooter: !!(options.headerTemplate || options.footerTemplate)
     });
     
     return pdfBuffer;
