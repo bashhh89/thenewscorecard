@@ -56,144 +56,226 @@ const IndustrySelection = ({
   scorecardState: ScorecardState
 }) => {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-sg-dark-teal mb-3">
-          AI Efficiency Scorecard
-        </h1>
-        <p className="text-lg text-sg-dark-teal/80">
-          Assess your organization's AI maturity and receive a personalized action plan
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-sg-bright-green/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-sg-light-blue/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-sg-orange/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      <div className="sg-card-featured mb-8 relative">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-sg-dark-teal">Start Your Assessment</h2>
-            <p className="text-sm text-sg-dark-teal/70 mt-1">Select your industry to receive tailored recommendations</p>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-3 gap-12 items-center min-h-[calc(100vh-6rem)]">
+          
+          {/* Left Side - Process Steps - Now takes 1 column */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Process Steps */}
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-sg-dark-teal font-plus-jakarta mb-8">
+                Your AI Transformation Journey
+              </h2>
+              
+              {[
+                {
+                  icon: "🎯",
+                  title: "Assess",
+                  description: "Evaluate your current AI maturity across key dimensions",
+                  gradient: "from-sg-bright-green to-sg-light-blue"
+                },
+                {
+                  icon: "📊",
+                  title: "Analyze", 
+                  description: "Receive detailed insights about your AI strengths and gaps",
+                  gradient: "from-sg-light-blue to-sg-orange"
+                },
+                {
+                  icon: "🚀",
+                  title: "Act",
+                  description: "Get a customized action plan to improve your AI capabilities",
+                  gradient: "from-sg-orange to-sg-yellow"
+                }
+              ].map((step, index) => (
+                <div key={step.title} className="group relative">
+                  <div className="flex items-start space-x-4">
+                    {/* Step Number & Icon */}
+                    <div className="relative flex-shrink-0">
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${step.gradient} p-0.5 shadow-lg transform group-hover:scale-110 transition-all duration-300`}>
+                        <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center">
+                          <span className="text-2xl">{step.icon}</span>
+                        </div>
+                      </div>
+                      {index < 2 && (
+                        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-gradient-to-b from-sg-bright-green/30 to-transparent"></div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 pt-2">
+                      <h3 className="text-xl font-bold text-sg-dark-teal font-plus-jakarta mb-2 group-hover:text-sg-bright-green transition-colors duration-200">
+                        {step.title}
+                      </h3>
+                      <p className="text-sg-dark-teal/70 leading-relaxed font-plus-jakarta">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+      </div>
+
+            {/* Trust Indicators */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-sg-bright-green/20 shadow-lg">
+              <div className="flex items-center justify-between text-center">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">10K+</div>
+                  <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Assessments</div>
           </div>
-          <div className="p-3 bg-sg-bright-green/10 rounded-full">
-            <svg className="w-6 h-6 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <div className="w-px h-12 bg-sg-bright-green/20"></div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">500+</div>
+                  <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Companies</div>
+                </div>
+                <div className="w-px h-12 bg-sg-bright-green/20"></div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">98%</div>
+                  <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Satisfaction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Right Side - Main Content - Now takes 2 columns */}
+          <div className="lg:col-span-2 lg:pl-8">
+            {/* Header Section */}
+            <div className="text-center lg:text-left mb-12">
+              <div className="inline-flex items-center px-4 py-2 bg-sg-bright-green/10 text-sg-bright-green rounded-full text-sm font-medium font-plus-jakarta mb-6">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
+                AI-Powered Assessment
           </div>
+              
+              <h1 className="text-4xl lg:text-5xl font-bold text-sg-dark-teal mb-4 font-plus-jakarta leading-tight">
+                AI Efficiency
+                <span className="block bg-gradient-to-r from-sg-bright-green to-sg-light-blue bg-clip-text text-transparent">
+                  Scorecard
+                </span>
+              </h1>
+              
+              <p className="text-xl text-sg-dark-teal/80 font-plus-jakarta max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Assess your organization's AI maturity and receive a personalized action plan
+              </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-sg-dark-teal mb-2">
-            Your Industry
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {industries.map((industry) => (
+            {/* Industry Selection Card */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 border border-sg-bright-green/20 shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-sg-dark-teal font-plus-jakarta mb-3">
+                  Select Your Industry
+                </h2>
+                <p className="text-sg-dark-teal/70 font-plus-jakarta">
+                  Choose your industry to receive tailored insights and recommendations
+                </p>
+              </div>
+              
+              {/* Industry Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+                {industries.map((industry) => {
+                  const isSelected = selectedIndustry === industry;
+                  const industryIcons: Record<string, string> = {
+                    'Real Estate': '🏠',
+                    'Financial Services': '💰',
+                    'Healthcare': '🏥',
+                    'Retail': '🛒',
+                    'Manufacturing': '🏭',
+                    'Technology': '💻',
+                    'Education': '🎓',
+                    'Legal': '⚖️',
+                    'Consulting': '💼'
+                  };
+                  
+                  return (
               <button
                 key={industry}
-                onClick={() => handleIndustryChange(industry)} // handleIndustryChange will now also set the step
+                      onClick={() => handleIndustryChange(industry)}
                 className={`
-                  p-4 rounded-lg transition-all duration-200 text-left font-medium text-sm h-full
-                  ${selectedIndustry === industry
-                    ? 'bg-sg-bright-green/20 border-2 border-sg-bright-green text-sg-dark-teal shadow-md'
-                    : 'bg-white border-2 border-gray-100 text-sg-dark-teal/70 hover:border-sg-bright-green/50 hover:bg-sg-light-mint'}
+                        group relative p-4 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30
+                        ${isSelected 
+                          ? 'border-sg-bright-green bg-sg-bright-green/5 shadow-lg scale-105' 
+                          : 'border-gray-200 bg-white hover:border-sg-bright-green/50 hover:bg-sg-bright-green/5'
+                        }
+                      `}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">{industryIcons[industry] || '🏢'}</div>
+                        <div className={`
+                          text-sm font-medium font-plus-jakarta transition-colors duration-200
+                          ${isSelected ? 'text-sg-bright-green' : 'text-sg-dark-teal group-hover:text-sg-bright-green'}
+                        `}>
+                {industry}
+          </div>
+        </div>
+
+                      {isSelected && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-sg-bright-green rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+            )}
+          </button>
+                  );
+                })}
+        </div>
+
+              {/* Start Button */}
+          <button
+            onClick={startAssessment}
+                disabled={!selectedIndustry}
+                className={`
+                  group relative w-full overflow-hidden rounded-2xl px-8 py-4 font-bold text-lg font-plus-jakarta
+                  transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30
+                  ${selectedIndustry
+                    ? 'bg-gradient-to-r from-sg-bright-green to-sg-light-blue text-white hover:shadow-2xl hover:-translate-y-1 active:scale-95'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }
                 `}
               >
-                {industry}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center space-x-2 text-sm text-sg-dark-teal/70">
-            <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>The assessment takes approximately 8-10 minutes to complete</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm text-sg-dark-teal/70">
-            <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span>Your responses are confidential and securely stored</span>
-          </div>
-        </div>
-
-        {/* Removed the "Start Assessment" button */}
-        {/*
-        <div className="mt-8">
-          <button
-            onClick={startAssessment}
-            className="w-full sg-button-primary flex items-center justify-center"
-            disabled={scorecardState.isLoading}
-            data-testid="begin-assessment-button"
-            id="begin-assessment-button"
-          >
-            <span>{leadCaptured ? 'Begin Assessment' : 'Start Assessment'}</span>
-            {scorecardState.isLoading ? (
-              <div className="ml-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <div className="relative flex items-center justify-center space-x-3">
+                  <span>Start Your AI Assessment</span>
+                  <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
+                </div>
+                
+                {selectedIndustry && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-sg-light-blue to-sg-bright-green opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             )}
           </button>
-        </div>
-        */}
-
-        {/* Restored "Start Assessment" button */}
-        <div className="mt-8">
-          <button
-            onClick={startAssessment}
-            className="w-full sg-button-primary flex items-center justify-center"
-            disabled={scorecardState.isLoading}
-            data-testid="begin-assessment-button"
-            id="begin-assessment-button"
-          >
-            <span>{leadCaptured ? 'Begin Assessment' : 'Start Assessment'}</span>
-            {scorecardState.isLoading ? (
-              <div className="ml-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="sg-card">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-sg-orange/10 rounded-full">
-              <svg className="w-5 h-5 text-sg-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              
+              {/* Assessment Info */}
+              <div className="mt-6 flex items-center justify-center space-x-6 text-sm text-sg-dark-teal/60 font-plus-jakarta">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>5-10 minutes</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
+                  <span>Free assessment</span>
             </div>
-            <h3 className="font-medium text-sg-dark-teal">Assess</h3>
-          </div>
-          <p className="text-sm text-sg-dark-teal/70">Evaluate your current AI maturity across key dimensions</p>
-        </div>
-
-        <div className="sg-card">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-sg-light-blue/10 rounded-full">
-              <svg className="w-5 h-5 text-sg-light-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
+                  <span>Instant results</span>
             </div>
-            <h3 className="font-medium text-sg-dark-teal">Analyze</h3>
           </div>
-          <p className="text-sm text-sg-dark-teal/70">Receive detailed insights about your AI strengths and gaps</p>
         </div>
-
-        <div className="sg-card">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-sg-bright-green/10 rounded-full">
-              <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
             </div>
-            <h3 className="font-medium text-sg-dark-teal">Act</h3>
-          </div>
-          <p className="text-sm text-sg-dark-teal/70">Get a customized action plan to improve your AI capabilities</p>
         </div>
       </div>
     </div>
@@ -237,16 +319,7 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
                                 !isAutoCompleting;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-sg-dark-teal mb-3">
-          AI Efficiency Scorecard
-        </h1>
-        <p className="text-lg text-sg-dark-teal/80">
-          Assess your organization's AI maturity and receive a personalized action plan
-        </p>
-      </div>
-
+    <div className="px-4 sm:px-6 lg:px-8">
       {/* Notification about upcoming lead form */}
       {isApproachingLeadForm && (
         <div className="mb-6 p-4 bg-sg-light-mint border-l-4 border-sg-bright-green rounded-lg">
@@ -257,10 +330,10 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-sg-dark-teal font-medium">
+              <p className="text-sm text-sg-dark-teal font-medium font-plus-jakarta">
                 You're almost done with the assessment!
               </p>
-              <p className="text-sm text-sg-dark-teal/80 mt-1">
+              <p className="text-sm text-sg-dark-teal/80 mt-1 font-plus-jakarta">
                 After a few more questions, we'll ask for your details to complete your personalized AI efficiency report.
               </p>
             </div>
@@ -268,51 +341,15 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
         </div>
       )}
 
-      {/* Progress phases */}
-      <div className="flex flex-wrap items-center mb-8 gap-y-2">
-        {scorecardState.assessmentPhases.map((phase, index) => {
-          // Determine phase status
-          const isCurrentPhase = phase === scorecardState.currentPhaseName;
-          const isPastPhase = scorecardState.assessmentPhases.indexOf(scorecardState.currentPhaseName) > index;
-          
-          return (
-            <React.Fragment key={phase}>
-              {/* Phase index and name */}
-              <div 
-                className={`flex items-center py-2 px-4 rounded-full text-sm font-medium ${
-                  isCurrentPhase 
-                    ? 'bg-sg-bright-green text-white' 
-                    : isPastPhase 
-                      ? 'bg-sg-bright-green/20 text-sg-dark-teal'
-                      : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                <span className="mr-2">{index + 1}</span>
-                <span>{phase}</span>
-              </div>
-              
-              {/* Connector (not after last item) */}
-              {index < scorecardState.assessmentPhases.length - 1 && (
-                <div className="mx-2 text-gray-300">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
       {/* Auto-complete error message */}
       {autoCompleteError && (
         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-          <p className="font-medium">Auto-Complete Error</p>
-          <p>{autoCompleteError}</p>
+          <p className="font-medium font-plus-jakarta">Auto-Complete Error</p>
+          <p className="font-plus-jakarta">{autoCompleteError}</p>
         </div>
       )}
 
-      {/* Assessment Question */}
+      {/* Assessment Question - Remove duplicate header and horizontal phases */}
       {scorecardState.currentQuestion ? (
         <ScorecardQuestionDisplay
           question={scorecardState.currentQuestion}
@@ -335,7 +372,7 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
         />
       ) : (
         <div className="text-center p-12 border border-gray-200 rounded-lg mb-8">
-          <p className="text-lg text-gray-600">Loading your assessment questions...</p>
+          <p className="text-lg text-gray-600 font-plus-jakarta">Loading your assessment questions...</p>
         </div>
       )}
     </div>
@@ -1139,13 +1176,15 @@ export default function Home() {
     // Lead Capture
     if (currentStep === 'leadCapture') {
       return (
-        <LeadCaptureForm
-          aiTier={null} // Pass null for now, tier is determined after assessment
-          onSubmitSuccess={handleLeadCaptureSuccess} // This will now generate report and navigate
-          reportMarkdown={null} // Not available at this stage
-          questionAnswerHistory={scorecardState.history} // Pass history for context
-          industry={selectedIndustry} // Pass the selected industry to the form
-        />
+        <div className="mt-12">
+          <LeadCaptureForm
+            aiTier={null} // Pass null for now, tier is determined after assessment
+            onSubmitSuccess={handleLeadCaptureSuccess} // This will now generate report and navigate
+            reportMarkdown={null} // Not available at this stage
+            questionAnswerHistory={scorecardState.history} // Pass history for context
+            industry={selectedIndustry} // Pass the selected industry to the form
+          />
+        </div>
       );
     }
 
@@ -1192,7 +1231,7 @@ export default function Home() {
 
   // Properly populate the return statement with the renderContent call
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full">
       {renderContent()}
     </div>
   );

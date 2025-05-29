@@ -70,6 +70,11 @@ body {
 }
 
 @layer components {
+  /* Brand Typography Classes */
+  .font-plus-jakarta {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  
   /* God-Tier Typography Classes */
   .font-title-main {
     @apply text-title-main font-bold text-sg-dark-teal;
@@ -631,4 +636,128 @@ body {
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+/* Custom scrollbar styling for thin scrollbars */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-sg-bright-green\/20::-webkit-scrollbar-thumb {
+  background-color: rgba(32, 226, 143, 0.2);
+}
+
+.scrollbar-track-gray-100::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(32, 226, 143, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(32, 226, 143, 0.4);
+}
+
+/* Enhanced answer option styling */
+.sg-answer-option-enhanced {
+  @apply p-4 sm:p-5 rounded-xl border-2 transition-all duration-200 cursor-pointer;
+  @apply hover:shadow-lg transform hover:-translate-y-0.5;
+}
+
+.sg-answer-option-enhanced.selected {
+  @apply border-sg-bright-green bg-sg-bright-green/5 shadow-lg shadow-sg-bright-green/20;
+}
+
+.sg-answer-option-enhanced:not(.selected) {
+  @apply border-gray-200 bg-white hover:border-sg-bright-green/40 hover:bg-gray-50;
+}
+
+/* Enhanced button styling */
+.sg-button-enhanced-primary {
+  @apply px-8 py-4 rounded-xl font-semibold text-lg bg-sg-bright-green text-white;
+  @apply transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30;
+  @apply hover:bg-sg-bright-green/90 hover:-translate-y-0.5 hover:shadow-xl;
+  @apply active:transform active:scale-95 relative overflow-hidden;
+}
+
+.sg-button-enhanced-secondary {
+  @apply px-6 py-3 bg-white border-2 border-sg-bright-green text-sg-bright-green rounded-xl font-medium;
+  @apply hover:bg-sg-bright-green hover:text-white transition-all duration-200;
+  @apply focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30;
+}
+
+/* Card enhancements */
+.sg-card-enhanced {
+  @apply bg-white rounded-2xl border border-gray-100 shadow-lg relative overflow-hidden;
+}
+
+.sg-card-enhanced::before {
+  content: '';
+  @apply absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sg-bright-green/5 to-sg-light-blue/5 rounded-full;
+  transform: translate(4rem, -4rem);
+}
+
+/* Progress enhancements */
+.sg-progress-enhanced {
+  @apply w-full h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner;
+}
+
+.sg-progress-bar-enhanced {
+  @apply h-full bg-gradient-to-r from-sg-bright-green to-sg-light-blue rounded-full transition-all duration-700 ease-out shadow-sm;
+}
+
+/* Loading spinner enhancement */
+.sg-spinner-enhanced {
+  @apply animate-spin h-6 w-6;
+}
+
+/* Brand Typography Size Classes - Following 22px/18px specification */
+.text-brand-title {
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.text-brand-section {
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.text-brand-body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.text-brand-caption {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .sg-answer-option-enhanced {
+    @apply p-3 text-sm;
+  }
+  
+  .sg-button-enhanced-primary {
+    @apply px-6 py-3 text-base;
+  }
+  
+  .text-brand-title {
+    font-size: 20px;
+  }
+  
+  .text-brand-section {
+    font-size: 16px;
+  }
 }
