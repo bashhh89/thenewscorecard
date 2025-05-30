@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { AIProviderManager } from '@/lib/ai-providers';
+import { logger } from '@/lib/logger';
 
 // Define ScorecardHistoryEntry interface for type safety
 type AnswerSourceType = 'Groq Llama 3 8B' | 'Pollinations Fallback' | 'Groq API Failed' | 'Fallback Failed' | 'Manual' | 'OpenAI';
@@ -25,18 +26,6 @@ function calculateTierScore(history: ScorecardHistoryEntry[]): number {
   let totalScore = 0;
   const MAX_POSSIBLE_SCORE = 100; // Maximum possible score (20 questions × max 5 points each)
   
-  // Add debug logging
-  console.log('>>> BACKEND: Starting tier calculation with history length:', history.length);
-  console.log('>>> BACKEND: DETAILED TIER CALCULATION ANALYSIS >>>');
-  
-  // Debug: Log all questions and answers for analysis
-  history.forEach((entry, index) => {
-    console.log(`>>> BACKEND: Q${index + 1} [${entry.answerType}]: "${entry.question.substring(0, 50)}..." = ${typeof entry.answer === 'string' ? entry.answer : JSON.stringify(entry.answer)}`);
-    if (entry.answerSource) {
-      console.log(`>>> BACKEND: Q${index + 1} Answer Source: ${entry.answerSource}`);
-    }
-  });
-
   for (const entry of history) {
     let questionScore = 0;
     let scoringReason = '';
@@ -302,7 +291,6 @@ function calculateTierScore(history: ScorecardHistoryEntry[]): number {
     
     // Add the question score to the total
     totalScore += questionScore;
-    console.log(`>>> BACKEND: Q${history.indexOf(entry) + 1} [${entry.answerType}] scored ${questionScore} points (${scoringReason}) - Answer: "${typeof entry.answer === 'string' ? entry.answer.substring(0, 50) : JSON.stringify(entry.answer).substring(0, 50)}${(typeof entry.answer === 'string' && entry.answer.length > 50) || (typeof entry.answer !== 'string' && JSON.stringify(entry.answer).length > 50) ? '...' : ''}"`);
   }
 
   // Normalize the score if we have fewer than MAX_QUESTIONS
@@ -310,12 +298,8 @@ function calculateTierScore(history: ScorecardHistoryEntry[]): number {
   if (history.length > 0 && history.length < MAX_QUESTIONS) {
     const normalizationFactor = MAX_QUESTIONS / history.length;
     const normalizedScore = Math.round(totalScore * normalizationFactor);
-    console.log(`>>> BACKEND: Normalizing score: ${totalScore} × ${normalizationFactor} = ${normalizedScore}`);
     return normalizedScore;
   }
-
-  console.log(`>>> BACKEND: Final score: ${totalScore} / ${MAX_POSSIBLE_SCORE}`);
-  console.log(`>>> BACKEND: Current thresholds: Dabbler (0-${DABBLER_MAX_SCORE}), Enabler (${DABBLER_MAX_SCORE+1}-${ENABLER_MAX_SCORE}), Leader (${ENABLER_MAX_SCORE+1}+)`);
   
   // Final safety check: If a high percentage of answers contain Dabbler keywords but score is above threshold,
   // adjust score to ensure it's classified as Dabbler
@@ -335,20 +319,13 @@ function calculateTierScore(history: ScorecardHistoryEntry[]): number {
   }
   
   const dabblerKeywordPercentage = history.length > 0 ? (dabblerKeywordCount / history.length) * 100 : 0;
-  console.log(`>>> BACKEND: Dabbler keyword percentage: ${dabblerKeywordPercentage.toFixed(2)}% (${dabblerKeywordCount}/${history.length} answers)`);
   
   // If more than 60% of answers contain Dabbler keywords but score is above Dabbler threshold,
   // apply a correction to ensure it's classified as Dabbler
   if (dabblerKeywordPercentage >= 60 && totalScore > DABBLER_MAX_SCORE && totalScore <= DABBLER_MAX_SCORE + 10) {
     const adjustedScore = DABBLER_MAX_SCORE;
-    console.log(`>>> BACKEND: SAFETY CHECK ACTIVATED: High percentage of Dabbler keywords detected (${dabblerKeywordPercentage.toFixed(2)}%).`);
-    console.log(`>>> BACKEND: Adjusting score from ${totalScore} to ${adjustedScore} to ensure Dabbler classification`);
     totalScore = adjustedScore;
   }
-  
-  const resultingTier = determineTier(totalScore);
-  console.log(`>>> BACKEND: Resulting tier: ${resultingTier}`);
-  console.log('>>> BACKEND: <<< END DETAILED TIER CALCULATION ANALYSIS');
   
   return totalScore;
 }
@@ -388,7 +365,7 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 3, de
 
 // Debug function to verify tier calculation with sample answers
 function debugTierCalculation() {
-  console.log('>>> BACKEND: Running tier calculation debug tests');
+  logger.backend('Running tier calculation debug tests');
   
   // Sample answers for each tier
   const dabblerAnswers: ScorecardHistoryEntry[] = [
@@ -415,15 +392,15 @@ function debugTierCalculation() {
   // Test each set of answers
   const dabblerScore = calculateTierScore(dabblerAnswers);
   const dabblerTier = determineTier(dabblerScore);
-  console.log(`>>> BACKEND DEBUG: Dabbler test - Score: ${dabblerScore}, Tier: ${dabblerTier}`);
+  logger.backend(`DEBUG: Dabbler test - Score: ${dabblerScore}, Tier: ${dabblerTier}`);
   
   const enablerScore = calculateTierScore(enablerAnswers);
   const enablerTier = determineTier(enablerScore);
-  console.log(`>>> BACKEND DEBUG: Enabler test - Score: ${enablerScore}, Tier: ${enablerTier}`);
+  logger.backend(`DEBUG: Enabler test - Score: ${enablerScore}, Tier: ${enablerTier}`);
   
   const leaderScore = calculateTierScore(leaderAnswers);
   const leaderTier = determineTier(leaderScore);
-  console.log(`>>> BACKEND DEBUG: Leader test - Score: ${leaderScore}, Tier: ${leaderTier}`);
+  logger.backend(`DEBUG: Leader test - Score: ${leaderScore}, Tier: ${leaderTier}`);
   
   return {
     dabblerTest: { score: dabblerScore, tier: dabblerTier },
@@ -435,17 +412,12 @@ function debugTierCalculation() {
 export async function POST(request: Request) {
   const localAiManager = new AIProviderManager();
   try {
-    // Run debug tests in development
-    if (process.env.NODE_ENV === 'development') {
-      debugTierCalculation();
-    }
-    
     // Parse and validate the request body with more robust error handling
     let requestData;
     try {
       const contentType = request.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        console.error('>>> BACKEND: Invalid content type:', contentType);
+        console.error('Invalid content type:', contentType);
         return NextResponse.json(
           { error: 'Invalid content type', message: 'Request must be application/json' },
           { status: 400 }
@@ -456,15 +428,15 @@ export async function POST(request: Request) {
       try {
         requestData = JSON.parse(text);
       } catch (parseError) {
-        console.error('>>> BACKEND: JSON parse error:', parseError);
-        console.error('>>> BACKEND: Raw request body:', text.substring(0, 200) + (text.length > 200 ? '...' : ''));
+        console.error('JSON parse error:', parseError);
+        console.error('Raw request body:', text.substring(0, 200) + (text.length > 200 ? '...' : ''));
         return NextResponse.json(
           { error: 'Invalid JSON', message: 'Request body is not valid JSON' },
           { status: 400 }
         );
       }
     } catch (bodyError) {
-      console.error('>>> BACKEND: Error reading request body:', bodyError);
+      console.error('Error reading request body:', bodyError);
       return NextResponse.json(
         { error: 'Request body error', message: 'Failed to read request body' },
         { status: 400 }
@@ -475,16 +447,6 @@ export async function POST(request: Request) {
     const { action, currentPhaseName, industry, userName } = requestData;
     const history = Array.isArray(requestData.history) ? requestData.history : [];
 
-    // Log incoming request data
-    console.log('>>> BACKEND: API Route Received:', {
-     industry,
-     historyLength: history.length, // Now safe to access history.length
-     currentPhaseName,
-     action,
-     userName
-   });
-    console.log('>>> BACKEND: Received industry:', industry);
-    
     // Check if this is a report generation request
     if (action === 'generateReport') {
       return handleReportGeneration(history as ScorecardHistoryEntry[], industry, userName, localAiManager);
@@ -509,14 +471,9 @@ export async function POST(request: Request) {
 
 async function handleReportGeneration(history: ScorecardHistoryEntry[], industry: string, userName: string | undefined, aiManagerInstance: AIProviderManager) {
   try {
-    // Run our debug verification tests before starting actual calculation
-    console.log('>>> BACKEND: Running tier verification tests before processing actual submission');
-    verifyTierCalculation();
-    
     // Calculate the tier based on the weighted scoring logic
     const score = calculateTierScore(history);
     const userAITier = determineTier(score);
-    console.log(`>>> BACKEND: Calculated Tier: ${userAITier} (Score: ${score})`);
 
     // Define rich persona descriptions and specific instructions based on the calculated tier (Part 2.1 & 2.2)
     let personaDescription = "";
@@ -554,7 +511,6 @@ async function handleReportGeneration(history: ScorecardHistoryEntry[], industry
     for (const entry of history) {
       if (entry.question && entry.question.toLowerCase().includes('company name') && entry.answer) {
         companyName = String(entry.answer).trim();
-        console.log('>>> BACKEND: Found company name in history:', companyName);
         break;
       }
     }
@@ -640,9 +596,6 @@ Based on your scorecard results, select 2-3 of the most relevant resources and p
 
 FINAL REMINDER: DO NOT add ANY additional content after the Learning Path section. DO NOT include any promotions, advertisements, disclaimers, or external links to services like Homestyler, Wren AI, or other tools. The report MUST END with your Learning Path content.`;
 
-    console.log('>>> BACKEND: Preparing report generation request');
-    console.log('History length:', history.length);
-
     // Initialize AI provider manager if needed
     await aiManagerInstance.initialize();
     
@@ -652,23 +605,18 @@ FINAL REMINDER: DO NOT add ANY additional content after the Learning Path sectio
     let reportMarkdown;
     try {
       reportMarkdown = await aiManagerInstance.generateReport(systemPrompt, userPrompt);
-      console.log('>>> BACKEND: Successfully generated report using', aiManagerInstance.getReportProviderName() || 'Unknown Provider');
     } catch (error) {
-      console.error('>>> BACKEND: All AI providers failed:', error);
+      console.error('All AI providers failed:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to generate report: ${errorMessage}`);
     }
 
-    console.log('>>> BACKEND: RAW GENERATED MARKDOWN REPORT:\n', reportMarkdown);
-
     // Clean the report markdown to remove unwanted content
     reportMarkdown = cleanReportMarkdown(reportMarkdown);
-    console.log('>>> BACKEND: CLEANED MARKDOWN REPORT:\n', reportMarkdown);
 
     // Extract the AI Tier from the markdown
     const tierMatch = reportMarkdown.match(/## Overall Tier:\s*(.+)/);
     const extractedTier = tierMatch ? tierMatch[1].trim() : 'N/A';
-    console.log('>>> BACKEND: Extracted Tier:', extractedTier);
     
     // Extract the final score from the Overall Tier section if it exists
     let finalScore: number | null = score; // Default to calculated score
@@ -677,7 +625,6 @@ FINAL REMINDER: DO NOT add ANY additional content after the Learning Path sectio
       const extractedScore = parseInt(scoreMatch[1], 10);
       if (!isNaN(extractedScore)) {
         finalScore = extractedScore;
-        console.log('>>> BACKEND: Extracted Final Score from markdown:', finalScore);
       }
     }
 
@@ -688,7 +635,7 @@ FINAL REMINDER: DO NOT add ANY additional content after the Learning Path sectio
         reportMarkdown.includes('Learn more') ||
         reportMarkdown.includes('http') ||
         reportMarkdown.includes('Create professional')) {
-      console.error('>>> BACKEND: WARNING - Ad content still detected after cleaning. Applying second-pass cleaning.');
+      console.error('WARNING - Ad content still detected after cleaning. Applying second-pass cleaning.');
       reportMarkdown = cleanReportMarkdown(reportMarkdown, true); // Apply aggressive second-pass cleaning
     }
 
@@ -803,7 +750,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
       // If there are more than 1000 characters after the last expected section,
       // it's likely we have the proper content and not an abrupt cut-off
       if (contentAfterLastSection.length < 200) {
-        console.warn('>>> BACKEND: WARNING - Learning Path section may be truncated.');
+        console.warn('WARNING - Learning Path section may be truncated.');
       }
       
       break;
@@ -811,7 +758,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
   }
   
   if (!hasProperEnding) {
-    console.warn('>>> BACKEND: WARNING - Report does not end with an expected Learning Path section.');
+    console.warn('WARNING - Report does not end with an expected Learning Path section.');
   }
   
   // Step 4: Check for required sections and log warnings if any are missing
@@ -831,7 +778,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
   );
   
   if (missingSections.length > 0) {
-    console.warn(`>>> BACKEND: WARNING - The following required sections are missing: ${missingSections.map(s => s.name).join(', ')}`);
+    console.warn(`WARNING - The following required sections are missing: ${missingSections.map(s => s.name).join(', ')}`);
     
     // Additional check for partial/incomplete sections
     requiredSections.forEach(section => {
@@ -846,7 +793,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
           
           // Check if section has sufficient content
           if (sectionContent.length < 100) { // Arbitrary threshold
-            console.warn(`>>> BACKEND: WARNING - Section '${section.name}' may be incomplete or have insufficient content`);
+            console.warn(`WARNING - Section '${section.name}' may be incomplete or have insufficient content`);
           }
         }
       }
@@ -862,7 +809,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
     
     // Log warning if any tier section is missing
     if (!hasDabblerSection || !hasEnablerSection || !hasLeaderSection) {
-      console.warn(`>>> BACKEND: WARNING - The benchmarks section is missing one or more tier sections: ${!hasDabblerSection ? 'Dabbler' : ''}${!hasEnablerSection ? ' Enabler' : ''}${!hasLeaderSection ? ' Leader' : ''}`);
+      console.warn(`WARNING - The benchmarks section is missing one or more tier sections: ${!hasDabblerSection ? 'Dabbler' : ''}${!hasEnablerSection ? ' Enabler' : ''}${!hasLeaderSection ? ' Leader' : ''}`);
     }
   }
   
@@ -875,7 +822,7 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
     
     // Log warning if any subsection is missing
     if (!hasMeetingAgenda || !hasExamplePrompts || !hasDataAudit) {
-      console.warn(`>>> BACKEND: WARNING - The resources section is missing one or more required subsections: ${!hasMeetingAgenda ? 'Meeting Agenda' : ''}${!hasExamplePrompts ? ' Example Prompts' : ''}${!hasDataAudit ? ' Data Audit Process' : ''}`);
+      console.warn(`WARNING - The resources section is missing one or more required subsections: ${!hasMeetingAgenda ? 'Meeting Agenda' : ''}${!hasExamplePrompts ? ' Example Prompts' : ''}${!hasDataAudit ? ' Data Audit Process' : ''}`);
     }
   }
   
@@ -885,12 +832,6 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
   
   // Trim to remove any leading or trailing whitespace
   cleanedMarkdown = cleanedMarkdown.trim();
-  
-  // Log the cleaning results
-  const charRemoved = originalLength - cleanedMarkdown.length;
-  if (charRemoved > 0) {
-    console.log(`>>> BACKEND: Removed ${charRemoved} characters of promotional content from report.`);
-  }
   
   return cleanedMarkdown;
 }
@@ -922,7 +863,7 @@ async function handleAssessmentRequest(currentPhaseName: string, history: Scorec
     
     if (questionsInCurrentPhase >= questionsPerPhase && currentPhaseIndex < ASSESSMENT_PHASES.length - 1) {
       const nextPhase = ASSESSMENT_PHASES[currentPhaseIndex + 1];
-      console.log(`>>> BACKEND: Moving to next phase: ${nextPhase}`);
+      logger.backend(`Moving to next phase: ${nextPhase}`);
       return await handleAssessmentRequest(nextPhase, history, industry, aiManagerInstance);
     }
 
@@ -933,13 +874,14 @@ EXTREMELY IMPORTANT: You MUST use a BALANCED MIX of question types, including AL
 For the current phase, select the most appropriate question type from:
 - "radio" for single-choice questions with 4-5 options (use for questions about frequency, level of adoption, primary approaches)
 - "checkbox" for multiple-choice questions with 4-6 options (use for questions about tools used, areas implemented, challenges faced)
-- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels)
+- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels) - DO NOT provide options for scale questions, they will be auto-generated as 1-5
 - "text" for open-ended responses that require detailed explanations, qualitative feedback, or complex answers
 
 CRITICAL: Approximately 20-25% of all questions should be "text" type questions to allow users to provide detailed, qualitative answers.
 Some questions are naturally better suited for text responses, such as describing strategies, explaining challenges, or sharing specific experiences.
 
 IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
+For scale questions, set options to null - the scale will be automatically generated as 1-5.
 Return JSON: {
   "questionText": string,
   "answerType": "text" | "radio" | "checkbox" | "scale",
@@ -967,7 +909,7 @@ EXTREMELY IMPORTANT: You MUST use a BALANCED MIX of question types, including AL
 For the current phase, select the most appropriate question type from:
 - "radio" for single-choice questions with 4-5 options (use for questions about frequency, level of adoption, primary approaches)
 - "checkbox" for multiple-choice questions with 4-6 options (use for questions about tools used, areas implemented, challenges faced)
-- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels)
+- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels) - DO NOT provide options for scale questions, they will be auto-generated as 1-5
 - "text" for open-ended responses that require detailed explanations, qualitative feedback, or complex answers
 
 CRITICAL: Approximately 20-25% of all questions should be "text" type questions to allow users to provide detailed, qualitative answers.
@@ -975,6 +917,7 @@ Some questions are naturally better suited for text responses, such as describin
 
 DO NOT repeat any previous questions. Each question must be unique.
 IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
+For scale questions, set options to null - the scale will be automatically generated as 1-5.
 Return JSON: {
   "questionText": string,
   "answerType": "text" | "radio" | "checkbox" | "scale",
@@ -990,356 +933,103 @@ Return JSON: {
     // Initialize AI provider manager if needed
     await aiManagerInstance.initialize();
     
-    console.log(`>>> BACKEND: Generating next question using OpenAI (as per new provider logic)...`);
-    
+    // Use the AI provider manager to generate the next question
+    // Updated logging to reflect using the AI Provider Manager with OpenAI enforced
+    logger.backend('AI Manager: Requesting next question (OpenAI enforced) - CODE VERSION 2025-05-30-22:13 - VALIDATION REMOVED');
     let parsedResponse;
     try {
       // Use the AI provider manager to generate the next question
       parsedResponse = await aiManagerInstance.generateNextQuestion(systemPrompt, userPrompt);
-      console.log(`>>> BACKEND: Successfully generated question using OpenAI.`);
-      console.log(`>>> BACKEND: Original AI response question type: ${parsedResponse.answerType}`);
-      console.log(`>>> BACKEND: Question text: "${parsedResponse.questionText && parsedResponse.questionText.substring(0, 100)}..."`);
+      logger.backend('AI Manager: Successfully received question from AI Provider Manager - CODE VERSION 2025-05-30-22:13');
+      logger.backend(`AI Manager: Raw response from AI Provider: ${JSON.stringify(parsedResponse, null, 2)}`);
     } catch (error) {
-      console.error('>>> BACKEND: All AI providers failed to generate a question:', error);
+      logger.backend(`All AI providers failed to generate a question: ${error}`);
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to generate question: ${errorMessage}`);
     }
 
-    // Check if the AI returned a valid question
-    if (!parsedResponse || !parsedResponse.questionText) {
-      console.error('>>> BACKEND: AI returned invalid response or no questionText');
-      console.error('>>> BACKEND: AI Response:', parsedResponse);
-      throw new Error('AI returned invalid question format');
+    // MINIMAL VALIDATION - Only check if we have a response
+    if (!parsedResponse) {
+      logger.error('AI Manager: No response received from AI Provider Manager');
+      throw new Error('No response received from AI provider.');
     }
 
-    // Validate and normalize the answer type
-    const validAnswerTypes = ['text', 'radio', 'checkbox', 'scale'];
-    if (!parsedResponse.answerType || !validAnswerTypes.includes(parsedResponse.answerType.toLowerCase())) {
-      console.warn(`>>> BACKEND: AI returned invalid answerType: "${parsedResponse.answerType}". Defaulting to "radio" with options.`);
-      // Force to radio with options if the type is invalid or missing
-      parsedResponse.answerType = 'radio';
-      
-      // Ensure we have options for radio type
-      if (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2) {
-        console.warn('>>> BACKEND: Creating default options for radio question');
-        parsedResponse.options = [
-          'Not implemented yet',
-          'Basic implementation',
-          'Moderate implementation',
-          'Advanced implementation',
-          'Comprehensive implementation'
-        ];
-      }
+    // Enhanced debugging for response structure
+    logger.backend(`AI Manager: Response type: ${typeof parsedResponse}`);
+    logger.backend(`AI Manager: Response keys: ${Object.keys(parsedResponse || {}).join(', ')}`);
+    logger.backend(`AI Manager: questionText exists: ${parsedResponse.questionText !== undefined}`);
+    logger.backend(`AI Manager: questionText type: ${typeof parsedResponse.questionText}`);
+    logger.backend(`AI Manager: answerType exists: ${parsedResponse.answerType !== undefined}`);
+    logger.backend(`AI Manager: answerType type: ${typeof parsedResponse.answerType}`);
+
+    // Basic validation to ensure required fields exist
+    if (!parsedResponse.questionText || typeof parsedResponse.questionText !== 'string') {
+      logger.error(`AI Manager: Invalid questionText - value: ${parsedResponse.questionText}, type: ${typeof parsedResponse.questionText}`);
+      throw new Error(`Invalid response structure from AI provider for question: questionText is missing or not a string`);
     }
-    
-    // Convert answerType to lowercase to ensure consistency
-    parsedResponse.answerType = parsedResponse.answerType.toLowerCase();
-    
-    // Track the distribution of question types to ensure balance
-    const typeCounts = {
-      text: history.filter(q => q.answerType === 'text').length,
-      radio: history.filter(q => q.answerType === 'radio').length,
-      checkbox: history.filter(q => q.answerType === 'checkbox').length,
-      scale: history.filter(q => q.answerType === 'scale').length,
-    };
-    
-    const totalQuestions = history.length;
-    const textPercentage = totalQuestions > 0 ? (typeCounts.text / totalQuestions) * 100 : 0;
-    
-    console.log(`>>> BACKEND: Question type distribution - Text: ${typeCounts.text} (${textPercentage.toFixed(1)}%), Radio: ${typeCounts.radio}, Checkbox: ${typeCounts.checkbox}, Scale: ${typeCounts.scale}`);
-    
-    // Ensure we're getting approximately 20-25% text questions
-    // If we've had more than 4 questions and no text questions yet, or if the text percentage is below 15%,
-    // and the current question isn't already text, consider forcing this one to be text
-    if (totalQuestions >= 4 && 
-        ((typeCounts.text === 0) || (textPercentage < 15 && totalQuestions >= 8)) && 
-        parsedResponse.answerType !== 'text') {
-      
-      console.log(`>>> BACKEND: Forcing question to be text type to ensure balanced mix. Current text %: ${textPercentage.toFixed(1)}%`);
-      parsedResponse.answerType = 'text';
-      parsedResponse.options = null;
+
+    if (!parsedResponse.answerType || typeof parsedResponse.answerType !== 'string') {
+      logger.error(`AI Manager: Invalid answerType - value: ${parsedResponse.answerType}, type: ${typeof parsedResponse.answerType}`);
+      throw new Error(`Invalid response structure from AI provider for question: answerType is missing or not a string`);
     }
+
+    // Log the response structure for debugging
+    logger.backend(`AI Manager: Response structure - questionText: ${typeof parsedResponse.questionText}, answerType: ${typeof parsedResponse.answerType}`);
     
-    // Only ensure options for non-text question types
-    if (parsedResponse.answerType !== 'text') {
-      // Ensure options exist for radio/checkbox/scale types
-      if ((parsedResponse.answerType === 'radio' || parsedResponse.answerType === 'checkbox') && 
-          (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2)) {
-        console.warn(`>>> BACKEND: Missing options for ${parsedResponse.answerType} question type. Creating default options.`);
-        if (parsedResponse.answerType === 'radio') {
-          parsedResponse.options = [
-            'Not implemented yet',
-            'Basic implementation',
-            'Moderate implementation',
-            'Advanced implementation',
-            'Comprehensive implementation'
-          ];
-        } else { // checkbox
-          parsedResponse.options = [
-            'Data collection and analysis',
-            'Customer segmentation',
-            'Content creation',
-            'Process automation',
-            'Decision support',
-            'Performance optimization'
-          ];
-        }
-      }
-      
-      if (parsedResponse.answerType === 'scale' && 
-          (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2)) {
-        console.warn('>>> BACKEND: Missing options for scale question type. Creating default scale options.');
-        parsedResponse.options = ['1', '2', '3', '4', '5'];
-      }
-    } else {
-      // For text questions, ensure options are null to avoid confusion
-      parsedResponse.options = null;
+    // Fix scale questions - ensure they always have proper options
+    let finalOptions = parsedResponse.options;
+    if (parsedResponse.answerType === 'scale') {
+      // For scale questions, always provide 1-5 options regardless of what AI returns
+      finalOptions = ['1', '2', '3', '4', '5'];
+      logger.backend('AI Manager: Fixed scale question options to [1, 2, 3, 4, 5]');
     }
-    
-    // Log the validated/normalized question
-    console.log(`>>> BACKEND: Validated question - Type: ${parsedResponse.answerType}, Options: ${parsedResponse.options ? parsedResponse.options.length : 'none'}`);
 
     // Check for repeated questions
     if (history.some(qa => qa.question === parsedResponse.questionText)) {
-      console.warn(`>>> BACKEND: AI generated a repeated question. Attempting to modify it.`);
+      logger.backend(`AI generated a repeated question. Attempting to modify it.`);
       
       // Try to modify the question slightly to avoid repetition
-      parsedResponse.questionText = `${parsedResponse.questionText} (continued)`;
+      parsedResponse.questionText = `${parsedResponse.questionText} (Please provide additional details if previously answered)`;
       
-      // If still repeating after multiple attempts, try to move to the next phase
-      if (history.some(qa => qa.question === parsedResponse.questionText)) {
+      // If still repeated after 3 attempts, move to the next phase or complete
+      if (history.filter(qa => qa.question.includes(parsedResponse.questionText.substring(0, 50))).length > 2) {
+        // Move to next phase if available
         if (currentPhaseIndex < ASSESSMENT_PHASES.length - 1) {
           const nextPhase = ASSESSMENT_PHASES[currentPhaseIndex + 1];
-          console.log(`>>> BACKEND: Moving to next phase due to repeated questions: ${nextPhase}`);
+          logger.backend(`Moving to next phase due to repeated questions: ${nextPhase}`);
           return await handleAssessmentRequest(nextPhase, history, industry, aiManagerInstance);
         } else {
           // If no more phases, consider assessment complete
-          console.warn(`>>> BACKEND: AI generated repeated questions in the last phase. Marking assessment as completed.`);
+          logger.backend(`AI generated repeated questions in the last phase. Marking assessment as completed.`);
           return NextResponse.json({
             questionText: null,
-            answerType: null,
-            options: null,
-            phase_status: 'complete',
-            overall_status: 'completed',
-            currentPhaseName
+            completed: true,
+            phase: currentPhaseName,
+            message: 'Assessment completed! You can now generate your personalized report.'
           });
         }
       }
     }
 
     return NextResponse.json({
-      ...parsedResponse,
-      currentPhaseName,
-      providerUsed: 'OpenAI' // Questions are always from OpenAI
+      questionText: parsedResponse.questionText,
+      answerType: parsedResponse.answerType,
+      options: finalOptions,
+      phase: currentPhaseName,
+      completed: false,
+      questionNumber: history.length + 1,
+      totalQuestions: MAX_QUESTIONS,
+      // Map the AI response fields to the expected format
+      phase_status: parsedResponse.phase_status || 'asking',
+      overall_status: parsedResponse.overall_status || 'asking',
+      reasoning_text: parsedResponse.reasoning_text
     });
 
   } catch (error: any) {
-    console.error('Error in handleAssessmentRequest:', error);
+    logger.backend(`Error in handleAssessmentRequest: ${error}`);
     return NextResponse.json(
       { error: 'Failed to generate question', message: `An error occurred while generating the next question: ${error.message}. Please try restarting the assessment.` },
       { status: 500 }
     );
-  }
-}
-
-// Debug function to verify tier calculation with sample answers
-function verifyTierCalculation() {
-  console.log('>>> BACKEND: Running tier calculation verification tests with sample answers');
-  
-  // Create sample answers for each tier
-  const dabblerAnswers: ScorecardHistoryEntry[] = [
-    { question: "How would you describe your organization's current use of AI in marketing?", answer: "We're exploring some basic AI tools but haven't integrated them into our workflow yet.", answerType: "text" },
-    { question: "Rate your team's comfort level with AI tools", answer: "2", answerType: "scale" },
-    { question: "Which AI capabilities are you currently using?", answer: ["Basic content suggestions"], answerType: "checkbox" },
-    { question: "How often does your team use AI tools?", answer: "Occasionally for simple tasks", answerType: "radio" },
-    { question: "Do you have a strategic approach to AI adoption?", answer: "No formal strategy yet", answerType: "radio" }
-  ];
-  
-  const enablerAnswers: ScorecardHistoryEntry[] = [
-    { question: "How would you describe your organization's current use of AI in marketing?", answer: "We use several AI tools regularly and are developing more strategic applications.", answerType: "text" },
-    { question: "Rate your team's comfort level with AI tools", answer: "3", answerType: "scale" },
-    { question: "Which AI capabilities are you currently using?", answer: ["Content creation", "Email optimization", "Basic analytics"], answerType: "checkbox" },
-    { question: "How often does your team use AI tools?", answer: "Regularly for multiple tasks", answerType: "radio" },
-    { question: "Do you have a strategic approach to AI adoption?", answer: "Developing a formal strategy", answerType: "radio" }
-  ];
-  
-  const leaderAnswers: ScorecardHistoryEntry[] = [
-    { question: "How would you describe your organization's current use of AI in marketing?", answer: "We have a comprehensive, integrated AI strategy driving our marketing with advanced analytics and automation throughout our processes.", answerType: "text" },
-    { question: "Rate your team's comfort level with AI tools", answer: "5", answerType: "scale" },
-    { question: "Which AI capabilities are you currently using?", answer: ["Advanced predictive analytics", "AI-driven campaign orchestration", "Personalization at scale", "Automated content optimization", "Strategic planning"], answerType: "checkbox" },
-    { question: "How often does your team use AI tools?", answer: "Extensively integrated across all workflows", answerType: "radio" },
-    { question: "Do you have a strategic approach to AI adoption?", answer: "Comprehensive enterprise-wide AI strategy", answerType: "radio" }
-  ];
-  
-  // Test each tier
-  const dabblerScore = calculateTierScore(dabblerAnswers);
-  const dabblerTier = determineTier(dabblerScore);
-  console.log(`>>> BACKEND VERIFICATION: Dabbler answers scored ${dabblerScore} points → Tier: ${dabblerTier}`);
-  if (dabblerTier !== 'Dabbler') {
-    console.error(`>>> BACKEND VERIFICATION ERROR: Dabbler answers incorrectly classified as ${dabblerTier}`);
-  }
-  
-  const enablerScore = calculateTierScore(enablerAnswers);
-  const enablerTier = determineTier(enablerScore);
-  console.log(`>>> BACKEND VERIFICATION: Enabler answers scored ${enablerScore} points → Tier: ${enablerTier}`);
-  if (enablerTier !== 'Enabler') {
-    console.error(`>>> BACKEND VERIFICATION ERROR: Enabler answers incorrectly classified as ${enablerTier}`);
-  }
-  
-  const leaderScore = calculateTierScore(leaderAnswers);
-  const leaderTier = determineTier(leaderScore);
-  console.log(`>>> BACKEND VERIFICATION: Leader answers scored ${leaderScore} points → Tier: ${leaderTier}`);
-  if (leaderTier !== 'Leader') {
-    console.error(`>>> BACKEND VERIFICATION ERROR: Leader answers incorrectly classified as ${leaderTier}`);
-  }
-  
-  console.log('>>> BACKEND: Tier verification complete');
-  
-  // SPECIFIC VERIFICATION FOR FINANCIAL SERVICES DABBLER CASE
-  console.log('\n>>> BACKEND: SPECIFIC VERIFICATION FOR FINANCIAL SERVICES DABBLER CASE');
-  
-  // Representative Dabbler answers for Financial Services industry based on typical autocomplete responses
-  const financialServicesDabblerAnswers: ScorecardHistoryEntry[] = [
-    { 
-      question: "How would you describe your organization's current approach to AI in financial services marketing?", 
-      answer: "We're in the early stages of exploring basic AI tools for simple marketing tasks, but we don't have any formal implementation yet.", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B"
-    },
-    { 
-      question: "Rate your financial services team's comfort level with AI marketing tools", 
-      answer: "2", 
-      answerType: "scale",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Which AI capabilities is your financial services organization currently using?", 
-      answer: ["Basic customer segmentation", "Simple data analysis"], 
-      answerType: "checkbox",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How often does your financial services marketing team use AI tools?", 
-      answer: "Occasionally for simple tasks", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Do you have a strategic approach to AI adoption in financial services?", 
-      answer: "No formal strategy yet", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How do you collect and utilize customer data for AI in financial marketing?", 
-      answer: "We have basic data collection but don't use it systematically for AI applications", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "What percentage of your financial marketing campaigns utilize AI?", 
-      answer: "Less than 10%", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How do you measure the ROI of AI in your financial services marketing?", 
-      answer: "We don't have a formal measurement process yet", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Which areas of financial marketing are you considering for future AI implementation?", 
-      answer: ["Customer segmentation", "Basic personalization"], 
-      answerType: "checkbox",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How would you rate your team's knowledge of AI compliance issues in financial services?", 
-      answer: "1", 
-      answerType: "scale",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "What challenges is your organization facing with AI adoption in financial marketing?", 
-      answer: "Limited understanding, resource constraints, and uncertainty about where to start", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How do you currently train staff on AI tools for financial marketing?", 
-      answer: "No formal training program, mostly ad hoc learning", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "What AI-driven customer insights do you currently leverage?", 
-      answer: ["Basic demographic analysis"], 
-      answerType: "checkbox",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How integrated is AI with your existing financial marketing tech stack?", 
-      answer: "Minimal integration, mostly standalone tools", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Rate your organization's data readiness for AI in financial services", 
-      answer: "2", 
-      answerType: "scale",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Which customer touchpoints currently use AI in your financial services?", 
-      answer: ["Basic email communication"], 
-      answerType: "checkbox",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How do you approach compliance and risk when using AI in financial marketing?", 
-      answer: "We're still learning about the compliance requirements", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "What percentage of your marketing budget is allocated to AI technologies?", 
-      answer: "Less than 5%", 
-      answerType: "radio",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "How would you describe your financial institution's AI governance structure?", 
-      answer: "We don't have a formal governance structure for AI yet", 
-      answerType: "text",
-      answerSource: "Groq Llama 3 8B" 
-    },
-    { 
-      question: "Which financial marketing processes have you automated with AI?", 
-      answer: ["Basic email scheduling"], 
-      answerType: "checkbox",
-      answerSource: "Groq Llama 3 8B" 
-    }
-  ];
-  
-  console.log(`>>> Testing with ${financialServicesDabblerAnswers.length} Dabbler-level answers for Financial Services industry`);
-  
-  // Calculate tier with current logic
-  const fsScore = calculateTierScore(financialServicesDabblerAnswers);
-  const fsTier = determineTier(fsScore);
-  
-  console.log(`\n>>> FINANCIAL SERVICES DABBLER TEST RESULT: Score: ${fsScore}, Tier: ${fsTier}`);
-  console.log(`>>> Current thresholds: Dabbler (0-${DABBLER_MAX_SCORE}), Enabler (${DABBLER_MAX_SCORE+1}-${ENABLER_MAX_SCORE}), Leader (${ENABLER_MAX_SCORE+1}+)`);
-  
-  if (fsTier === 'Dabbler') {
-    console.log(`>>> VERIFICATION SUCCESS: Financial Services Dabbler answers correctly classified as ${fsTier}`);
-  } else {
-    console.error(`>>> VERIFICATION FAILURE: Financial Services Dabbler answers incorrectly classified as ${fsTier} - NEEDS RECALIBRATION`);
-    
-    // If we're still incorrectly classifying, adjust thresholds to fix this specific case
-    if (fsTier === 'Enabler') {
-      const suggestedThreshold = Math.ceil(fsScore);
-      console.log(`>>> RECALIBRATION SUGGESTION: Increase DABBLER_MAX_SCORE from ${DABBLER_MAX_SCORE} to at least ${suggestedThreshold}`);
-    }
   }
 }

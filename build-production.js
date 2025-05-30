@@ -72,11 +72,48 @@ try {
   // Use --no-lint to skip linting
   execSync('pnpm next build', { stdio: 'inherit' });
   console.log('✅ Build completed successfully!');
+  
+  // Copy public folder to standalone build
+  console.log('\n4. Copying public assets to standalone build...');
+  const publicSrc = path.join(process.cwd(), 'public');
+  const publicDest = path.join(process.cwd(), '.next/standalone/public');
+  
+  if (fs.existsSync(publicSrc)) {
+    // Create the public directory in standalone if it doesn't exist
+    if (!fs.existsSync(publicDest)) {
+      fs.mkdirSync(publicDest, { recursive: true });
+    }
+    
+    // Copy all files from public to standalone/public
+    const copyRecursive = (src, dest) => {
+      const entries = fs.readdirSync(src, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        
+        if (entry.isDirectory()) {
+          if (!fs.existsSync(destPath)) {
+            fs.mkdirSync(destPath, { recursive: true });
+          }
+          copyRecursive(srcPath, destPath);
+        } else {
+          fs.copyFileSync(srcPath, destPath);
+        }
+      }
+    };
+    
+    copyRecursive(publicSrc, publicDest);
+    console.log('✅ Public assets copied to standalone build');
+  } else {
+    console.warn('⚠️ Public folder not found');
+  }
+  
 } catch (error) {
   console.error('❌ Build failed:', error);
 } finally {
   // Always restore the original files
-  console.log('\n4. Restoring original API route files...');
+  console.log('\n5. Restoring original API route files...');
   backupFiles.forEach(({ original, backup }) => {
     if (fs.existsSync(backup)) {
       fs.copyFileSync(backup, original);
