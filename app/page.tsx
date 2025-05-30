@@ -16,6 +16,8 @@ const isAutoCompleteEnabled = () => true;
 
 // Professional Header Component
 const AssessmentHeader = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <header className="bg-sg-dark-teal/95 backdrop-blur-sm border-b border-sg-bright-green/20 shadow-lg sticky top-0 z-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -31,7 +33,7 @@ const AssessmentHeader = () => {
             </div>
           </div>
           
-          {/* Navigation & CTA */}
+          {/* Desktop Navigation & CTA */}
           <div className="flex items-center space-x-3 sm:space-x-6 flex-shrink-0">
             <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
               <a href="https://socialgarden.com.au/" className="text-white/80 hover:text-sg-bright-green transition-all duration-200 font-medium font-plus-jakarta text-sm">
@@ -48,13 +50,60 @@ const AssessmentHeader = () => {
               </a>
             </div>
             
-            {/* Enhanced Trust Badge */}
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 px-3 py-2 rounded-full border border-sg-bright-green/30 shadow-sm">
+            {/* Enhanced Trust Badge - Hide on small mobile */}
+            <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 px-3 py-2 rounded-full border border-sg-bright-green/30 shadow-sm">
               <svg className="w-4 h-4 text-sg-bright-green flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="text-xs sm:text-sm font-bold text-white font-plus-jakarta whitespace-nowrap">100% Free Assessment</span>
             </div>
+
+            {/* Mobile menu button - Always visible on mobile */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              <div className="w-6 h-6 relative flex flex-col justify-center">
+                <span className={`absolute block w-6 h-0.5 bg-white transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-1.5'}`}></span>
+                <span className={`absolute block w-6 h-0.5 bg-white transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                <span className={`absolute block w-6 h-0.5 bg-white transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-1.5'}`}></span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="px-4 pt-4 pb-6 space-y-3 bg-sg-dark-teal border-t border-sg-bright-green/20">
+            {/* Mobile Trust Badge */}
+            <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 px-4 py-3 rounded-lg border border-sg-bright-green/30 shadow-sm mb-4">
+              <svg className="w-4 h-4 text-sg-bright-green flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-bold text-white font-plus-jakarta">100% Free Assessment</span>
+            </div>
+            
+            {/* Navigation Links */}
+            <a 
+              href="https://socialgarden.com.au/" 
+              className="block px-4 py-3 text-white/80 hover:text-sg-bright-green hover:bg-white/5 transition-colors font-medium font-plus-jakarta text-lg rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </a>
+            <div className="block px-4 py-3 rounded-lg bg-sg-bright-green/10">
+              <div className="text-sg-bright-green font-bold font-plus-jakarta text-lg">
+                Assessment
+              </div>
+            </div>
+            <a 
+              href="https://socialgarden.com.au/contact/" 
+              className="block px-4 py-3 text-white/80 hover:text-sg-bright-green hover:bg-white/5 transition-colors font-medium font-plus-jakarta text-lg rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact
+            </a>
           </div>
         </div>
       </div>
@@ -85,7 +134,7 @@ const AssessmentFooter = () => {
         </div>
 
         {/* Address Section - Compact */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-300 border-t border-white/20 pt-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-300 border-t border-white/20 pt-6 mb-6">
           <div>
             <p className="text-white font-semibold mb-1 font-plus-jakarta">Melbourne</p>
             <p>1800 771 396</p>
@@ -167,99 +216,99 @@ const IndustrySelection = ({
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream-1">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 xl:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center">
           
           {/* Left Side - Professional Copy with Brand Colors */}
-          <div className="space-y-8">
+          <div className="space-y-4 sm:space-y-6 lg:space-y-8 order-2 lg:order-1">
             <div>
-              <div className="inline-flex items-center px-4 py-2 bg-sg-dark-teal text-white rounded text-sm font-medium font-plus-jakarta mb-6">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="inline-flex items-center px-3 py-2 bg-sg-dark-teal text-white rounded text-xs sm:text-sm font-medium font-plus-jakarta mb-3 sm:mb-4 lg:mb-6">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 AI Maturity Assessment
               </div>
               
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-sg-dark-teal mb-6 font-plus-jakarta leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-sg-dark-teal mb-3 sm:mb-4 lg:mb-6 font-plus-jakarta leading-tight">
                 Benchmark Your 
                 <span className="block text-sg-bright-green">AI Capabilities</span>
               </h1>
               
-              <p className="text-xl text-sg-dark-teal/80 font-plus-jakarta leading-relaxed mb-8">
+              <p className="text-base sm:text-lg lg:text-xl text-sg-dark-teal/80 font-plus-jakarta leading-relaxed mb-4 sm:mb-6 lg:mb-8">
                 A comprehensive assessment designed for marketing executives to evaluate organizational AI readiness, identify capability gaps, and develop strategic implementation roadmaps.
               </p>
             </div>
 
             {/* Professional Benefits with Brand Colors */}
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-2 text-lg">Strategic Framework</h3>
-                  <p className="text-sg-dark-teal/70 font-plus-jakarta">Evaluate your organization across strategy, data, technology, team capabilities, and governance dimensions.</p>
+                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-1 text-sm sm:text-base lg:text-lg">Strategic Framework</h3>
+                  <p className="text-sg-dark-teal/70 font-plus-jakarta text-xs sm:text-sm lg:text-base">Evaluate your organization across strategy, data, technology, team capabilities, and governance dimensions.</p>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-2 text-lg">Industry Benchmarking</h3>
-                  <p className="text-sg-dark-teal/70 font-plus-jakarta">Compare your AI maturity against industry standards and best practices for your sector.</p>
+                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-1 text-sm sm:text-base lg:text-lg">Industry Benchmarking</h3>
+                  <p className="text-sg-dark-teal/70 font-plus-jakarta text-xs sm:text-sm lg:text-base">Compare your AI maturity against industry standards and best practices for your sector.</p>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-sg-bright-green rounded flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m2 0h10a2 2 0 002-2V7a2 2 0 00-2-2H11m0 0V3a2 2 0 10-2 2v2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-2 text-lg">Actionable Insights</h3>
-                  <p className="text-sg-dark-teal/70 font-plus-jakarta">Receive a detailed report with prioritized recommendations and implementation roadmap.</p>
+                  <h3 className="font-bold text-sg-dark-teal font-plus-jakarta mb-1 text-sm sm:text-base lg:text-lg">Actionable Insights</h3>
+                  <p className="text-sg-dark-teal/70 font-plus-jakarta text-xs sm:text-sm lg:text-base">Receive a detailed report with prioritized recommendations and implementation roadmap.</p>
                 </div>
               </div>
             </div>
 
-            {/* Professional Stats with Brand Colors */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-sg-bright-green/20">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">500+</div>
-                <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Organizations Assessed</div>
+            {/* Professional Stats with Brand Colors - Better mobile layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 pt-4 sm:pt-6 lg:pt-8 border-t border-sg-bright-green/20">
+              <div className="text-center sm:text-left">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-sg-bright-green font-plus-jakarta">500+</div>
+                <div className="text-xs sm:text-sm text-sg-dark-teal/70 font-plus-jakarta">Organizations Assessed</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">10K+</div>
-                <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Data Points Analyzed</div>
+              <div className="text-center sm:text-left">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-sg-bright-green font-plus-jakarta">10K+</div>
+                <div className="text-xs sm:text-sm text-sg-dark-teal/70 font-plus-jakarta">Data Points Analyzed</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-sg-bright-green font-plus-jakarta">15min</div>
-                <div className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Average Completion</div>
+              <div className="text-center sm:text-left">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-sg-bright-green font-plus-jakarta">15min</div>
+                <div className="text-xs sm:text-sm text-sg-dark-teal/70 font-plus-jakarta">Average Completion</div>
               </div>
             </div>
           </div>
           
           {/* Right Side - Professional Industry Selection with Brand Colors */}
-          <div className="lg:pl-8">
-            <div className="bg-white rounded-2xl shadow-xl border border-sg-bright-green/20 p-8 lg:p-10">
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-sg-dark-teal font-plus-jakarta mb-3">
+          <div className="order-1 lg:order-2 lg:pl-8">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-sg-bright-green/20 p-4 sm:p-6 lg:p-8 xl:p-10">
+              <div className="mb-4 sm:mb-6 lg:mb-8">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-sg-dark-teal font-plus-jakarta mb-2 sm:mb-3">
                   Select Your Industry Sector
                 </h2>
-                <p className="text-sg-dark-teal/70 font-plus-jakarta text-lg">
+                <p className="text-sg-dark-teal/70 font-plus-jakarta text-sm sm:text-base lg:text-lg">
                   Choose your primary industry to receive tailored benchmarks and sector-specific insights.
                 </p>
               </div>
               
               {/* Professional Industry Grid with Brand Colors */}
-              <div className="space-y-3 mb-8">
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 lg:mb-8">
                 {industries.map((industry) => {
                   const isSelected = selectedIndustry === industry;
                   
@@ -268,7 +317,7 @@ const IndustrySelection = ({
                       key={industry}
                       onClick={() => handleIndustryChange(industry)}
                       className={`
-                        w-full text-left px-6 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sg-bright-green focus:ring-offset-2
+                        w-full text-left px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sg-bright-green focus:ring-offset-2
                         ${isSelected 
                           ? 'border-sg-bright-green bg-sg-light-mint shadow-md' 
                           : 'border-sg-gray-200 bg-white hover:border-sg-bright-green/50 hover:bg-sg-light-mint/30'
@@ -276,7 +325,7 @@ const IndustrySelection = ({
                       `}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                           <div className={`
                             w-4 h-4 rounded-full border-2 transition-all duration-200
                             ${isSelected 
@@ -289,14 +338,14 @@ const IndustrySelection = ({
                             )}
                           </div>
                           <span className={`
-                            font-medium font-plus-jakarta text-lg
+                            font-medium font-plus-jakarta text-sm sm:text-base lg:text-lg
                             ${isSelected ? 'text-sg-dark-teal font-bold' : 'text-sg-dark-teal/80'}
                           `}>
                             {industry}
                           </span>
                         </div>
                         {isSelected && (
-                          <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
@@ -312,33 +361,33 @@ const IndustrySelection = ({
                 disabled={!selectedIndustry}
                 variant="default"
                 size="lg"
-                className="w-full bg-sg-dark-teal hover:bg-sg-dark-teal/90 text-white border-sg-dark-teal py-4 rounded-lg font-medium font-plus-jakarta text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-sg-dark-teal hover:bg-sg-dark-teal/90 text-white border-sg-dark-teal py-3 sm:py-4 rounded-lg font-medium font-plus-jakarta text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-200 min-h-[48px]"
               >
                 <div className="flex items-center justify-center gap-3">
                   <span>Begin Assessment</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </div>
               </Button>
               
-              {/* Professional Info with Brand Colors */}
-              <div className="mt-6 pt-6 border-t border-sg-bright-green/20">
-                <div className="flex items-center justify-center gap-6 text-sm text-sg-dark-teal/60 font-plus-jakarta">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Professional Info with Brand Colors - Better mobile layout */}
+              <div className="mt-3 sm:mt-4 lg:mt-6 pt-3 sm:pt-4 lg:pt-6 border-t border-sg-bright-green/20">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-sg-dark-teal/60 font-plus-jakarta">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     <span>Confidential & Secure</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>No Cost</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <span>Instant Results</span>
