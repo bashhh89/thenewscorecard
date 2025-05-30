@@ -91,7 +91,9 @@ export class OpenAIProvider implements AIProvider {
           console.error('OpenAI returned HTML instead of JSON for question:', content.substring(0, 100));
           throw new Error('Invalid response format: received HTML instead of JSON from OpenAI');
         }
-        return JSON.parse(content);
+        
+        const parsedJson = JSON.parse(content);
+        return parsedJson;
       }
       console.error('Unexpected response structure from OpenAI (question):', data);
       throw new Error('Unexpected response structure from OpenAI API (question)');
@@ -156,7 +158,9 @@ export class PollinationsProvider implements AIProvider {
         console.error('Pollinations returned HTML instead of JSON:', content.substring(0, 100));
         throw new Error('Invalid response format: received HTML instead of JSON from Pollinations');
       }
-      return JSON.parse(content);
+      
+      const parsedJson = JSON.parse(content);
+      return parsedJson;
     }
     console.error('Unexpected response structure from Pollinations:', data);
     throw new Error('Unexpected response structure from Pollinations API');

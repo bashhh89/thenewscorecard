@@ -156,7 +156,7 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
   return (
     <div className="space-y-8">
       {/* Introduction Card */}
-      <Card variant="divine" className="p-6 bg-gradient-to-br from-white to-sg-light-mint/30 border-l-4 border-l-sg-bright-green">
+      <Card className="p-6 bg-gradient-to-br from-white to-sg-light-mint/30 border-l-4 border-l-sg-bright-green">
         <CardHeader>
           <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
             <span className="icon-wrapper-sg-primary">
@@ -187,7 +187,6 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
           return (
             <Card 
               key={phase.id} 
-              variant="divine" 
               className={`p-6 shadow-lg bg-gradient-to-br ${phase.bgColor} hover:shadow-xl transition-all`}
             >
               <CardHeader className="p-0 mb-4">
@@ -216,7 +215,7 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
 
       {/* Include the category Q&A breakdown if there are questions */}
       {questionAnswerHistory.length > 0 && (
-        <Card variant="divine" className="p-6 bg-gradient-to-br from-white to-sg-light-mint/20">
+        <Card className="p-6 bg-gradient-to-br from-white to-sg-light-mint/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
               <span className="icon-wrapper-sg-primary text-sg-bright-green">

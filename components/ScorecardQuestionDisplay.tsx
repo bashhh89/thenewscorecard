@@ -90,28 +90,8 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
   // State to hold the user's current answer before submission
   const [currentAnswer, setCurrentAnswer] = useState<any>(normalizedAnswerType === 'checkbox' ? [] : '');
   
-  // Use the typing effect for reasoning text
-  const { displayedText, isComplete } = useTypingEffect(reasoningText, 30);
-  
-  // Add debug information for question input type
-  useEffect(() => {
-    // Log question type information for debugging
-    console.log(`Question Input Type - Original: "${answerType}", Normalized: "${normalizedAnswerType}", Options: ${options?.length || 0}`);
-    // Add enhanced debug logging
-    console.log(`QUESTION TYPE DEBUG - Question: "${question.substring(0, 50)}..."`)
-    console.log(`QUESTION TYPE DEBUG - Answer Type (Original): "${answerType}"`);
-    console.log(`QUESTION TYPE DEBUG - Answer Type (Normalized): "${normalizedAnswerType}"`);
-    console.log(`QUESTION TYPE DEBUG - Options: ${options ? JSON.stringify(options) : 'null'}`);
-    console.log(`QUESTION TYPE DEBUG - Industry: "${industry}"`);
-    console.log(`QUESTION TYPE DEBUG - Is text area visible: ${normalizedAnswerType === 'text'}`);
-    
-    // Extended text area rendering debug
-    if (normalizedAnswerType === 'text') {
-      console.log('TEXT AREA DEBUG: Text area question detected - should render textarea');
-    } else {
-      console.log(`TEXT AREA DEBUG: Non-text question detected (${normalizedAnswerType}) - should render ${normalizedAnswerType} inputs`);
-    }
-  }, [question, answerType, normalizedAnswerType, options, industry]);
+  // Use typing effect for analysis text
+  const { displayedText, isComplete } = useTypingEffect(reasoningText || '', 30);
   
   // Reset the answer when the question or answer type changes
   useEffect(() => {
@@ -140,72 +120,85 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
         return (
           <div className="w-full">
             <textarea
-              className="w-full p-4 border-2 border-sg-gray-200 rounded-lg mt-4 min-h-[100px] 
-                         focus:ring-2 focus:ring-sg-bright-green/20 focus:border-sg-bright-green 
-                         text-sg-dark-teal font-plus-jakarta transition-all duration-200
-                         placeholder:text-sg-gray-400 resize-none text-base leading-relaxed
-                         bg-white shadow-sm hover:shadow-md font-medium"
+              className="w-full p-6 border-2 border-sg-gray-200 rounded-xl mt-6 min-h-[120px] 
+                         focus:ring-3 focus:ring-sg-bright-green/20 focus:border-sg-bright-green 
+                         text-sg-dark-teal font-plus-jakarta transition-all duration-300
+                         placeholder:text-sg-gray-400 resize-none text-lg leading-relaxed
+                         bg-white shadow-lg hover:shadow-xl font-medium"
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               placeholder="Share your thoughts in detail..."
               disabled={isLoading}
-              rows={4}
+              rows={5}
             />
-            <div className="mt-2 text-sm text-sg-gray-500 flex justify-between items-center">
-              <span className="font-medium">Be as specific as possible for better insights</span>
-              <span className={`font-medium ${currentAnswer?.length > 20 ? 'text-sg-bright-green' : 'text-sg-gray-400'}`}>
-                {currentAnswer?.length || 0} characters
-              </span>
+            <div className="mt-4 p-4 bg-gradient-to-r from-sg-dark-teal/10 to-sg-dark-teal/10 rounded-xl border-2 border-sg-dark-teal/30">
+              <div className="text-base text-sg-gray-600 flex justify-between items-center">
+                <span className="font-bold font-plus-jakarta">Be as specific as possible for better insights</span>
+                <span className={`font-black text-lg ${currentAnswer?.length > 20 ? 'text-sg-dark-teal' : 'text-sg-gray-400'}`}>
+                  {currentAnswer?.length || 0} characters
+                </span>
+              </div>
             </div>
           </div>
         );
       case 'radio':
         return (
           <div className="w-full">
-            <div className="space-y-3 mt-4">
+            {/* Smart Grid Layout Based on Option Count */}
+            <div className={`
+              gap-4 mt-6
+              ${options && options.length <= 4 
+                ? 'grid grid-cols-1 sm:grid-cols-1' 
+                : options && options.length <= 6
+                  ? 'grid grid-cols-1 sm:grid-cols-2' 
+                  : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              }
+            `}>
               {options?.map((option, index) => {
                 const selected = currentAnswer === option;
                 return (
                   <div 
                     key={option}
-                    className={`group relative cursor-pointer transition-all duration-200 
-                               ${selected ? 'scale-[1.01]' : 'hover:scale-[1.005]'}`}
+                    className={`group relative cursor-pointer transition-all duration-300 
+                               ${selected ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`}
                     onClick={() => !isLoading && setCurrentAnswer(option)}
                   >
                     <div className={`
-                      p-4 rounded-lg border-2 transition-all duration-200 bg-white min-h-[60px] shadow-sm hover:shadow-md
+                      p-4 sm:p-5 rounded-xl border-2 transition-all duration-300 bg-white min-h-[70px] shadow-lg hover:shadow-xl
                       ${selected 
-                        ? 'border-sg-bright-green bg-sg-light-mint shadow-md ring-2 ring-sg-bright-green/20' 
-                        : 'border-sg-gray-200 hover:border-sg-bright-green/50 hover:bg-sg-light-mint/30'
+                        ? 'border-sg-bright-green bg-gradient-to-r from-sg-light-mint to-sg-cream-1 shadow-xl ring-3 ring-sg-bright-green/20' 
+                        : 'border-sg-gray-200 hover:border-sg-bright-green/70 hover:bg-gradient-to-r hover:from-sg-light-mint/30 hover:to-sg-cream-1/30'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
                     `}>
                       <div className="flex items-center gap-4">
                         <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center 
-                          transition-all duration-200 flex-shrink-0
+                          w-6 h-6 rounded-full border-3 flex items-center justify-center 
+                          transition-all duration-300 flex-shrink-0
                           ${selected 
-                            ? 'border-sg-bright-green bg-white ring-2 ring-sg-bright-green/20' 
-                            : 'border-sg-gray-300 group-hover:border-sg-bright-green/70 bg-white'
+                            ? 'border-sg-bright-green bg-white ring-3 ring-sg-bright-green/20 shadow-md' 
+                            : 'border-sg-gray-300 group-hover:border-sg-bright-green/70 bg-white group-hover:shadow-sm'
                           }
                         `}>
                           {selected && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-sg-bright-green animate-pulse"></div>
+                            <div className="w-3 h-3 rounded-full bg-sg-bright-green animate-pulse shadow-sm"></div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className={`
-                            text-lg leading-relaxed font-plus-jakarta font-medium
-                            ${selected ? 'text-sg-dark-teal font-semibold' : 'text-sg-dark-teal/80'}
+                            text-base sm:text-lg leading-relaxed font-plus-jakarta font-semibold
+                            ${selected ? 'text-sg-dark-teal font-bold' : 'text-sg-dark-teal/90'}
                           `}>
                             {option}
                           </span>
                         </div>
                         {selected && (
                           <div className="flex-shrink-0">
-                            <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
+                            <div className="w-8 h-8 bg-sg-dark-teal rounded-full flex items-center justify-center shadow-md">
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -214,8 +207,8 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                 );
               })}
             </div>
-            <div className="mt-4 p-3 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
-              <div className="text-base text-sg-dark-teal/70 font-medium text-center font-plus-jakarta">
+            <div className="mt-6 p-4 bg-gradient-to-r from-sg-dark-teal/10 to-sg-dark-teal/10 rounded-xl border-2 border-sg-dark-teal/30 text-center">
+              <div className="text-lg text-sg-dark-teal font-bold font-plus-jakarta">
                 Select the option that best describes your situation
               </div>
             </div>
@@ -224,14 +217,23 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
       case 'checkbox':
         return (
           <div className="w-full">
-            <div className="space-y-3 mt-4">
+            {/* Smart Grid Layout Based on Option Count */}
+            <div className={`
+              gap-4 mt-6
+              ${options && options.length <= 4 
+                ? 'grid grid-cols-1 sm:grid-cols-1' 
+                : options && options.length <= 6
+                  ? 'grid grid-cols-1 sm:grid-cols-2' 
+                  : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              }
+            `}>
               {options?.map((option, index) => {
                 const checked = (currentAnswer as string[]).includes(option);
                 return (
                   <div 
                     key={option}
-                    className={`group relative cursor-pointer transition-all duration-200 
-                               ${checked ? 'scale-[1.01]' : 'hover:scale-[1.005]'}`}
+                    className={`group relative cursor-pointer transition-all duration-300 
+                               ${checked ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`}
                     onClick={() => {
                       if (!isLoading) {
                         if (checked) {
@@ -243,39 +245,39 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                     }}
                   >
                     <div className={`
-                      p-4 rounded-lg border-2 transition-all duration-200 bg-white min-h-[60px] shadow-sm hover:shadow-md
+                      p-4 sm:p-5 rounded-xl border-2 transition-all duration-300 bg-white min-h-[70px] shadow-lg hover:shadow-xl
                       ${checked 
-                        ? 'border-sg-bright-green bg-sg-light-mint shadow-md ring-2 ring-sg-bright-green/20' 
-                        : 'border-sg-gray-200 hover:border-sg-bright-green/50 hover:bg-sg-light-mint/30'
+                        ? 'border-sg-bright-green bg-gradient-to-r from-sg-light-mint to-sg-cream-1 shadow-xl ring-3 ring-sg-bright-green/20' 
+                        : 'border-sg-gray-200 hover:border-sg-bright-green/70 hover:bg-gradient-to-r hover:from-sg-light-mint/30 hover:to-sg-cream-1/30'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
                     `}>
                       <div className="flex items-center gap-4">
                         <div className={`
-                          w-5 h-5 rounded border-2 flex items-center justify-center 
-                          transition-all duration-200 flex-shrink-0
+                          w-7 h-7 rounded border-3 flex items-center justify-center 
+                          transition-all duration-300 flex-shrink-0 shadow-sm
                           ${checked 
-                            ? 'border-sg-bright-green bg-sg-bright-green ring-2 ring-sg-bright-green/20' 
-                            : 'border-sg-gray-300 group-hover:border-sg-bright-green/70 bg-white'
+                            ? 'border-sg-bright-green bg-sg-bright-green ring-2 ring-sg-bright-green/20 shadow-md' 
+                            : 'border-sg-gray-400 group-hover:border-sg-bright-green/70 bg-white group-hover:shadow-md border-2'
                           }
                         `}>
                           {checked && (
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            <svg className="w-3 h-3 text-sg-dark-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className={`
-                            text-lg leading-relaxed font-plus-jakarta font-medium
-                            ${checked ? 'text-sg-dark-teal font-semibold' : 'text-sg-dark-teal/80'}
+                            text-base sm:text-lg leading-relaxed font-plus-jakarta font-semibold
+                            ${checked ? 'text-sg-dark-teal font-bold' : 'text-sg-dark-teal/90'}
                           `}>
                             {option}
                           </span>
                         </div>
                         {checked && (
                           <div className="flex-shrink-0">
-                            <div className="w-3 h-3 rounded-full bg-sg-bright-green animate-pulse border border-white"></div>
+                            <div className="w-5 h-5 rounded-full bg-sg-bright-green animate-pulse border-2 border-white shadow-md"></div>
                           </div>
                         )}
                       </div>
@@ -284,16 +286,10 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                 );
               })}
             </div>
-            <div className="mt-4 p-3 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
+            <div className="mt-6 p-5 bg-gradient-to-r from-sg-dark-teal/10 to-sg-dark-teal/10 rounded-xl border-2 border-sg-dark-teal/30">
               <div className="text-center">
-                <div className="text-base text-sg-dark-teal/70 font-medium font-plus-jakarta mb-1">
+                <div className="text-lg text-sg-dark-teal font-bold font-plus-jakarta">
                   Select all that apply
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-lg font-semibold text-sg-bright-green">{(currentAnswer as string[]).length}</span>
-                  <span className="text-base text-sg-dark-teal/60 font-medium">
-                    {(currentAnswer as string[]).length === 1 ? 'option selected' : 'options selected'}
-                  </span>
                 </div>
               </div>
             </div>
@@ -302,15 +298,17 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
       case 'scale':
         return (
           <div className="w-full my-6">
-            <div className="flex justify-between mb-4 text-base text-sg-dark-teal/80 px-1 font-medium">
+            <div className="flex justify-between mb-4 text-sm text-sg-dark-teal/70 px-1 font-medium font-plus-jakarta">
               <span className="text-sg-dark-teal font-semibold">Not at all</span>
               <span className="text-sg-dark-teal font-semibold">Very much</span>
             </div>
             
-            {/* Mobile: Vertical Stack */}
-            <div className="block sm:hidden space-y-3">
+            {/* All devices: Responsive horizontal buttons */}
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
               {options?.map((option, index) => {
                 const selected = currentAnswer === option;
+                // Extract ONLY the number from the option, remove any text
+                const numberOnly = option.match(/\d+/)?.[0] || (index + 1).toString();
                 return (
                   <button
                     type="button"
@@ -318,78 +316,27 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                     onClick={() => setCurrentAnswer(option)}
                     disabled={isLoading}
                     className={`
-                      w-full min-h-[60px] py-4 px-6 rounded-lg transition-all duration-200 font-plus-jakarta
-                      transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 
-                      shadow-sm hover:shadow-md border-2 font-medium
+                      w-10 h-10 sm:w-12 sm:h-12 rounded-full transition-all duration-200 font-plus-jakarta font-semibold text-base sm:text-lg
                       ${selected 
-                        ? 'bg-sg-bright-green text-white shadow-lg border-sg-bright-green ring-2 ring-sg-bright-green/20' 
-                        : 'bg-white border-sg-gray-200 text-sg-dark-teal hover:bg-sg-light-mint/50 hover:border-sg-bright-green/50'
+                        ? 'bg-sg-dark-teal text-white shadow-md' 
+                        : 'bg-white border-2 border-gray-300 text-sg-dark-teal hover:border-sg-dark-teal'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
                     `}
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-2xl font-bold">{option}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-medium">
-                          {index === 0 ? 'Lowest' : index === (options.length - 1) ? 'Highest' : `Level ${option}`}
-                        </span>
-                        {selected && (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Desktop: Horizontal Grid */}
-            <div className="hidden sm:grid grid-cols-5 gap-3">
-              {options?.map((option, index) => {
-                const selected = currentAnswer === option;
-                return (
-                  <button
-                    type="button"
-                    key={option}
-                    onClick={() => setCurrentAnswer(option)}
-                    disabled={isLoading}
-                    className={`
-                      relative min-h-[64px] py-4 px-3 rounded-lg transition-all duration-200 text-center flex flex-col items-center justify-center
-                      transform active:scale-95 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 font-plus-jakarta font-medium
-                      shadow-sm hover:shadow-md border-2
-                      ${selected 
-                        ? 'bg-sg-bright-green text-white shadow-lg scale-110 border-sg-bright-green ring-2 ring-sg-bright-green/20' 
-                        : 'bg-white border-sg-gray-200 text-sg-dark-teal hover:bg-sg-light-mint/50 hover:border-sg-bright-green/50'
-                      }
-                      ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                    `}
-                  >
-                    <span className="font-bold text-xl mb-1">{option}</span>
-                    <span className="text-sm font-medium">
-                      {index === 0 ? 'Lowest' : index === (options.length - 1) ? 'Highest' : `Level ${option}`}
-                    </span>
-                    {selected && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                        <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
+                    {numberOnly}
                   </button>
                 );
               })}
             </div>
             
-            <div className="text-center mt-6 p-4 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
-              <div className="text-base text-sg-dark-teal/70 font-medium font-plus-jakarta">
-                Rate from <span className="font-semibold text-sg-bright-green">1 (lowest)</span> to <span className="font-semibold text-sg-bright-green">{options?.length || 5} (highest)</span>
+            <div className="text-center mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+              <div className="text-xs sm:text-sm text-gray-600 font-plus-jakarta">
+                Rate from <span className="font-semibold text-sg-dark-teal">1 (lowest)</span> to <span className="font-semibold text-sg-dark-teal">{options?.length || 5} (highest)</span>
               </div>
               {currentAnswer && (
-                <div className="mt-2 text-lg font-bold text-sg-bright-green">
-                  Selected: {currentAnswer}
+                <div className="mt-1 sm:mt-2 text-sg-dark-teal font-semibold text-sm">
+                    Selected: {currentAnswer}
                 </div>
               )}
             </div>
@@ -442,6 +389,33 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
   // Add local loading state for auto-complete
   const [isLoadingLocally, setIsLoadingLocally] = useState(false);
   
+  // Add state for the new analysis flow
+  const [showAnalysisOverlay, setShowAnalysisOverlay] = useState(false);
+  const [submittedAnswerForAnalysis, setSubmittedAnswerForAnalysis] = useState<any>(null);
+  
+  // Handle the new submit flow - show full screen analysis first
+  const handleSubmitWithAnalysis = (answer: any, answerSource?: AnswerSourceType) => {
+    // Skip analysis overlay during auto-complete - go straight to submission
+    if (isAutoCompleting) {
+      onSubmitAnswer(answer, answerSource);
+      return;
+    }
+    
+    if (!submittedAnswerForAnalysis) {
+      // First time - store answer and show overlay
+      setSubmittedAnswerForAnalysis(answer);
+      setShowAnalysisOverlay(true);
+    } else if (!showAnalysisOverlay) {
+      // Answer submitted but analysis not shown - show overlay
+      setShowAnalysisOverlay(true);
+    } else {
+      // Continue clicked from overlay - actually submit and move to next question
+      setShowAnalysisOverlay(false);
+      setSubmittedAnswerForAnalysis(null);
+      onSubmitAnswer(answer, answerSource);
+    }
+  };
+  
   // Robust auto-complete useEffect pattern
   useEffect(() => {
     if (isAutoCompleting && question && answerType && !isLoadingLocally && !isLoading) {
@@ -480,7 +454,7 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
     
     try {
       // Construct system prompt for the AI
-      const groqSystemPrompt = `You are simulating the responses of a ${testPersonaTier} tier organization in the ${industry} industry taking an AI maturity assessment. 
+      const systemPrompt = `You are simulating the responses of a ${testPersonaTier} tier organization in the ${industry} industry taking an AI maturity assessment. 
 Based on the question type and content, provide a realistic answer that reflects the typical AI adoption level, tools, processes, and challenges of a ${testPersonaTier.toLowerCase()} organization.
 
 ${testPersonaTier === 'Dabbler' ? 
@@ -503,40 +477,15 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
 
       console.log("Auto-answer persona:", testPersonaTier);
       
-      // First try Groq API
+      // Use Pollinations API directly (since /api/groq doesn't exist)
       try {
-        const groqResponse = await fetch('/api/groq', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system: groqSystemPrompt,
-            prompt: userPrompt,
-          }),
-        });
-
-        if (!groqResponse.ok) {
-          throw new Error(`Groq API error: ${groqResponse.status}`);
-        }
-
-        const groqData = await groqResponse.json();
-        if (groqData && groqData.content) {
-          simulatedPersonaAnswer = groqData.content.trim();
-          currentAnswerSource = 'Groq Llama 3 8B';
-        } else {
-          throw new Error('No content in Groq response');
-        }
-      } catch (groqError) {
-        console.warn('Groq API error, falling back to Pollinations:', groqError);
-
-        try {
-          // Fallback to Pollinations API
           const pollinationsResponse = await fetch('https://text.pollinations.ai/openai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               model: "openai-large",
               messages: [
-                { role: "system", content: groqSystemPrompt },
+              { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
               ],
               temperature: 0.7,
@@ -556,29 +505,58 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
             throw new Error('No content in Pollinations response');
           }
         } catch (pollinationsError) {
-          console.error('Both Groq and Pollinations APIs failed:', pollinationsError);
-          // Fall back to hardcoded answers
-          throw pollinationsError; // This will trigger the catch block below
-        }
+        console.error('Pollinations API failed:', pollinationsError);
+        // Generate fallback answer based on question type and persona
+        simulatedPersonaAnswer = generateFallbackAnswer();
+        currentAnswerSource = 'Fallback Failed';
       }
       
-      // Set the answer and submit it
+      if (simulatedPersonaAnswer) {
+        console.log(`Auto-complete answer: "${simulatedPersonaAnswer.substring(0, 50)}..."`);
+        
       setCurrentAnswer(simulatedPersonaAnswer);
-      setTimeout(async () => {
-        try {
-          await onSubmitAnswer(simulatedPersonaAnswer, currentAnswerSource);
           setAutoCompleteCount(prev => prev + 1);
-        } catch (submitErr) {
-          setAutoCompleteError('Error during answer submission.');
+        
+        // Auto-submit the answer after a brief delay to show the change
+        setTimeout(() => {
+          if (isAutoCompleting) {
+            handleSubmitWithAnalysis(simulatedPersonaAnswer, currentAnswerSource);
+          }
+          setIsLoadingLocally(false);
+        }, 1500);
+      } else {
+        console.error('No valid answer generated for auto-complete');
           setIsAutoCompleting(false);
-        } finally {
+        setAutoCompleteError('Failed to generate a valid answer');
           setIsLoadingLocally(false);
         }
-      }, 500);
     } catch (error) {
+      console.error('Auto-complete error:', error);
       setAutoCompleteError('AI answer generation failed.');
       setIsAutoCompleting(false);
       setIsLoadingLocally(false);
+    }
+  };
+  
+  // Generate fallback answer when APIs fail
+  const generateFallbackAnswer = (): string => {
+    if (normalizedAnswerType === 'scale' && options) {
+      // Return appropriate scale number based on persona
+      if (testPersonaTier === 'Dabbler') return '1';
+      if (testPersonaTier === 'Enabler') return '3';
+      return '5';
+    } else if (normalizedAnswerType === 'radio' && options) {
+      // Return first option for simplicity
+      return options[0];
+    } else if (normalizedAnswerType === 'checkbox' && options) {
+      // Return appropriate number of options based on persona
+      const numToSelect = testPersonaTier === 'Dabbler' ? 1 : testPersonaTier === 'Enabler' ? 2 : 3;
+      return JSON.stringify(options.slice(0, Math.min(numToSelect, options.length)));
+    } else {
+      // Text answer based on persona
+      if (testPersonaTier === 'Dabbler') return 'We are just beginning to explore this area.';
+      if (testPersonaTier === 'Enabler') return 'We have some processes in place but are still developing.';
+      return 'We have comprehensive strategies and advanced processes in place.';
     }
   };
   
@@ -588,14 +566,14 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
     if (!autoCompleteFeatureEnabled || forceDisabled) return null;
     
     return (
-      <div className="relative">
+      <div className="relative flex-1">
         <select
           value={testPersonaTier}
           onChange={(e) => setTestPersonaTier(e.target.value as 'Dabbler' | 'Enabler' | 'Leader')}
           disabled={isAutoCompleting || isLoading}
           className="appearance-none bg-white border border-sg-bright-green/40 text-sg-dark-teal 
-                     rounded-lg px-3 py-2 pr-8 font-medium text-sm min-w-[120px] font-plus-jakarta
-                     focus:ring-2 focus:ring-sg-bright-green/20 focus:border-sg-bright-green 
+                     rounded-md px-2 py-1.5 pr-6 font-medium text-xs w-full font-plus-jakarta
+                     focus:ring-1 focus:ring-sg-bright-green/20 focus:border-sg-bright-green 
                      disabled:opacity-50 disabled:cursor-not-allowed
                      hover:border-sg-bright-green/60 transition-all duration-200"
         >
@@ -603,9 +581,9 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
           <option value="Enabler">⚡ Enabler</option>
           <option value="Leader">🚀 Leader</option>
         </select>
-        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <svg className="w-3 h-3 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-1.5 pointer-events-none">
+          <svg className="w-3 h-3 text-sg-dark-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
       </div>
@@ -628,28 +606,31 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
     <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream-1">
       {/* Professional Progress Header */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-sg-bright-green/20 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-lg flex items-center justify-center shadow-md">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-lg flex items-center justify-center shadow-md">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-sg-dark-teal font-plus-jakarta">AI Maturity Assessment</h1>
-                <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">{currentPhaseName}</p>
+                <h1 className="text-sm sm:text-lg font-bold text-sg-dark-teal font-plus-jakarta">AI Maturity Assessment</h1>
+                <div className="inline-flex items-center px-3 py-1.5 bg-sg-dark-teal/10 text-sg-dark-teal rounded-full text-sm font-medium font-plus-jakarta mb-3 sm:mb-4">
+                  <span className="w-2 h-2 bg-sg-dark-teal rounded-full mr-2 animate-pulse"></span>
+                  {currentPhaseName}
+                </div>
               </div>
             </div>
             
             {/* Progress Indicator */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-sm text-sg-dark-teal/80 font-plus-jakarta font-medium">Question {currentQuestionNumber} of {maxQuestions}</div>
                 <div className="text-xs text-sg-dark-teal/60 font-plus-jakarta">{Math.round((currentQuestionNumber / maxQuestions) * 100)}% Complete</div>
               </div>
-              <div className="relative w-12 h-12">
-                <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 100 100">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12 transform -rotate-90" viewBox="0 0 100 100">
                   <circle
                     cx="50"
                     cy="50"
@@ -682,78 +663,70 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Question Section */}
-          <div className="lg:col-span-2">
-            <div className="mb-6">
-              <div className="inline-flex items-center px-3 py-1.5 bg-sg-bright-green/10 text-sg-bright-green rounded-full text-sm font-medium font-plus-jakarta mb-4">
-                <span className="w-2 h-2 bg-sg-bright-green rounded-full mr-2 animate-pulse"></span>
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
+        {/* Question Section - Now Full Width */}
+        <div className="mb-6 sm:mb-8">
+          <div className="inline-flex items-center px-3 py-1.5 bg-sg-dark-teal/10 text-sg-dark-teal rounded-full text-sm font-medium font-plus-jakarta mb-3 sm:mb-4">
+            <span className="w-2 h-2 bg-sg-dark-teal rounded-full mr-2 animate-pulse"></span>
                 Step {currentQuestionNumber} of {maxQuestions}
               </div>
-              <h2 className="text-xl sm:text-2xl text-sg-dark-teal leading-snug font-plus-jakarta font-bold mb-4">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl text-sg-dark-teal leading-snug font-plus-jakarta font-bold mb-4 sm:mb-6">
                 {question}
               </h2>
-              <p className="text-base text-sg-dark-teal/70 leading-relaxed font-plus-jakarta">
+          <p className="text-base sm:text-lg text-sg-dark-teal/70 leading-relaxed font-plus-jakarta max-w-4xl">
                 Select your response to continue building your AI maturity profile.
               </p>
             </div>
 
-            {/* Answer Options */}
-            <div className="space-y-4">
+        {/* Answer Options - Now with Smart Grid Layout */}
+        <div className="mb-8">
               {renderAnswerInput()}
-            </div>
           </div>
 
-          {/* Action Panel */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-sg-bright-green/20 shadow-lg p-6">
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-sg-dark-teal font-plus-jakarta mb-2">Ready to Continue?</h3>
-                <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Your response will be analyzed instantly</p>
-              </div>
-
+        {/* Submit Button - Now Below Options */}
+        <div className="flex flex-col items-center gap-4">
               <button
                 type="button"
-                onClick={() => onSubmitAnswer(currentAnswer)}
+            onClick={() => handleSubmitWithAnalysis(currentAnswer)}
                 disabled={isSubmitDisabled}
                 className={`
-                  w-full group relative overflow-hidden px-6 py-3 rounded-lg font-medium text-base font-plus-jakarta
-                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 border-2 mb-4
+              w-full max-w-md px-6 py-4 rounded-xl font-semibold text-lg font-plus-jakarta
+              transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sg-dark-teal/30 border-2
+              transform active:scale-[0.98] hover:scale-[1.01]
                   ${isSubmitDisabled
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
-                    : 'bg-sg-dark-teal text-white border-sg-dark-teal hover:bg-sg-dark-teal/90 shadow-md hover:shadow-lg'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 shadow-sm'
+                : submittedAnswerForAnalysis && !showAnalysisOverlay
+                  ? 'bg-gradient-to-r from-sg-dark-teal to-sg-dark-teal text-white border-sg-dark-teal hover:from-sg-dark-teal/90 hover:to-sg-dark-teal/90 shadow-lg hover:shadow-xl'
+                  : 'bg-gradient-to-r from-sg-dark-teal to-sg-dark-teal text-white border-sg-dark-teal hover:from-sg-dark-teal/90 hover:to-sg-dark-teal/90 shadow-lg hover:shadow-xl'
                   }
                 `}
               >
-                <div className="flex items-center justify-center gap-2">
-                  <span>Continue Assessment</span>
-                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-center gap-3">
+              <span>
+                {submittedAnswerForAnalysis && !showAnalysisOverlay ? 'View Analysis' : 'Submit Answer'}
+              </span>
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </div>
               </button>
 
+          {/* Auto-Complete Controls - Compact Under Button */}
               {autoCompleteFeatureEnabled && !forceDisabled && !isAutoCompleting && !isLoading && (
-                <div className="border-t border-sg-bright-green/20 pt-4">
-                  <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-sg-dark-teal/20 shadow-sm">
+              <div className="flex items-center gap-2">
                     {renderTestPersonaTierSelector()}
                     <button
                       onClick={handleStartAutoComplete}
-                      className="w-full px-4 py-3 bg-white border-2 border-sg-bright-green/30 text-sg-bright-green rounded-lg font-medium text-sm font-plus-jakarta
-                                 hover:bg-sg-bright-green hover:text-white hover:border-sg-bright-green transition-all duration-200 
-                                 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 flex items-center justify-center gap-2
+                  className="px-4 py-2 bg-white border-2 border-sg-dark-teal/30 text-sg-dark-teal rounded-lg font-medium text-sm font-plus-jakarta
+                             hover:bg-sg-dark-teal hover:text-white hover:border-sg-dark-teal transition-all duration-200 
+                             focus:outline-none focus:ring-1 focus:ring-sg-dark-teal/30 flex items-center gap-2
                                  shadow-sm hover:shadow-md"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      <span>Auto-Complete All</span>
+                  <span>Auto-Complete</span>
                     </button>
                   </div>
                 </div>
@@ -761,11 +734,11 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
               
               {/* Auto-Complete Status */}
               {isAutoCompleting && (
-                <div className="border-t border-sg-bright-green/20 pt-4">
-                  <div className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border-2 border-sg-bright-green/20">
+            <div className="w-full max-w-md p-4 bg-gradient-to-r from-sg-dark-teal/5 to-sg-dark-teal/5 rounded-xl border-2 border-sg-dark-teal/20">
+              <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <svg className="animate-spin h-5 w-5 text-sg-bright-green" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-sg-dark-teal" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -779,7 +752,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                     </div>
                     <button
                       onClick={() => setIsAutoCompleting(false)}
-                      className="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-all text-xs font-medium font-plus-jakarta flex items-center gap-1"
+                  className="px-3 py-2 bg-white border border-sg-dark-teal/30 text-sg-dark-teal rounded-lg text-xs font-plus-jakarta hover:bg-sg-dark-teal hover:text-white transition-all duration-200 flex items-center gap-1"
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -789,37 +762,41 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                   </div>
                 </div>
               )}
+        </div>
             </div>
 
-            {/* AI Analysis Card */}
-            {reasoningText && (
-              <div className="bg-white rounded-xl border border-sg-bright-green/20 shadow-lg overflow-hidden mt-6">
-                <div className="bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 p-4 border-b border-sg-bright-green/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-lg flex items-center justify-center shadow-md">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {/* Full-Screen Analysis Overlay */}
+      {showAnalysisOverlay && reasoningText && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-sg-dark-teal/10 to-sg-dark-teal/10 p-6 border-b border-sg-dark-teal/20">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-sg-dark-teal to-sg-dark-teal rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-sg-dark-teal font-plus-jakarta">AI Insights</h3>
-                      <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Contextual analysis for this question</p>
+                  <h2 className="text-2xl font-bold text-sg-dark-teal font-plus-jakarta">AI Analysis</h2>
+                  <p className="text-sg-dark-teal/70 font-plus-jakarta">Analyzing your response...</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-4 max-h-64 overflow-y-auto">
-                  <div className="text-sm text-sg-dark-teal/90 leading-relaxed whitespace-pre-wrap font-plus-jakarta">
+            {/* Analysis Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="prose prose-lg max-w-none text-sg-dark-teal/90 leading-relaxed font-plus-jakarta">
                     {displayedText}
                     {!isComplete && (
-                      <span className="inline-block w-2 h-4 bg-gradient-to-r from-sg-bright-green to-sg-light-blue animate-pulse ml-1 rounded-sm"></span>
+                  <span className="inline-block w-3 h-5 bg-gradient-to-r from-sg-dark-teal to-sg-dark-teal animate-pulse ml-2 rounded-sm"></span>
                     )}
                   </div>
                   
                   {isComplete && (
-                    <div className="mt-4 pt-4 border-t border-sg-bright-green/10">
-                      <div className="flex items-center gap-2 text-xs text-sg-dark-teal/60 font-plus-jakarta font-medium">
-                        <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mt-6 pt-4 border-t border-sg-dark-teal/10">
+                  <div className="flex items-center justify-center gap-3 text-sm text-sg-dark-teal/60 font-plus-jakarta font-medium">
+                    <svg className="w-5 h-5 text-sg-dark-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         <span>Analysis complete</span>
@@ -827,11 +804,46 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                     </div>
                   )}
                 </div>
-              </div>
+
+            {/* Action Footer */}
+            <div className="p-6 bg-gradient-to-r from-sg-light-mint/30 to-white border-t border-sg-dark-teal/10">
+              <button
+                type="button"
+                onClick={() => handleSubmitWithAnalysis(submittedAnswerForAnalysis)}
+                disabled={!isComplete}
+                className={`
+                  w-full px-6 py-4 rounded-xl font-semibold text-lg font-plus-jakarta
+                  transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sg-dark-teal/30
+                  transform active:scale-[0.98] hover:scale-[1.01]
+                  ${!isComplete
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-sg-dark-teal to-sg-dark-teal text-white shadow-lg hover:shadow-xl'
+                  }
+                `}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  {!isComplete ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>AI is analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Continue to Next Question</span>
+                      <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </>
             )}
           </div>
+              </button>
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 };

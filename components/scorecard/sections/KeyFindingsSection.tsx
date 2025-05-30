@@ -240,7 +240,7 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
   return (
     <div className="space-y-8">
       {/* Introduction Card */}
-      <Card variant="divine" className="p-6">
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             <span className="icon-wrapper-sg-primary">
@@ -263,7 +263,7 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
 
       {/* Strengths Column */}
       <div className="grid md:grid-cols-2 gap-8">
-        <Card variant="divine" className="p-6 border-l-4 border-l-sg-bright-green">
+        <Card className="p-6 border-l-4 border-l-sg-bright-green">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
               <span className="p-1.5 rounded-full bg-sg-light-mint">
@@ -297,7 +297,7 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
         </Card>
 
         {/* Weaknesses/Improvement Areas Column */}
-        <Card variant="divine" className="p-6 border-l-4 border-l-sg-dark-teal">
+        <Card className="p-6 border-l-4 border-l-sg-dark-teal">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
               <span className="p-1.5 rounded-full bg-sg-light-mint">

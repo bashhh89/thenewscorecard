@@ -3,53 +3,34 @@ import { useState, useEffect } from 'react';
 /**
  * A custom hook that creates a typing effect for text.
  * @param text - The text to be typed out character by character
- * @param speed - The typing speed in milliseconds per character (default: 30)
+ * @param speed - The typing speed in milliseconds per character (default: 50)
  * @returns The text that has been typed out so far
  */
-export function useTypingEffect(text: string | undefined | null, speed: number = 30) {
-  // --- Restore Original Logic ---
+export const useTypingEffect = (text: string, speed: number = 50) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    // Handle empty or null text
-    if (!text) {
-      setDisplayedText('');
-      setIsComplete(true);
-      return;
-    }
+    setDisplayedText('');
+    setIsComplete(false);
+    
+    if (!text) return;
 
-    // Start immediately with the first character
-    setDisplayedText(text.charAt(0));
-    setIsComplete(text.length <= 1); // Mark complete if text has only 1 char
-
-    // If there are more characters, set up timeouts for the rest
-    let i = 1; // Start index from the second character
-    let timeoutId: NodeJS.Timeout | undefined;
-
-    const typeRestOfCharacters = () => {
-      if (i < text.length) {
-        setDisplayedText((prev) => prev + text.charAt(i));
-        i++;
-        timeoutId = setTimeout(typeRestOfCharacters, speed);
+    let currentIndex = 0;
+    const timer = setInterval(() => {
+      if (currentIndex < text.length) {
+        const nextChar = text.charAt(currentIndex);
+        
+        setDisplayedText(prev => prev + nextChar);
+        currentIndex++;
       } else {
+        clearInterval(timer);
         setIsComplete(true);
       }
-    };
+    }, speed);
 
-    if (text.length > 1) {
-       // Schedule the typing for the rest of the string
-       timeoutId = setTimeout(typeRestOfCharacters, speed);
-    }
-
-    // Cleanup function
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
+    return () => clearInterval(timer);
   }, [text, speed]);
-  // --- End Original Logic ---
 
   return { displayedText, isComplete };
-} 
+}; 

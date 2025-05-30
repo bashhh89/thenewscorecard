@@ -33,7 +33,7 @@ const modules = [
         
         <p>This mini-course is your practical, no-nonsense guide to <strong>Fundamental Power Prompting</strong>. We'll skip the deep technical jargon and focus on simple, potent strategies that will immediately elevate your AI interactions from "meh" to "magic," even if you're just beginning your AI journey.</p>
         
-        <Card variant="outline" className="my-6">
+        <Card className="my-6">
           <CardContent className="p-6">
             <h3 className="font-title-card text-sg-dark-teal mb-3">What You'll Master in This Course:</h3>
             <ul className="space-y-2 list-disc pl-6">

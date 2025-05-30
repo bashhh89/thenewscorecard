@@ -59,7 +59,7 @@ const OverallTierSection: React.FC<OverallTierSectionProps> = ({
   
   return (
     <div className="space-y-10">
-      <Card variant="divine" className="p-8">
+      <Card className="p-8">
         <CardContent className="p-0">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             <div className="relative flex-shrink-0">
@@ -95,7 +95,7 @@ const OverallTierSection: React.FC<OverallTierSectionProps> = ({
       </Card>
       
       {/* AI Maturity Tier Progression Visualization */}
-      <Card variant="divine" className="p-6">
+      <Card className="p-6">
         <CardHeader>
           <CardTitle>Your AI Maturity Journey</CardTitle>
         </CardHeader>
@@ -159,7 +159,7 @@ const OverallTierSection: React.FC<OverallTierSectionProps> = ({
             </div>
           </div>
           
-          <Card variant="divine" className="bg-sg-light-mint/50 border border-sg-bright-green/10">
+          <Card className="bg-sg-light-mint/50 border border-sg-bright-green/10">
             <CardContent className="p-5">
               <p className="font-medium mb-2 text-sg-dark-teal">What this means:</p>
               <p className="font-body-md">

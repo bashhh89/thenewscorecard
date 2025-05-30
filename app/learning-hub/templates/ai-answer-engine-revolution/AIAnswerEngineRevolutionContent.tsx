@@ -45,7 +45,7 @@ export default function AIAnswerEngineRevolutionContent() {
       </p>
 
       {/* Why This Matters NOW Section */}
-      <Card variant="divine" className="my-10 border-l-4 border-sg-bright-green shadow-xl">
+      <Card className="my-10 border-l-4 border-sg-bright-green shadow-xl">
         <CardHeader className="bg-sg-light-mint/30">
           <CardTitle className="text-2xl flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sg-bright-green">
@@ -111,7 +111,7 @@ export default function AIAnswerEngineRevolutionContent() {
       </p>
 
       {/* Strategic Considerations Section */}
-      <Card variant="divine" className="my-10">
+      <Card className="my-10">
         <CardHeader className="bg-gradient-to-r from-sg-dark-teal/10 to-sg-bright-green/10">
           <CardTitle className="text-2xl flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sg-bright-green">
@@ -215,7 +215,7 @@ export default function AIAnswerEngineRevolutionContent() {
 
       {/* Coming Soon Teaser */}
       <div className="my-10 relative">
-        <Card variant="outline" className="bg-gradient-to-r from-sg-dark-teal to-sg-bright-green text-white overflow-hidden border-0">
+        <Card className="bg-gradient-to-r from-sg-dark-teal to-sg-bright-green text-white overflow-hidden border-0">
           <CardContent className="p-8">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mt-20 -mr-20 blur-3xl"></div>
             <div className="relative z-10">
@@ -238,7 +238,7 @@ export default function AIAnswerEngineRevolutionContent() {
       {/* Related Resources */}
       <h2 className="text-2xl font-bold text-sg-dark-teal mt-12 mb-4">Related Resources</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-        <Card variant="divine" className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <h3 className="font-bold text-sg-dark-teal mb-2">Advanced Prompting Techniques</h3>
             <p className="text-sm text-sg-dark-teal/80 mb-4">
@@ -253,7 +253,7 @@ export default function AIAnswerEngineRevolutionContent() {
             </Link>
           </CardContent>
         </Card>
-        <Card variant="divine" className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <h3 className="font-bold text-sg-dark-teal mb-2">AI Content Strategy Blueprint</h3>
             <p className="text-sm text-sg-dark-teal/80 mb-4">

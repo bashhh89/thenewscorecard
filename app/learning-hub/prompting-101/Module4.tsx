@@ -112,7 +112,7 @@ CONSTRAINTS & FORMATTING:
       
       {activeRecipe && (
         <div className="animate-fadeIn my-6">
-          <Card variant="divine" className="overflow-visible">
+          <Card className="overflow-visible">
             <CardHeader>
               <CardTitle>{recipes.find(r => r.id === activeRecipe)?.title}</CardTitle>
             </CardHeader>

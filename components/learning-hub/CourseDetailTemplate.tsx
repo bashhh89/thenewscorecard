@@ -142,7 +142,7 @@ export default function CourseDetailTemplate({ course, markdownContent, children
             {/* Main content area */}
             <div className="order-1 lg:order-2">
               {/* Course header */}
-              <Card variant="divine" className="mb-6 p-6">
+              <Card className="mb-6 p-6">
                 <CardHeader className="p-0 mb-4">
                   <CardTitle className="font-title-main">{course.title}</CardTitle>
                 </CardHeader>
@@ -180,7 +180,7 @@ export default function CourseDetailTemplate({ course, markdownContent, children
               </Card>
               
               {/* Content area */}
-              <Card variant="divine" className="overflow-hidden">
+              <Card className="overflow-hidden">
                 {isLoading ? (
                   <CardContent className="p-12 text-center">
                     <div className="flex flex-col items-center justify-center">
@@ -220,7 +220,7 @@ export default function CourseDetailTemplate({ course, markdownContent, children
                       Course content for '{course.title}' will go here. This will eventually render Markdown or structured content.
                     </p>
                     
-                    <Card variant="divine" className="p-6 bg-sg-light-mint/50 border border-sg-bright-green/10">
+                    <Card className="p-6 bg-sg-light-mint/50 border border-sg-bright-green/10">
                       <CardHeader className="p-0 mb-4">
                         <CardTitle className="font-title-card">Coming Soon</CardTitle>
                       </CardHeader>

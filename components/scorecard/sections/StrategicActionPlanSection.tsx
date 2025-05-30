@@ -194,7 +194,7 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
   return (
     <div className="space-y-8">
       {/* Introduction/Header */}
-      <Card variant="divine" className="p-6">
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             <span className="icon-wrapper-sg-primary">
@@ -222,7 +222,6 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
           actionItems.map((action, index) => (
             <Card 
               key={`action-${index}`} 
-              variant="divine" 
               className={`overflow-hidden border-l-4 border-l-sg-bright-green ${openItem === `action-${index}` ? 'shadow-lg' : 'shadow'} transition-all`}
             >
               {/* Card Header - Always visible */}
@@ -282,7 +281,7 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
             </Card>
           ))
         ) : (
-          <Card variant="divine" className="p-6">
+          <Card className="p-6">
             <CardContent className="text-center text-sg-dark-teal/70 italic">
               <p>No specific action items have been identified for your assessment. This could indicate an error in report generation. Please contact support for assistance.</p>
             </CardContent>
@@ -291,7 +290,7 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
       </div>
 
       {/* Supporting Resources Card */}
-      <Card variant="divine" className="p-6 bg-gradient-to-r from-white to-sg-light-mint/30">
+      <Card className="p-6 bg-gradient-to-r from-white to-sg-light-mint/30">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-sg-bright-green">

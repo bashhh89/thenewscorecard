@@ -266,7 +266,7 @@ export default function AIToolChecklistContent() {
       </div>
       
       {/* Tool Name Input */}
-      <Card variant="divine" className="mb-8">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-xl">Tool Information</CardTitle>
           <CardDescription>Enter the name of the AI tool you're evaluating</CardDescription>
@@ -311,7 +311,7 @@ export default function AIToolChecklistContent() {
       </Card>
       
       {/* Section 1: Before You Dive In */}
-      <Card variant="divine" className="mb-8">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sg-bright-green text-white mr-2 text-sm">1</span>
@@ -327,7 +327,7 @@ export default function AIToolChecklistContent() {
       </Card>
       
       {/* Section 2: During the Test Drive */}
-      <Card variant="divine" className="mb-8">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sg-bright-green text-white mr-2 text-sm">2</span>
@@ -343,7 +343,7 @@ export default function AIToolChecklistContent() {
       </Card>
       
       {/* Section 3: After the Test Drive */}
-      <Card variant="divine" className="mb-8">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sg-bright-green text-white mr-2 text-sm">3</span>
@@ -359,7 +359,7 @@ export default function AIToolChecklistContent() {
       </Card>
       
       {/* Verdict Section */}
-      <Card variant="divine" className="mb-8 border-t-4 border-sg-bright-green">
+      <Card className="mb-8 border-t-4 border-sg-bright-green">
         <CardHeader>
           <CardTitle className="text-xl">Your Quick Verdict</CardTitle>
           <CardDescription>What's your final assessment of this tool?</CardDescription>
@@ -374,7 +374,7 @@ export default function AIToolChecklistContent() {
       </Card>
       
       {/* Next Steps */}
-      <Card variant="outline" className="bg-sg-light-mint/50 mb-8">
+      <Card className="bg-sg-light-mint/50 mb-8">
         <CardHeader>
           <CardTitle className="text-lg">Next Steps & Further Learning</CardTitle>
         </CardHeader>

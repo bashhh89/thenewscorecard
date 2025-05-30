@@ -17,19 +17,6 @@ interface ScorecardHistoryEntry {
 const ASSESSMENT_PHASES = ['Strategy & Goals', 'Data Readiness', 'Technology & Tools', 'Team Skills & Process', 'Governance & Measurement'];
 const MAX_QUESTIONS = 20; // Set back to 20 questions
 
-// Immediately run verification of tier calculation on module load
-// Run this once when the module is loaded
-console.log('>>> BACKEND: Running immediate tier verification on module load');
-setTimeout(() => {
-  try {
-    console.log('>>> BACKEND: Starting immediate verification test...');
-    verifyTierCalculation();
-    console.log('>>> BACKEND: Completed immediate verification test');
-  } catch (error) {
-    console.error('>>> BACKEND: Error in immediate verification test:', error);
-  }
-}, 500);
-
 // Pollinations API base URL
 const POLLINATIONS_API_URL = "https://text.pollinations.ai/openai";
 
