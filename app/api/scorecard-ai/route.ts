@@ -850,11 +850,11 @@ function cleanReportMarkdown(markdown: string, aggressive: boolean = false): str
     requiredSections.forEach(section => {
       if (section.pattern.test(cleanedMarkdown)) {
         const sectionMatch = cleanedMarkdown.match(section.pattern);
-        if (sectionMatch) {
+        if (sectionMatch && sectionMatch.index !== undefined) {
           const sectionStart = sectionMatch.index;
           // Find the end (next section heading or end of document)
           const nextSectionMatch = cleanedMarkdown.substring(sectionStart + 1).match(/## [A-Za-z]/);
-          const sectionEnd = nextSectionMatch ? sectionStart + 1 + nextSectionMatch.index : cleanedMarkdown.length;
+          const sectionEnd = nextSectionMatch ? sectionStart + 1 + nextSectionMatch.index! : cleanedMarkdown.length;
           const sectionContent = cleanedMarkdown.substring(sectionStart, sectionEnd);
           
           // Check if section has sufficient content

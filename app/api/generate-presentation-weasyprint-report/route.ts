@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateScorecardHTML } from '../generate-scorecard-report-v6/scorecard-html-generator';
+import { generateScorecardHTMLv5 as generateScorecardHTML } from '@/lib/html-generation/scorecard-html-v5';
 
 /**
  * Generate PDF using WeasyPrint service (self-hosted)

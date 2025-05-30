@@ -2,12 +2,9 @@
 const nextConfig = {
   output: 'standalone',
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
-  // Skip typescript type checking for faster builds
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Production-ready configuration with proper error checking
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   experimental: {
     serverComponentsExternalPackages: ['pdfmake'],

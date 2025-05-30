@@ -1,19 +1,6 @@
 import type { Metadata } from "next";
-// import { Geist, Geist_Mono } from "next/font/google"; // Commented out Geist fonts
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-
-/* // Commented out Geist font variables
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-*/
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -25,6 +12,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Social Garden AI Efficiency Scorecard",
   description: "Assess your organization's AI maturity and get personalized recommendations",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  }
 };
 
 export default function RootLayout({
@@ -33,9 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Removed Geist variables from html className
     <html lang="en" className={`${plusJakartaSans.variable}`}>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="icon" href="/favicon.svg" />
       </head>
       <body className="font-plus-jakarta bg-sg-light-mint min-h-screen">

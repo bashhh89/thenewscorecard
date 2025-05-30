@@ -1664,7 +1664,7 @@ export default function LearningHubPage() {
                   return (
                     <InteractivePlaceholder
                       key={part.key}
-                      placeholderKey={part.key}
+                      variableKey={part.key}
                       value={customizedPromptValues[part.key] || ''}
                       guidance={meta.guidance}
                       examples={meta.examples}

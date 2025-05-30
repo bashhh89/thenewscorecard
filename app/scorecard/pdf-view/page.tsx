@@ -22,7 +22,7 @@ const PDFViewer = dynamic(
 
 export default function PDFViewPage() {
   const searchParams = useSearchParams();
-  const reportId = searchParams.get('reportId');
+  const reportId = searchParams?.get('reportId');
   
   const [isClient, setIsClient] = useState(false);
   const [reportData, setReportData] = useState<any>(null);

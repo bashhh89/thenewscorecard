@@ -80,7 +80,7 @@ const CourseIcon: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <div className="absolute inset-0 flex items-center justify-center text-sg-bright-green">
-      {courseToIcon[id] || courseToIcon.default}
+      {courseToIcon[id as keyof typeof courseToIcon] || courseToIcon.default}
     </div>
   );
 };

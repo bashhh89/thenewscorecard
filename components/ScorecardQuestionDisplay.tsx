@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTypingEffect } from '@/hooks/useTypingEffect';
-import { isAutoCompleteEnabled } from '@/lib/utils';
+
+// Temporary function until we implement proper utils
+const isAutoCompleteEnabled = () => true;
 
 // Add interface for history entries needed for AI-driven answers
 interface HistoryEntry {
@@ -138,20 +140,20 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
         return (
           <div className="w-full">
             <textarea
-              className="w-full p-4 border border-gray-200 rounded-lg mt-4 min-h-[120px] 
-                         focus:ring-2 focus:ring-sg-bright-green focus:border-sg-bright-green 
+              className="w-full p-4 border-2 border-sg-gray-200 rounded-lg mt-4 min-h-[100px] 
+                         focus:ring-2 focus:ring-sg-bright-green/20 focus:border-sg-bright-green 
                          text-sg-dark-teal font-plus-jakarta transition-all duration-200
-                         placeholder:text-gray-400 resize-none text-sm leading-relaxed
-                         bg-white shadow-sm"
+                         placeholder:text-sg-gray-400 resize-none text-base leading-relaxed
+                         bg-white shadow-sm hover:shadow-md font-medium"
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               placeholder="Share your thoughts in detail..."
               disabled={isLoading}
-              rows={5}
+              rows={4}
             />
-            <div className="mt-2 text-sm text-gray-500 flex justify-between items-center">
-              <span>Be as specific as possible for better insights</span>
-              <span className={`${currentAnswer?.length > 20 ? 'text-sg-bright-green' : 'text-gray-400'}`}>
+            <div className="mt-2 text-sm text-sg-gray-500 flex justify-between items-center">
+              <span className="font-medium">Be as specific as possible for better insights</span>
+              <span className={`font-medium ${currentAnswer?.length > 20 ? 'text-sg-bright-green' : 'text-sg-gray-400'}`}>
                 {currentAnswer?.length || 0} characters
               </span>
             </div>
@@ -160,48 +162,48 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
       case 'radio':
         return (
           <div className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="space-y-3 mt-4">
               {options?.map((option, index) => {
                 const selected = currentAnswer === option;
                 return (
                   <div 
                     key={option}
-                    className={`group relative cursor-pointer transition-all duration-200 transform hover:-translate-y-0.5 
-                               ${selected ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`}
+                    className={`group relative cursor-pointer transition-all duration-200 
+                               ${selected ? 'scale-[1.01]' : 'hover:scale-[1.005]'}`}
                     onClick={() => !isLoading && setCurrentAnswer(option)}
                   >
                     <div className={`
-                      p-4 rounded-lg border-2 transition-all duration-200 bg-white
+                      p-4 rounded-lg border-2 transition-all duration-200 bg-white min-h-[60px] shadow-sm hover:shadow-md
                       ${selected 
-                        ? 'border-sg-bright-green bg-sg-bright-green/5 shadow-md' 
-                        : 'border-gray-200 hover:border-sg-bright-green/40 hover:bg-gray-50'
+                        ? 'border-sg-bright-green bg-sg-light-mint shadow-md ring-2 ring-sg-bright-green/20' 
+                        : 'border-sg-gray-200 hover:border-sg-bright-green/50 hover:bg-sg-light-mint/30'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
                     `}>
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-center gap-4">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center 
-                          transition-all duration-200 flex-shrink-0 mt-0.5
+                          transition-all duration-200 flex-shrink-0
                           ${selected 
-                            ? 'border-sg-bright-green bg-white' 
-                            : 'border-gray-300 group-hover:border-sg-bright-green/60'
+                            ? 'border-sg-bright-green bg-white ring-2 ring-sg-bright-green/20' 
+                            : 'border-sg-gray-300 group-hover:border-sg-bright-green/70 bg-white'
                           }
                         `}>
                           {selected && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-sg-bright-green"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-sg-bright-green animate-pulse"></div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className={`
-                            text-xs leading-normal text-sg-dark-teal font-plus-jakarta
-                            ${selected ? 'text-sg-dark-teal' : 'text-gray-700'}
+                            text-lg leading-relaxed font-plus-jakarta font-medium
+                            ${selected ? 'text-sg-dark-teal font-semibold' : 'text-sg-dark-teal/80'}
                           `}>
                             {option}
                           </span>
                         </div>
                         {selected && (
                           <div className="flex-shrink-0">
-                            <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
@@ -212,22 +214,24 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                 );
               })}
             </div>
-            <div className="mt-3 text-sm text-gray-500 text-center">
-              Select the option that best describes your situation
+            <div className="mt-4 p-3 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
+              <div className="text-base text-sg-dark-teal/70 font-medium text-center font-plus-jakarta">
+                Select the option that best describes your situation
+              </div>
             </div>
           </div>
         );
       case 'checkbox':
         return (
           <div className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="space-y-3 mt-4">
               {options?.map((option, index) => {
                 const checked = (currentAnswer as string[]).includes(option);
                 return (
                   <div 
                     key={option}
-                    className={`group relative cursor-pointer transition-all duration-200 transform hover:-translate-y-0.5 
-                               ${checked ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`}
+                    className={`group relative cursor-pointer transition-all duration-200 
+                               ${checked ? 'scale-[1.01]' : 'hover:scale-[1.005]'}`}
                     onClick={() => {
                       if (!isLoading) {
                         if (checked) {
@@ -239,39 +243,39 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                     }}
                   >
                     <div className={`
-                      p-4 rounded-lg border-2 transition-all duration-200 bg-white
+                      p-4 rounded-lg border-2 transition-all duration-200 bg-white min-h-[60px] shadow-sm hover:shadow-md
                       ${checked 
-                        ? 'border-sg-bright-green bg-sg-bright-green/5 shadow-md' 
-                        : 'border-gray-200 hover:border-sg-bright-green/40 hover:bg-gray-50'
+                        ? 'border-sg-bright-green bg-sg-light-mint shadow-md ring-2 ring-sg-bright-green/20' 
+                        : 'border-sg-gray-200 hover:border-sg-bright-green/50 hover:bg-sg-light-mint/30'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
                     `}>
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-center gap-4">
                         <div className={`
                           w-5 h-5 rounded border-2 flex items-center justify-center 
-                          transition-all duration-200 flex-shrink-0 mt-0.5
+                          transition-all duration-200 flex-shrink-0
                           ${checked 
-                            ? 'border-sg-bright-green bg-white' 
-                            : 'border-gray-300 group-hover:border-sg-bright-green/60'
+                            ? 'border-sg-bright-green bg-sg-bright-green ring-2 ring-sg-bright-green/20' 
+                            : 'border-sg-gray-300 group-hover:border-sg-bright-green/70 bg-white'
                           }
                         `}>
                           {checked && (
-                            <svg className="w-3 h-3 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className={`
-                            text-xs leading-normal text-sg-dark-teal font-plus-jakarta
-                            ${checked ? 'text-sg-dark-teal' : 'text-gray-700'}
+                            text-lg leading-relaxed font-plus-jakarta font-medium
+                            ${checked ? 'text-sg-dark-teal font-semibold' : 'text-sg-dark-teal/80'}
                           `}>
                             {option}
                           </span>
                         </div>
                         {checked && (
                           <div className="flex-shrink-0">
-                            <div className="w-2 h-2 rounded-full bg-sg-bright-green"></div>
+                            <div className="w-3 h-3 rounded-full bg-sg-bright-green animate-pulse border border-white"></div>
                           </div>
                         )}
                       </div>
@@ -280,19 +284,31 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                 );
               })}
             </div>
-            <div className="mt-3 text-sm text-gray-500 text-center">
-              Select all that apply • {(currentAnswer as string[]).length} selected
+            <div className="mt-4 p-3 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
+              <div className="text-center">
+                <div className="text-base text-sg-dark-teal/70 font-medium font-plus-jakarta mb-1">
+                  Select all that apply
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg font-semibold text-sg-bright-green">{(currentAnswer as string[]).length}</span>
+                  <span className="text-base text-sg-dark-teal/60 font-medium">
+                    {(currentAnswer as string[]).length === 1 ? 'option selected' : 'options selected'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         );
       case 'scale':
         return (
-          <div className="w-full my-4">
-            <div className="flex justify-between mb-3 text-sm text-sg-dark-teal/70 px-2">
-              <span className="text-sg-dark-teal">Not at all</span>
-              <span className="text-sg-dark-teal">Very much</span>
+          <div className="w-full my-6">
+            <div className="flex justify-between mb-4 text-base text-sg-dark-teal/80 px-1 font-medium">
+              <span className="text-sg-dark-teal font-semibold">Not at all</span>
+              <span className="text-sg-dark-teal font-semibold">Very much</span>
             </div>
-            <div className="flex justify-between gap-2 mb-3">
+            
+            {/* Mobile: Vertical Stack */}
+            <div className="block sm:hidden space-y-3">
               {options?.map((option, index) => {
                 const selected = currentAnswer === option;
                 return (
@@ -302,29 +318,80 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
                     onClick={() => setCurrentAnswer(option)}
                     disabled={isLoading}
                     className={`
-                      relative flex-1 min-h-[3rem] py-3 px-2 rounded-lg transition-all duration-300 text-sm text-center flex flex-col items-center justify-center
-                      transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30
+                      w-full min-h-[60px] py-4 px-6 rounded-lg transition-all duration-200 font-plus-jakarta
+                      transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 
+                      shadow-sm hover:shadow-md border-2 font-medium
                       ${selected 
-                        ? 'bg-sg-bright-green text-white shadow-lg -translate-y-1 scale-105' 
-                        : 'bg-white border-2 border-gray-200 text-sg-dark-teal hover:bg-sg-light-mint hover:border-sg-bright-green/50'
+                        ? 'bg-sg-bright-green text-white shadow-lg border-sg-bright-green ring-2 ring-sg-bright-green/20' 
+                        : 'bg-white border-sg-gray-200 text-sg-dark-teal hover:bg-sg-light-mint/50 hover:border-sg-bright-green/50'
                       }
                       ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
                     `}
                   >
-                    {option}
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-2xl font-bold">{option}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-medium">
+                          {index === 0 ? 'Lowest' : index === (options.length - 1) ? 'Highest' : `Level ${option}`}
+                        </span>
+                        {selected && (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Desktop: Horizontal Grid */}
+            <div className="hidden sm:grid grid-cols-5 gap-3">
+              {options?.map((option, index) => {
+                const selected = currentAnswer === option;
+                return (
+                  <button
+                    type="button"
+                    key={option}
+                    onClick={() => setCurrentAnswer(option)}
+                    disabled={isLoading}
+                    className={`
+                      relative min-h-[64px] py-4 px-3 rounded-lg transition-all duration-200 text-center flex flex-col items-center justify-center
+                      transform active:scale-95 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 font-plus-jakarta font-medium
+                      shadow-sm hover:shadow-md border-2
+                      ${selected 
+                        ? 'bg-sg-bright-green text-white shadow-lg scale-110 border-sg-bright-green ring-2 ring-sg-bright-green/20' 
+                        : 'bg-white border-sg-gray-200 text-sg-dark-teal hover:bg-sg-light-mint/50 hover:border-sg-bright-green/50'
+                      }
+                      ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                    `}
+                  >
+                    <span className="font-bold text-xl mb-1">{option}</span>
+                    <span className="text-sm font-medium">
+                      {index === 0 ? 'Lowest' : index === (options.length - 1) ? 'Highest' : `Level ${option}`}
+                    </span>
                     {selected && (
-                      <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-sg-bright-green text-white text-xs px-2 py-1 rounded-full">
-                          Selected
-                        </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                        <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
                       </div>
                     )}
                   </button>
                 );
               })}
             </div>
-            <div className="text-center mt-6 text-sm text-gray-500">
-              Rate from 1 (lowest) to {options?.length || 5} (highest)
+            
+            <div className="text-center mt-6 p-4 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border border-sg-bright-green/20">
+              <div className="text-base text-sg-dark-teal/70 font-medium font-plus-jakarta">
+                Rate from <span className="font-semibold text-sg-bright-green">1 (lowest)</span> to <span className="font-semibold text-sg-bright-green">{options?.length || 5} (highest)</span>
+              </div>
+              {currentAnswer && (
+                <div className="mt-2 text-lg font-bold text-sg-bright-green">
+                  Selected: {currentAnswer}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -558,212 +625,161 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
   }
   
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row xl:space-x-8 space-y-8 xl:space-y-0 mt-12">
-      {/* NEW Left Vertical Sidebar for Phases */}
-      <div className="xl:w-64 bg-white rounded-lg border border-gray-100 shadow-sm p-6 flex flex-col space-y-4 flex-shrink-0 xl:sticky xl:top-12 xl:h-[calc(100vh-3rem)] xl:overflow-y-auto">
-        <h3 className="text-lg font-semibold text-sg-dark-teal font-plus-jakarta">Assessment Progress</h3>
-        <div className="text-sm text-sg-dark-teal/60 font-plus-jakarta">
-          Question {currentQuestionNumber} of {maxQuestions}
+    <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream-1">
+      {/* Professional Progress Header */}
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-sg-bright-green/20 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-lg flex items-center justify-center shadow-md">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-sg-dark-teal font-plus-jakarta">AI Maturity Assessment</h1>
+                <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">{currentPhaseName}</p>
+              </div>
+            </div>
+            
+            {/* Progress Indicator */}
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <div className="text-sm text-sg-dark-teal/80 font-plus-jakarta font-medium">Question {currentQuestionNumber} of {maxQuestions}</div>
+                <div className="text-xs text-sg-dark-teal/60 font-plus-jakarta">{Math.round((currentQuestionNumber / maxQuestions) * 100)}% Complete</div>
+              </div>
+              <div className="relative w-12 h-12">
+                <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    className="text-sg-gray-200"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 45}`}
+                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - (currentQuestionNumber / maxQuestions))}`}
+                    className="text-sg-bright-green transition-all duration-500 ease-out"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-sg-bright-green">{Math.round((currentQuestionNumber / maxQuestions) * 100)}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="space-y-1 pt-2">
-          {assessmentPhases.map((phase, index) => {
-            const isActive = phase === currentPhaseName;
-            const isCompleted = assessmentPhases.indexOf(currentPhaseName) > index;
+      </div>
 
-            return (
-              <div 
-                key={phase} 
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Question Section */}
+          <div className="lg:col-span-2">
+            <div className="mb-6">
+              <div className="inline-flex items-center px-3 py-1.5 bg-sg-bright-green/10 text-sg-bright-green rounded-full text-sm font-medium font-plus-jakarta mb-4">
+                <span className="w-2 h-2 bg-sg-bright-green rounded-full mr-2 animate-pulse"></span>
+                Step {currentQuestionNumber} of {maxQuestions}
+              </div>
+              <h2 className="text-xl sm:text-2xl text-sg-dark-teal leading-snug font-plus-jakarta font-bold mb-4">
+                {question}
+              </h2>
+              <p className="text-base text-sg-dark-teal/70 leading-relaxed font-plus-jakarta">
+                Select your response to continue building your AI maturity profile.
+              </p>
+            </div>
+
+            {/* Answer Options */}
+            <div className="space-y-4">
+              {renderAnswerInput()}
+            </div>
+          </div>
+
+          {/* Action Panel */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl border border-sg-bright-green/20 shadow-lg p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-sg-dark-teal font-plus-jakarta mb-2">Ready to Continue?</h3>
+                <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Your response will be analyzed instantly</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onSubmitAnswer(currentAnswer)}
+                disabled={isSubmitDisabled}
                 className={`
-                  flex items-center space-x-3 py-3 
-                  border-b border-gray-200
-                  ${index === assessmentPhases.length - 1 ? 'border-b-0 mb-0' : ''} 
-                  ${isActive ? 'bg-sg-bright-green rounded-md px-3 -mx-3' : 'px-0.5'}
+                  w-full group relative overflow-hidden px-6 py-3 rounded-lg font-medium text-base font-plus-jakarta
+                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 border-2 mb-4
+                  ${isSubmitDisabled
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                    : 'bg-sg-dark-teal text-white border-sg-dark-teal hover:bg-sg-dark-teal/90 shadow-md hover:shadow-lg'
+                  }
                 `}
               >
-                <div className={`
-                  w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0
-                  ${isActive ? 'bg-sg-bright-green border-sg-bright-green text-white scale-105' : 
-                    isCompleted ? 'bg-sg-bright-green border-sg-bright-green text-white' : 
-                    'bg-white border-gray-300 text-gray-400'}
-                `}>
-                  {isCompleted ? (
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  ) : isActive ? (
-                    <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-                  ) : (
-                    <span className="text-xs font-semibold text-gray-400">{index + 1}</span>
-                  )}
+                <div className="flex items-center justify-center gap-2">
+                  <span>Continue Assessment</span>
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </div>
-                <span className={`
-                  text-sm font-medium font-plus-jakarta
-                  ${isActive ? 'text-white font-semibold' : 
-                    isCompleted ? 'text-sg-dark-teal' : 'text-gray-500'}
-                `}>
-                  {phase}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        {/* Progress Bar */}
-        <div className="mt-auto pt-4">
-          <div className="flex justify-between text-sm text-gray-500 mb-1">
-            <span>{Math.round((currentQuestionNumber / maxQuestions) * 100)}% Complete</span>
-          </div>
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-sg-bright-green to-sg-light-blue rounded-full transition-all duration-700 ease-out" 
-              style={{ width: `${(currentQuestionNumber / maxQuestions) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-      </div>
+              </button>
 
-      {/* Center Content Area (Question Display) */}
-      <div className="flex-1 min-w-0">
-        {/* Question Display Card */}
-        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-12">
-          <div className="mb-10">
-            <div className="flex items-start space-x-8 mb-10">
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl lg:text-2xl text-sg-dark-teal leading-tight mb-4 font-plus-jakarta">
-                  {question}
-                </h2>
-                <p className="text-base text-sg-dark-teal/70 leading-normal font-plus-jakarta">
-                  Choose the response that best reflects your organization's current state and practices.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Answer Input Section */}
-          <div className="relative">
-            {renderAnswerInput()}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Sidebar (AI Analysis & Submit) */}
-      {reasoningText && (
-        <div className="xl:w-80 flex-shrink-0 xl:sticky xl:top-12"> {/* Make this sticky too */}
-          <div className="space-y-4"> {/* Added a wrapper for consistent spacing like the left sidebar might have */}
-            {/* AI Analysis Card */}
-            <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden mt-6">
-              {/* Header */}
-              <div className="bg-sg-bright-green/5 p-4 border-b border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-sg-bright-green/10 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-sg-dark-teal font-plus-jakarta">AI Analysis</h3>
-                    <p className="text-xs text-sg-dark-teal/60 font-plus-jakarta">Real-time insights</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Content - This div will now be scrollable and have a max height */}
-              <div className="p-4 overflow-y-auto max-h-80 scrollbar-thin scrollbar-thumb-sg-bright-green/20 scrollbar-track-gray-100">
-                <div className="prose prose-sm max-w-none">
-                  {/* Text container - max-h and overflow removed from here */}
-                  <div className="text-sg-dark-teal/80 leading-relaxed whitespace-pre-wrap text-sm font-plus-jakarta">
-                    {displayedText}
-                    {!isComplete && (
-                      <span className="inline-block w-1.5 h-4 bg-sg-bright-green animate-pulse ml-1"></span>
-                    )}
-                  </div>
-                </div>
-                
-                {isComplete && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="flex items-center space-x-2 text-xs text-sg-dark-teal/50 font-plus-jakarta">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Analysis complete</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Submit and Auto-Complete Section */}
-            <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
-              <div className="flex flex-col space-y-3">
-                {/* Submit Button */}
-                <button
-                  type="button"
-                  onClick={() => onSubmitAnswer(currentAnswer)}
-                  disabled={isSubmitDisabled}
-                  className={`
-                    group relative overflow-hidden px-5 py-3 rounded-lg font-semibold text-sm font-plus-jakarta
-                    transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-sg-bright-green/30
-                    ${isSubmitDisabled
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-sg-bright-green text-white hover:bg-sg-bright-green/90 hover:-translate-y-0.5 hover:shadow-lg active:transform active:scale-95'
-                    }
-                  `}
-                >
-                  <div className="relative flex items-center justify-center space-x-2">
-                    {isLoading ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Processing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Submit Answer</span>
-                        <svg className="w-3 h-3 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </>
-                    )}
-                  </div>
-                </button>
-                
-                {/* Auto-Complete Section */}
-                {autoCompleteFeatureEnabled && !forceDisabled && !isAutoCompleting && !isLoading && (
-                  <div className="flex flex-col space-y-2">
+              {autoCompleteFeatureEnabled && !forceDisabled && !isAutoCompleting && !isLoading && (
+                <div className="border-t border-sg-bright-green/20 pt-4">
+                  <div className="flex flex-col gap-3">
                     {renderTestPersonaTierSelector()}
                     <button
                       onClick={handleStartAutoComplete}
-                      className="px-3 py-2 bg-white border border-sg-bright-green/40 text-sg-bright-green rounded-lg font-medium text-sm font-plus-jakarta
-                                 hover:bg-sg-bright-green hover:text-white transition-all duration-200 
-                                 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 flex items-center justify-center space-x-2"
+                      className="w-full px-4 py-3 bg-white border-2 border-sg-bright-green/30 text-sg-bright-green rounded-lg font-medium text-sm font-plus-jakarta
+                                 hover:bg-sg-bright-green hover:text-white hover:border-sg-bright-green transition-all duration-200 
+                                 focus:outline-none focus:ring-2 focus:ring-sg-bright-green/30 flex items-center justify-center gap-2
+                                 shadow-sm hover:shadow-md"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      <span>Auto-Complete</span>
+                      <span>Auto-Complete All</span>
                     </button>
                   </div>
-                )}
-                
-                {/* Auto-Complete in Progress UI */}
-                {isAutoCompleting && (
-                  <div className="flex items-center justify-between w-full p-3 bg-sg-bright-green/5 rounded-lg border border-sg-bright-green/20">
-                    <div className="flex items-center space-x-2">
+                </div>
+              )}
+              
+              {/* Auto-Complete Status */}
+              {isAutoCompleting && (
+                <div className="border-t border-sg-bright-green/20 pt-4">
+                  <div className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-sg-bright-green/5 to-sg-light-blue/5 rounded-lg border-2 border-sg-bright-green/20">
+                    <div className="flex items-center gap-3">
                       <div className="relative">
-                        <svg className="animate-spin h-4 w-4 text-sg-bright-green" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-5 w-5 text-sg-bright-green" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                       </div>
                       <div>
-                        <div className="font-semibold text-sg-dark-teal text-sm font-plus-jakarta">Auto-completing...</div>
+                        <div className="font-medium text-sg-dark-teal text-sm font-plus-jakarta">Auto-completing...</div>
                         <div className="text-xs text-sg-dark-teal/70 font-plus-jakarta">
-                          Progress: {autoCompleteCount}/{maxQuestions - questionAnswerHistory.length} remaining
+                          {autoCompleteCount}/{maxQuestions - questionAnswerHistory.length} remaining
                         </div>
                       </div>
                     </div>
                     <button
                       onClick={() => setIsAutoCompleting(false)}
-                      className="px-2 py-1 bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-all text-xs font-medium font-plus-jakarta flex items-center space-x-1"
+                      className="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-all text-xs font-medium font-plus-jakarta flex items-center gap-1"
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -771,12 +787,51 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                       <span>Stop</span>
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
+
+            {/* AI Analysis Card */}
+            {reasoningText && (
+              <div className="bg-white rounded-xl border border-sg-bright-green/20 shadow-lg overflow-hidden mt-6">
+                <div className="bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 p-4 border-b border-sg-bright-green/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-sg-bright-green to-sg-light-blue rounded-lg flex items-center justify-center shadow-md">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-sg-dark-teal font-plus-jakarta">AI Insights</h3>
+                      <p className="text-sm text-sg-dark-teal/70 font-plus-jakarta">Contextual analysis for this question</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 max-h-64 overflow-y-auto">
+                  <div className="text-sm text-sg-dark-teal/90 leading-relaxed whitespace-pre-wrap font-plus-jakarta">
+                    {displayedText}
+                    {!isComplete && (
+                      <span className="inline-block w-2 h-4 bg-gradient-to-r from-sg-bright-green to-sg-light-blue animate-pulse ml-1 rounded-sm"></span>
+                    )}
+                  </div>
+                  
+                  {isComplete && (
+                    <div className="mt-4 pt-4 border-t border-sg-bright-green/10">
+                      <div className="flex items-center gap-2 text-xs text-sg-dark-teal/60 font-plus-jakarta font-medium">
+                        <svg className="w-4 h-4 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Analysis complete</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

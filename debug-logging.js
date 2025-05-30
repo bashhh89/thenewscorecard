@@ -1,1 +1,0 @@
-console.log("FRONTEND: Logging test at: " + new Date().toISOString()); 

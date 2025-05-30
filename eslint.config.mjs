@@ -11,17 +11,11 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      // Disable rules that are causing build failures
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      // Keep only necessary rule overrides for production
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
       'react/no-unescaped-entities': 'off',
-      'react/jsx-no-undef': 'off',
-      'react-hooks/rules-of-hooks': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      '@next/next/no-html-link-for-pages': 'off',
       '@next/next/no-img-element': 'off',
-      'jsx-a11y/alt-text': 'off',
-      'prefer-const': 'off',
     }
   }
 ];

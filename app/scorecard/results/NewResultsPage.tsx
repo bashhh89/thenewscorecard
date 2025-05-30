@@ -83,7 +83,86 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userCompany, setUserCompany] = useState<string | null>(null); // Add state for company name
   const [processedReportMarkdown, setProcessedReportMarkdown] = useState<string | null>(null);
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Navigation items for both desktop and mobile
+  const navigationItems = [
+    {
+      id: 'Overall Tier',
+      label: 'Overall Tier',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L20 7V17L12 22L4 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M12 22V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M20 7L12 12L4 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Key Findings',
+      label: 'Key Findings',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 10.5L11 12.5L15.5 8M7 18V20.3355C7 20.8684 7 21.1348 7.10923 21.2716C7.20422 21.3906 7.34827 21.4599 7.50054 21.4597C7.67563 21.4595 7.88367 21.2931 8.29976 20.9602L10.6852 19.0518C11.1725 18.662 11.4162 18.4671 11.6875 18.3285C11.9282 18.2055 12.1844 18.1156 12.4492 18.0613C12.7477 18 13.0597 18 13.6837 18H16.2C17.8802 18 18.7202 18 19.362 17.673C19.9265 17.3854 20.3854 16.9265 20.673 16.362C21 15.7202 21 14.8802 21 13.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V14C3 14.93 3 15.395 3.10222 15.7765C3.37962 16.8117 4.18827 17.6204 5.22354 17.8978C5.60504 18 6.07003 18 7 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Recommendations',
+      label: 'Recommendations',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 6H20M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Strategic Action Plan',
+      label: 'Strategic Action Plan',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 9H16M12 13H16M12 17H16M6 13V21M2 5H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Detailed Analysis',
+      label: 'Detailed Analysis',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 9H6M15.5 11C13.567 11 12 9.433 12 7.5C12 5.567 13.567 4 15.5 4C17.433 4 19 5.567 19 7.5C19 9.433 17.433 11 15.5 11ZM6.5 21C4.567 21 3 19.433 3 17.5C3 15.567 4.567 14 6.5 14C8.433 14 10 15.567 10 17.5C10 19.433 8.433 21 6.5 21ZM18 16.5H14M18 19.5H14M6 6L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Benchmarks',
+      label: 'Illustrative Benchmarks',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 21H6.2C5.07989 21 4.51984 21 4.09202 20.782C3.71569 20.5903 3.40973 20.2843 3.21799 19.908C3 19.4802 3 18.9201 3 17.8V3M7 16V14M11.5 16V12M16 16V10M14 21V7L18 3H21V21H14Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Assessment Q&A',
+      label: 'Assessment Q&A',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 6.77V15.5C20 16.6 19.1 17.5 18 17.5H13.44L9.31 19.7C9.13 19.8 8.92 19.84 8.73 19.82C8.36 19.79 8.09 19.5 8.09 19.14V17.5H6C4.9 17.5 4 16.6 4 15.5V6.77C4 5.67 4.9 4.77 6 4.77H18C19.1 4.77 20 5.67 20 6.77Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    },
+    {
+      id: 'Learning Path',
+      label: 'Your Learning Path & Resources',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 9V4M12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15M12 9C13.6569 9 15 10.3431 15 12C15 13.6569 13.6569 15 12 15M12 15V20M9 4H4V9M9 20H4V15M20 4H15V9M20 15H15V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    }
+  ];
+  
   // Calculate final score from question history IF NOT ALREADY SET from Firestore
   useEffect(() => {
     // Only calculate if finalScore hasn't been set by Firestore data and we have history
@@ -690,15 +769,37 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
     return [];
   };
 
-  // Handle tab changes
-  const handleTabChange = (tabName: string) => {
+  // Enhanced tab change handler that closes mobile menu
+  const handleTabChange = (tabName: SectionName) => {
+    if (animating) return;
+    
     setAnimating(true);
+    setIsMobileMenuOpen(false); // Close mobile menu on tab change
+    
     setTimeout(() => {
       setActiveTab(tabName);
       setAnimating(false);
-      // Scroll to top when changing tabs
-      contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 200);
+      
+      // Scroll section into view if it exists
+      const sectionRefs: SectionRefs = {
+        'Overall Tier': overallTierRef,
+        'Key Findings': keyFindingsRef,
+        'Recommendations': recommendationsRef,
+        'Strategic Action Plan': strategicActionPlanRef,
+        'Detailed Analysis': detailedAnalysisRef,
+        'Benchmarks': benchmarksRef,
+        'Assessment Q&A': qAndARef,
+        'Learning Path': learningPathRef
+      };
+      
+      const targetRef = sectionRefs[tabName];
+      if (targetRef?.current) {
+        targetRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 150);
   };
 
   // Handle report sharing
@@ -1263,14 +1364,36 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             {/* Header */}
             <header className="header">
               <div className="header-content">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
                   <div className="logo-container">
                     {/* Replace text logo with Image component */}
                     <Image src="/footer-logo.svg" alt="AI Efficiency Scorecard Logo" width={150} height={30} className="logo-inner" />
                   </div>
                   <h1>AI Efficiency Scorecard</h1>
                 </div>
-                <div className="header-actions">
+                
+                {/* Mobile menu button - only visible on mobile */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-[#103138] text-white hover:bg-[#103138]/90 transition-colors flex-shrink-0"
+                  aria-label="Toggle navigation menu"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {isMobileMenuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    )}
+                  </svg>
+                </button>
+
+                <div className="header-actions hidden md:flex">
                   <div className="flex space-x-3">
                     <button
                       onClick={handleShareReport}
@@ -1345,6 +1468,48 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
               </div>
             </header>
 
+            {/* Mobile Navigation Menu - Only visible when menu is open */}
+            {isMobileMenuOpen && (
+              <>
+                {/* Overlay to close menu when clicking outside */}
+                <div 
+                  className="md:hidden fixed inset-0 bg-black bg-opacity-25 z-40"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  aria-hidden="true"
+                />
+                
+                <div className="md:hidden bg-white border-b border-gray-200 shadow-lg relative z-50">
+                  <nav className="px-4 py-2">
+                    <div className="space-y-1">
+                      {navigationItems.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => handleTabChange(item.id as SectionName)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                            activeTab === item.id
+                              ? 'bg-[#F3FDF5] text-[#20E28F] border-l-4 border-[#20E28F]'
+                              : 'text-[#103138] hover:bg-gray-50'
+                          }`}
+                        >
+                          <span className={`${activeTab === item.id ? 'text-[#20E28F]' : 'text-[#103138]/60'}`}>
+                            {item.icon}
+                          </span>
+                          <span className="font-medium text-sm">
+                            {item.label}
+                          </span>
+                          {activeTab === item.id && (
+                            <svg className="ml-auto h-4 w-4 text-[#20E28F]" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-8-8a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </nav>
+                </div>
+              </>
+            )}
+
             {/* Main Content - add ID for PDF capture */}
             <main id="scorecard-report-content" className="main-content">
               {/* Sidebar / Navigation */}
@@ -1378,85 +1543,12 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                 <nav className="nav-menu">
                   <div className="nav-section-title">Navigate Report</div>
                   <ul>
-                    <li 
-                      className={`nav-item ${activeTab === 'Overall Tier' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Overall Tier')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L20 7V17L12 22L4 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 22V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M20 7L12 12L4 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Overall Tier
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Key Findings' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Key Findings')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 10.5L11 12.5L15.5 8M7 18V20.3355C7 20.8684 7 21.1348 7.10923 21.2716C7.20422 21.3906 7.34827 21.4599 7.50054 21.4597C7.67563 21.4595 7.88367 21.2931 8.29976 20.9602L10.6852 19.0518C11.1725 18.662 11.4162 18.4671 11.6875 18.3285C11.9282 18.2055 12.1844 18.1156 12.4492 18.0613C12.7477 18 13.0597 18 13.6837 18H16.2C17.8802 18 18.7202 18 19.362 17.673C19.9265 17.3854 20.3854 16.9265 20.673 16.362C21 15.7202 21 14.8802 21 13.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V14C3 14.93 3 15.395 3.10222 15.7765C3.37962 16.8117 4.18827 17.6204 5.22354 17.8978C5.60504 18 6.07003 18 7 18Z" 
-                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Key Findings
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Recommendations' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Recommendations')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 6H20M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Recommendations
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Strategic Action Plan' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Strategic Action Plan')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2 9H16M12 13H16M12 17H16M6 13V21M2 5H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Strategic Action Plan
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Detailed Analysis' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Detailed Analysis')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 9H6M15.5 11C13.567 11 12 9.433 12 7.5C12 5.567 13.567 4 15.5 4C17.433 4 19 5.567 19 7.5C19 9.433 17.433 11 15.5 11ZM6.5 21C4.567 21 3 19.433 3 17.5C3 15.567 4.567 14 6.5 14C8.433 14 10 15.567 10 17.5C10 19.433 8.433 21 6.5 21ZM18 16.5H14M18 19.5H14M6 6L10 6" 
-                            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Detailed Analysis
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Benchmarks' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Benchmarks')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 21H6.2C5.07989 21 4.51984 21 4.09202 20.782C3.71569 20.5903 3.40973 20.2843 3.21799 19.908C3 19.4802 3 18.9201 3 17.8V3M7 16V14M11.5 16V12M16 16V10M14 21V7L18 3H21V21H14Z" 
-                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Illustrative Benchmarks
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Assessment Q&A' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Assessment Q&A')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 6.77V15.5C20 16.6 19.1 17.5 18 17.5H13.44L9.31 19.7C9.13 19.8 8.92 19.84 8.73 19.82C8.36 19.79 8.09 19.5 8.09 19.14V17.5H6C4.9 17.5 4 16.6 4 15.5V6.77C4 5.67 4.9 4.77 6 4.77H18C19.1 4.77 20 5.67 20 6.77Z" 
-                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Assessment Q&A
-                    </li>
-                    <li 
-                      className={`nav-item ${activeTab === 'Learning Path' ? 'active' : ''}`}
-                      onClick={() => handleTabChange('Learning Path')}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 9V4M12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15M12 9C13.6569 9 15 10.3431 15 12C15 13.6569 13.6569 15 12 15M12 15V20M9 4H4V9M9 20H4V15M20 4H15V9M20 15H15V20" 
-                          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Your Learning Path & Resources
-                    </li>
+                    {navigationItems.map(item => (
+                      <li key={item.id} className={`nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => handleTabChange(item.id as SectionName)}>
+                        {item.icon}
+                        {item.label}
+                      </li>
+                    ))}
                   </ul>
                 </nav>
                 
@@ -1470,6 +1562,19 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
 
               {/* Content Panel */}
               <div className={`content-panel ${animating ? 'fade-out' : 'fade-in'}`} ref={contentRef}>
+                {/* Mobile Section Indicator - only visible on mobile */}
+                <div className="md:hidden mb-4 p-3 bg-[#F3FDF5] rounded-lg border-l-4 border-[#20E28F]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#20E28F]">
+                      {navigationItems.find(item => item.id === activeTab)?.icon}
+                    </span>
+                    <span className="font-semibold text-[#103138]">
+                      {navigationItems.find(item => item.id === activeTab)?.label || activeTab}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content based on active tab - maintaining exact existing content */}
                 {/* Overall Tier Section */}
                 {activeTab === 'Overall Tier' && (
                   <div ref={overallTierRef} className="section-content">
@@ -2335,23 +2440,95 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             .main-content {
               grid-template-columns: 1fr;
               gap: 1rem;
+              padding: 0 1rem;
+              margin: 1rem auto;
             }
             
             .sidebar {
-              position: relative;
-              top: 0;
-              max-height: none;
-              height: auto;
-              overflow-y: hidden;
+              display: none; /* Hide sidebar on mobile - replaced with mobile menu */
             }
             
             .content-panel {
               height: auto;
               max-height: none;
+              padding: 1rem;
             }
             
             .insights-grid {
               grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+              display: none; /* Hide desktop header actions on small screens */
+            }
+            
+            .header-content {
+              padding: 1rem;
+              justify-content: space-between;
+            }
+            
+            .header-content h1 {
+              font-size: 1.25rem;
+            }
+            
+            .logo-container {
+              width: 120px;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .header-content {
+              padding: 0.75rem;
+            }
+            
+            .header-content h1 {
+              font-size: 1.1rem;
+            }
+            
+            .logo-container {
+              width: 100px;
+            }
+            
+            .content-panel {
+              padding: 0.75rem;
+              border-radius: 8px;
+            }
+            
+            /* Mobile-specific improvements */
+            .section-title {
+              font-size: 1.5rem;
+              margin-bottom: 1rem;
+            }
+            
+            .section-subtitle {
+              font-size: 1.25rem;
+              margin-bottom: 0.75rem;
+              margin-top: 1.5rem;
+            }
+            
+            /* Improve touch targets on mobile */
+            button {
+              min-height: 44px;
+            }
+            
+            /* Better spacing for mobile readability */
+            .prose {
+              font-size: 0.95rem;
+              line-height: 1.6;
+            }
+            
+            .prose h1, .prose h2, .prose h3 {
+              margin-top: 1.5rem;
+              margin-bottom: 0.75rem;
+            }
+            
+            .prose p {
+              margin-bottom: 1rem;
+            }
+            
+            .prose ul, .prose ol {
+              margin-bottom: 1rem;
+              padding-left: 1.5rem;
             }
           }
         `}</style>
