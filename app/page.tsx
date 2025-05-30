@@ -74,7 +74,7 @@ const AssessmentHeader = () => {
         </div>
 
         {/* Mobile Navigation Menu */}
-        <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-4 pt-4 pb-6 space-y-3 bg-sg-dark-teal border-t border-sg-bright-green/20">
             {/* Mobile Trust Badge */}
             <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-sg-bright-green/10 to-sg-light-blue/10 px-4 py-3 rounded-lg border border-sg-bright-green/30 shadow-sm mb-4">
@@ -224,12 +224,39 @@ const IndustrySelection = ({
             AI Maturity Assessment
           </h1>
           <p className="text-xl text-sg-dark-teal/70 font-plus-jakarta max-w-2xl mx-auto">
-            Select your industry to begin
+            {scorecardState.isLoading ? 'Preparing your personalized assessment...' : 'Select your industry to begin'}
           </p>
         </div>
         
+        {/* Loading Overlay */}
+        {scorecardState.isLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+              <div className="mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-sg-bright-green to-sg-dark-teal rounded-full mb-4">
+                  <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-sg-dark-teal font-plus-jakarta mb-2">
+                  Preparing Your Assessment
+                </h3>
+                <p className="text-sg-dark-teal/70 font-plus-jakarta">
+                  We're generating personalized questions for the {selectedIndustry} industry...
+                </p>
+              </div>
+              <div className="flex items-center justify-center space-x-1">
+                <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Industry Selection Grid - Horizontal Layout */}
-        <div className="bg-white rounded-2xl shadow-xl border border-sg-bright-green/10 p-8 sm:p-12">
+        <div className={`bg-white rounded-2xl shadow-xl border border-sg-bright-green/10 p-8 sm:p-12 transition-opacity duration-300 ${scorecardState.isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
           
           {/* Industry Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
@@ -240,9 +267,11 @@ const IndustrySelection = ({
                 <button
                   key={industry}
                   onClick={() => handleIndustryChange(industry)}
+                  disabled={scorecardState.isLoading}
                   className={`
                     text-left px-6 py-5 rounded-xl border-2 transition-all duration-300 
                     focus:outline-none focus:ring-3 focus:ring-sg-dark-teal/20 group
+                    ${scorecardState.isLoading ? 'cursor-not-allowed opacity-50' : ''}
                     ${isSelected 
                       ? 'border-sg-dark-teal bg-sg-dark-teal text-white shadow-lg scale-[1.02]' 
                       : 'border-gray-200 bg-white hover:border-sg-dark-teal/50 hover:bg-sg-dark-teal/10 hover:scale-[1.01] shadow-sm'
@@ -278,24 +307,37 @@ const IndustrySelection = ({
           {/* CTA Button */}
           <div className="text-center">
             <Button
+              id="begin-assessment-button"
               onClick={startAssessment}
-              disabled={!selectedIndustry}
+              disabled={!selectedIndustry || scorecardState.isLoading}
               variant="default"
               size="lg"
               className={`
                 px-12 py-6 rounded-xl font-bold font-plus-jakarta text-xl shadow-xl 
                 transition-all duration-300 transform
-                ${selectedIndustry 
+                ${selectedIndustry && !scorecardState.isLoading
                   ? 'bg-sg-dark-teal hover:bg-sg-dark-teal/90 hover:scale-[1.02] hover:shadow-2xl text-white' 
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }
               `}
             >
               <div className="flex items-center justify-center gap-3">
-                <span>Begin Assessment</span>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                {scorecardState.isLoading ? (
+                  <>
+                    <svg className="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Starting Assessment...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Begin Assessment</span>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </>
+                )}
               </div>
             </Button>
           </div>
@@ -516,15 +558,14 @@ export default function Home() {
       industry: selectedIndustry,
       isLoading: true,
       error: null,
-      currentQuestion: 'Loading your first question...' // Add placeholder text
+      currentQuestion: null // Keep null until we have the actual question
     }));
 
     // Force UI update to reflect loading state immediately before making the API call
     // This will guarantee the loading state is visibly set before API call begins
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    // Set current step to assessment BEFORE making API call to transition the UI immediately
-    setCurrentStep('assessment');
+    // DON'T change step yet - keep showing the loading overlay until question is ready
 
     // Immediately disable auto-complete and clear errors
     setIsAutoCompleting(false);
@@ -595,18 +636,31 @@ export default function Home() {
       }
 
       console.log('Frontend: Received first question data, updating state:', data);
-      setScorecardState(prev => ({
-        ...prev,
-        isLoading: false,
-        currentQuestion: data.questionText,
-        answerType: data.answerType,
-        options: data.options,
-        currentPhaseName: data.currentPhaseName,
-        overall_status: data.overall_status,
-        reasoningText: data.reasoning_text,
-        currentQuestionNumber: 1
-      }));
-      // No need to set currentStep as we already did that before API call
+      
+      // Only update state and change step when we have a valid question
+      if (data.questionText && data.questionText.trim() !== '') {
+        setScorecardState(prev => ({
+          ...prev,
+          isLoading: false,
+          currentQuestion: data.questionText,
+          answerType: data.answerType,
+          options: data.options,
+          currentPhaseName: data.currentPhaseName,
+          overall_status: data.overall_status,
+          reasoningText: data.reasoning_text,
+          currentQuestionNumber: 1
+        }));
+        
+        // NOW change the step to assessment since we have a valid question
+        setCurrentStep('assessment');
+      } else {
+        // If no valid question, show error
+        setScorecardState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'No question received from the server. Please try again.'
+        }));
+      }
     } catch (error: any) {
       console.error('Frontend: Error in startActualAssessment:', error);
       setScorecardState(prev => ({

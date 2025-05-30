@@ -1478,13 +1478,16 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                   aria-hidden="true"
                 />
                 
-                <div className="md:hidden bg-white border-b border-gray-200 shadow-lg relative z-50">
-                  <nav className="px-4 py-2">
+                <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-50 max-h-[90vh] overflow-y-auto">
+                  <nav className="px-4 py-6">
                     <div className="space-y-1">
                       {navigationItems.map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => handleTabChange(item.id as SectionName)}
+                          onClick={() => {
+                            handleTabChange(item.id as SectionName);
+                            setIsMobileMenuOpen(false);
+                          }}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                             activeTab === item.id
                               ? 'bg-[#F3FDF5] text-[#20E28F] border-l-4 border-[#20E28F]'
@@ -1504,6 +1507,75 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                           )}
                         </button>
                       ))}
+                    </div>
+                    
+                    {/* Mobile Action Buttons */}
+                    <div className="border-t border-gray-200 mt-6 pt-6 pb-8">
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => {
+                            handleShareReport();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 bg-white text-[#103138] border border-[#103138] hover:bg-gray-50 transition-colors px-4 py-3 rounded-lg font-medium"
+                          disabled={isSharing}
+                        >
+                          {isSharing ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span>Sharing...</span>
+                            </span>
+                          ) : (
+                            <>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                              </svg>
+                              Share Report
+                            </>
+                          )}
+                        </button>
+
+                        <Link href={`/learning-hub${userTier ? `?tier=${userTier.toLowerCase()}` : ''}`} passHref>
+                          <button
+                            type="button"
+                            className="w-full sg-button-primary flex items-center justify-center gap-3 px-4 py-3 rounded-lg"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            Access Learning Hub
+                          </button>
+                        </Link>
+
+                        <div onClick={() => setIsMobileMenuOpen(false)}>
+                          <SeekPDFButton
+                            scorecardData={{
+                              reportMarkdown: processedReportMarkdown,
+                              questionAnswerHistory: questionAnswerHistory,
+                              userName: userName,
+                              userTier: userTier,
+                              userIndustry: userIndustry,
+                              strengths: strengths,
+                              weaknesses: weaknesses,
+                              actionItems: actionItems,
+                              finalScore: finalScore,
+                              reportId: reportId,
+                              userEmail: userEmail,
+                              userCompany: userCompany,
+                            }}
+                            className="w-full bg-gradient-to-r from-[#20E28F] to-[#01CEFE] text-white font-bold py-3 px-4 rounded-lg shadow-lg flex items-center justify-center gap-2 hover:from-[#1CC47E] hover:to-[#01B6D6] transition-all duration-200"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v12" />
+                            </svg>
+                            Download Report
+                          </SeekPDFButton>
+                        </div>
+                      </div>
                     </div>
                   </nav>
                 </div>
@@ -2442,6 +2514,8 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
               gap: 1rem;
               padding: 0 1rem;
               margin: 1rem auto;
+              height: auto; /* Remove fixed height on mobile */
+              min-height: calc(100vh - 140px); /* Ensure minimum height but allow expansion */
             }
             
             .sidebar {
@@ -2449,9 +2523,10 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             }
             
             .content-panel {
-              height: auto;
+              height: auto; /* Remove fixed height on mobile */
               max-height: none;
               padding: 1rem;
+              min-height: 60vh; /* Ensure minimum content height */
             }
             
             .insights-grid {
@@ -2474,6 +2549,12 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             .logo-container {
               width: 120px;
             }
+            
+            /* Ensure mobile menu appears properly */
+            .header {
+              position: sticky; /* Keep sticky positioning but ensure proper z-index */
+              z-index: 30; /* Ensure header is above content but below mobile menu */
+            }
           }
           
           @media (max-width: 480px) {
@@ -2492,6 +2573,12 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
             .content-panel {
               padding: 0.75rem;
               border-radius: 8px;
+              margin-bottom: 2rem; /* Add bottom margin for better footer spacing */
+            }
+            
+            .main-content {
+              margin-bottom: 2rem; /* Add bottom margin to main content */
+              padding-bottom: 2rem; /* Add bottom padding */
             }
             
             /* Mobile-specific improvements */

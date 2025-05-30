@@ -1539,6 +1539,10 @@ export default function LearningHubPage() {
   const [isClient, setIsClient] = useState(false);
   const [userName, setUserName] = useState('User');
   const [userTier, setUserTier] = useState<UserTier>('Dabbler');
+  
+  // Add mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const searchParams = useSearchParams();
   const reportId = searchParams?.get('reportId');
   
@@ -1601,15 +1605,37 @@ export default function LearningHubPage() {
 
   // Define the header component
   const TopNavigationHeader = () => (
-    <div className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-sg-bright-green rounded-full flex items-center justify-center text-sg-dark-teal font-bold">
-              AI
-            </div>
-            <span className="font-bold text-sg-dark-teal">AI Learning Hub</span>
+    <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-40">
+      <div className="flex items-center justify-between">
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-sg-dark-teal/10 hover:bg-sg-dark-teal/20 transition-colors"
+          aria-label="Toggle mobile menu"
+        >
+          <div className="w-6 h-6 relative flex flex-col justify-center">
+            <span className={`absolute block w-6 h-0.5 bg-sg-dark-teal transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-1.5'}`}></span>
+            <span className={`absolute block w-6 h-0.5 bg-sg-dark-teal transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+            <span className={`absolute block w-6 h-0.5 bg-sg-dark-teal transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-1.5'}`}></span>
           </div>
+        </button>
+
+        {/* Logo/Title */}
+        <div className="flex items-center">
+          <h1 className="text-lg sm:text-xl font-bold text-sg-dark-teal">AI Learning Hub</h1>
+        </div>
+
+        {/* Back to Report Link - Desktop */}
+        <div className="hidden sm:block">
+          <Link 
+            href={`/scorecard/results?reportId=${reportId}`}
+            className="flex items-center gap-2 text-sg-dark-teal hover:text-sg-bright-green transition-colors font-semibold text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Report
+          </Link>
         </div>
       </div>
     </div>
@@ -1840,14 +1866,14 @@ export default function LearningHubPage() {
     return (
       <div className="w-full">
         <h2 className="text-2xl sm:text-3xl font-bold text-[#004851] mb-2">AI Implementation Checklists</h2>
-        <p className="text-lg text-gray-700 mb-6 max-w-2xl">
+        <p className="text-base sm:text-lg text-gray-700 mb-6 max-w-2xl">
           Select a checklist below to view step-by-step guidance for your AI initiatives.
         </p>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl">
           {checklistTitles.map((title) => (
             <li key={title}>
               <button
-                className="w-full text-left bg-white border border-[#68F6C8] rounded-lg px-5 py-4 shadow-sm hover:bg-[#68F6C8] hover:text-[#004851] transition-colors font-semibold text-[#004851] text-base focus:outline-none focus:ring-2 focus:ring-[#68F6C8]"
+                className="w-full text-left bg-white border border-[#68F6C8] rounded-lg px-4 sm:px-5 py-3 sm:py-4 shadow-sm hover:bg-[#68F6C8] hover:text-[#004851] transition-colors font-semibold text-[#004851] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#68F6C8]"
                 onClick={() => handleChecklistView(title)}
               >
                 {title}
@@ -1873,11 +1899,11 @@ export default function LearningHubPage() {
     return (
       <div className="w-full">
         <h2 className="text-2xl sm:text-3xl font-bold text-sg-dark-teal mb-2">AI Mini Courses</h2>
-        <p className="text-lg text-gray-700 mb-6 max-w-2xl">
+        <p className="text-base sm:text-lg text-gray-700 mb-6 max-w-2xl">
           Select a course below to start learning how to effectively implement AI in your business.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
           {miniCourses.map((course) => (
             <MiniCourseCard key={course.id} course={course} />
           ))}
@@ -1891,11 +1917,11 @@ export default function LearningHubPage() {
     return (
       <div className="w-full">
         <h2 className="text-2xl sm:text-3xl font-bold text-sg-dark-teal mb-2">AI Templates</h2>
-        <p className="text-lg text-gray-700 mb-6 max-w-2xl">
+        <p className="text-base sm:text-lg text-gray-700 mb-6 max-w-2xl">
           Select a template below to view its details and download for your AI projects.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
           {templates.map((template) => (
             <TemplateCard key={template.id} template={template} />
           ))}
@@ -1946,8 +1972,31 @@ export default function LearningHubPage() {
 
   return (
     <main className="flex min-h-screen font-plus-jakarta">
-      {/* Sidebar */}
-      <aside className="sidebar w-[300px] bg-sg-dark-teal text-white p-6 h-full min-h-screen relative overflow-auto">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div 
+            className="fixed left-0 top-0 h-full w-80 bg-sg-dark-teal text-white p-6 overflow-auto transform transition-transform duration-300 ease-in-out"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SidebarNav
+              userName={userName}
+              tier={userTier}
+              activeSection={activeSection}
+              onSectionChange={(section) => {
+                setActiveSection(section);
+                setIsMobileMenuOpen(false); // Close mobile menu when section changes
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:block sidebar w-[300px] bg-sg-dark-teal text-white p-6 h-full min-h-screen relative overflow-auto">
         <SidebarNav
           userName={userName}
           tier={userTier}
@@ -1955,23 +2004,22 @@ export default function LearningHubPage() {
           onSectionChange={setActiveSection}
         />
       </aside>
+
       {/* Main content area */}
       <div className="flex-1 bg-sg-light-mint overflow-auto flex flex-col">
-        {/* Persistent Top Navigation to get back to Report */}
+        {/* Persistent Top Navigation */}
         <TopNavigationHeader />
         
         {/* Content area */}
-        <div className="p-8 md:p-10">
+        <div className="p-4 sm:p-6 md:p-8 lg:p-10">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 text-sg-dark-teal">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-sg-dark-teal">
               Social Garden AI Learning Hub
             </h1>
-            <p className="text-lg text-sg-dark-teal/80 mb-6 max-w-3xl">
+            <p className="text-base sm:text-lg text-sg-dark-teal/80 mb-6 max-w-3xl">
               Explore resources, templates, and tools to help you implement AI effectively in your business.
             </p>
 
-            {/* Remove the section navigation tabs */}
-            
             {/* Section content */}
             <div className="overflow-visible mb-10">
               {mainContent}
@@ -1979,9 +2027,9 @@ export default function LearningHubPage() {
 
             {/* Action button */}
             <div className="max-w-4xl mx-auto mt-20 mb-10 text-center">
-              <p className="text-sg-dark-teal/70 mb-4 text-lg">Need personalized AI guidance?</p>
+              <p className="text-sg-dark-teal/70 mb-4 text-base sm:text-lg">Need personalized AI guidance?</p>
               <button
-                className="bg-sg-bright-green hover:bg-sg-bright-green/80 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-sg-bright-green hover:bg-sg-bright-green/80 text-white font-bold py-3 px-6 sm:px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 text-sm sm:text-base"
                 onClick={() => window.location.href='/'}
               >
                 Return to AI Assessment
