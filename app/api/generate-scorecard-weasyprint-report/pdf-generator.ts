@@ -23,7 +23,7 @@ interface PDFOptions {
 export async function convertHTMLToPDF(html: string, options: PDFOptions = {}): Promise<Buffer> {
   try {
     // WeasyPrint service configuration
-    const WEASYPRINT_SERVICE_URL = process.env.WEASYPRINT_SERVICE_URL || "http://localhost:5001/generate-pdf";
+    const WEASYPRINT_SERVICE_URL = process.env.WEASYPRINT_SERVICE_URL || "http://168.231.115.219:5001/generate-pdf";
     const WEASYPRINT_TIMEOUT = 180000; // 180 seconds timeout (3 minutes)
     
     console.log("Configuring PDF options for WeasyPrint...");

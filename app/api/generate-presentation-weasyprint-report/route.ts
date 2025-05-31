@@ -10,7 +10,7 @@ import { generateScorecardHTMLv5 as generateScorecardHTML } from '@/lib/html-gen
 async function generatePresentationPDF(html: string): Promise<Buffer> {
   try {
     // WeasyPrint service URL
-    const weasyPrintServiceUrl = process.env.WEASYPRINT_SERVICE_URL || 'http://168.231.86.114:5001/generate-pdf';
+    const weasyPrintServiceUrl = process.env.WEASYPRINT_SERVICE_URL || 'http://168.231.115.219:5001/generate-pdf';
     console.log(`Using WeasyPrint service at: ${weasyPrintServiceUrl}`);
     
     // Modify HTML to add presentation-specific CSS
