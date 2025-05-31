@@ -201,10 +201,14 @@ export default function SidebarNav({
       
       {/* Footer: logo, socials, support */}
       <div className="z-10 relative mt-10 pt-8 border-t border-white/20 flex flex-col items-center gap-3">
-        {/* Placeholder for Social Garden logo */}
+        {/* Social Garden Logo */}
         <div className="mb-1">
-          <div className="w-12 h-12 rounded-full bg-sg-bright-green flex items-center justify-center shadow-md">
-            <span className="text-sg-dark-teal font-extrabold text-2xl font-plus-jakarta">SG</span>
+          <div className="relative w-24 h-8 rounded-lg bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center p-2 shadow-md">
+            <img 
+              src="/footer-logo.svg" 
+              alt="Social Garden" 
+              className="h-full w-auto object-contain filter drop-shadow-sm"
+            />
           </div>
         </div>
         <div className="flex gap-3 mb-1">

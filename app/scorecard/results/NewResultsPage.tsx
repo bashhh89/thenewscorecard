@@ -249,7 +249,16 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
         }
         
         if (!fetchedReportId) {
-          throw new Error("No reportId found in URL or storage");
+          // Instead of throwing an error, redirect to home page to complete scorecard
+          console.log("RESULTS PAGE: No reportId found, redirecting to complete scorecard");
+          if (typeof window !== 'undefined') {
+            // Add a small delay to ensure the console log is visible
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          }
+          setError("No scorecard results found. Please complete the AI Efficiency Scorecard first.");
+          return;
         }
         
         // Set the report ID in state
@@ -1310,29 +1319,29 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
   if (error) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white p-6">
-        <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg max-w-lg w-full mb-6">
-          <h2 className="text-2xl font-bold mb-3 text-red-700">Unable to Load Results</h2>
-          <p className="text-red-600 mb-4">{error}</p>
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg max-w-lg w-full mb-6">
+          <h2 className="text-2xl font-bold mb-3 text-blue-700">Complete Your AI Scorecard First</h2>
+          <p className="text-blue-600 mb-4">{error}</p>
           <p className="text-sg-dark-teal/70 mb-6">
-            We're having trouble loading your report. This could be due to:
+            To view your personalized AI efficiency results, you need to:
             <ul className="list-disc pl-6 mt-2">
-              <li>Your session has expired</li>
-              <li>The report ID was incorrect or missing</li>
-              <li>A temporary network issue</li>
+              <li>Complete the AI Efficiency Scorecard assessment</li>
+              <li>Answer questions about your current AI usage</li>
+              <li>Get your personalized tier and recommendations</li>
             </ul>
           </p>
           <div className="flex space-x-4">
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => window.location.href = '/'}  
               className="px-6 py-3 bg-sg-bright-green text-white font-semibold rounded-lg shadow-sm hover:brightness-105 transition-all"
             >
-              Retry Loading
+              Start AI Scorecard
             </button>
             <button 
-              onClick={() => window.location.href = '/'}  
+              onClick={() => window.location.reload()} 
               className="px-6 py-3 bg-sg-dark-teal text-white font-semibold rounded-lg shadow-sm hover:brightness-105 transition-all"
             >
-              Return to Home
+              Retry Loading
             </button>
           </div>
         </div>
@@ -1366,8 +1375,15 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
               <div className="header-content">
                 <div className="flex items-center gap-3 flex-1">
                   <div className="logo-container">
-                    {/* Replace text logo with Image component */}
-                    <Image src="/footer-logo.svg" alt="AI Efficiency Scorecard Logo" width={150} height={30} className="logo-inner" />
+                    {/* Social Garden Logo */}
+                    <Image 
+                      src="/footer-logo.svg" 
+                      alt="AI Efficiency Scorecard Logo" 
+                      width={120} 
+                      height={24} 
+                      className="logo-inner"
+                      priority
+                    />
                   </div>
                   <h1>AI Efficiency Scorecard</h1>
                 </div>
@@ -1981,20 +1997,23 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
           }
           
           .logo-container {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, ${colors.brightGreen}, ${colors.lightBlue});
+            width: auto;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #103138, #1a4a52);
+            border: 1px solid rgba(32, 226, 143, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(32, 226, 143, 0.2);
+            padding: 4px 12px;
+            box-shadow: 0 2px 8px rgba(16, 49, 56, 0.15);
           }
           
           .logo-inner {
-            color: ${colors.darkTeal};
-            font-weight: 800;
-            font-size: 18px;
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(1.1) contrast(1.05);
           }
           
           .header-actions {

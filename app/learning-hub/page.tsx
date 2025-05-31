@@ -1666,24 +1666,24 @@ export default function LearningHubPage() {
     if (selectedPromptDetail) {
       const parsed = parsePromptText(selectedPromptDetail.fullText);
       return (
-        <div className="w-full max-w-2xl mx-auto bg-white border border-gray-100 rounded-2xl shadow-xl p-8 relative animate-fade-in">
+        <div className="w-full max-w-4xl mx-auto bg-white border border-gray-100 rounded-2xl shadow-xl p-3 sm:p-6 lg:p-8 relative animate-fade-in">
           <button
-            className="inline-flex items-center gap-2 bg-[#68F6C8] text-[#004851] font-semibold py-2 px-4 rounded-lg shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#68F6C8] mb-8 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#68F6C8] text-[#004851] font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#68F6C8] mb-4 sm:mb-6 lg:mb-8 transition-colors text-sm sm:text-base"
             onClick={() => setSelectedPromptDetail(null)}
             type="button"
             aria-label="Back to Prompts"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             Back to Prompts
           </button>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#004851] mb-6">{selectedPromptDetail.title}</h2>
-          <div className="mb-6">
-            <span className="inline-block bg-[#68F6C8]/20 text-[#004851] font-semibold rounded px-3 py-1 mr-2 text-sm">{selectedPromptDetail.tier}</span>
-            <span className="inline-block bg-[#004851]/10 text-[#004851] font-semibold rounded px-3 py-1 text-sm">{selectedPromptDetail.category}</span>
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-[#004851] mb-3 sm:mb-4 lg:mb-6 leading-tight">{selectedPromptDetail.title}</h2>
+          <div className="mb-3 sm:mb-4 lg:mb-6 flex flex-wrap gap-2">
+            <span className="inline-block bg-[#68F6C8]/20 text-[#004851] font-semibold rounded px-2 sm:px-3 py-1 text-xs sm:text-sm">{selectedPromptDetail.tier}</span>
+            <span className="inline-block bg-[#004851]/10 text-[#004851] font-semibold rounded px-2 sm:px-3 py-1 text-xs sm:text-sm">{selectedPromptDetail.category}</span>
           </div>
-          <div className="mb-8">
-            <div className="w-full bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-800 font-mono text-base min-h-[120px] leading-relaxed break-words">
-              {parsed.map((part, idx) => {
+          <div className="mb-6 sm:mb-8">
+            <div className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 text-gray-800 font-mono text-sm sm:text-base min-h-[120px] leading-relaxed break-words overflow-x-auto">
+              {parsed.map((part: any, idx: number) => {
                 if (part.type === 'text') return <span key={idx}>{part.value}</span>;
                 if (part.type === 'placeholder' && part.key && selectedPromptDetail.placeholders[part.key]) {
                   const meta = selectedPromptDetail.placeholders[part.key];
@@ -1710,17 +1710,17 @@ export default function LearningHubPage() {
 
     // Prompt List View
     return (
-      <div className="w-full max-w-3xl mx-auto">
+      <div className="w-full max-w-5xl mx-auto">
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between bg-white p-4 rounded-xl shadow border border-gray-100">
+        <div className="flex flex-col gap-3 mb-6 sm:mb-8 bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow border border-gray-100">
           {/* Tier Filter */}
-          <div className="flex flex-col md:flex-row gap-2 items-center">
-            <label htmlFor="prompt-tier-select" className="text-[#004851] font-semibold text-base mr-2">Tier:</label>
+          <div className="flex flex-col gap-2 items-start w-full">
+            <label htmlFor="prompt-tier-select" className="text-[#004851] font-semibold text-sm sm:text-base">Tier:</label>
             <select
               id="prompt-tier-select"
               value={selectedPromptTier}
               onChange={e => setSelectedPromptTier(e.target.value as any)}
-              className="p-2 rounded-lg border border-[#68F6C8] bg-white text-[#004851] font-semibold focus:ring-2 focus:ring-[#68F6C8] focus:outline-none shadow-sm"
+              className="w-full p-2 sm:p-3 rounded-lg border border-[#68F6C8] bg-white text-[#004851] font-semibold focus:ring-2 focus:ring-[#68F6C8] focus:outline-none shadow-sm text-sm sm:text-base"
             >
               <option value="All">All Tiers</option>
               <option value="Dabbler">Dabbler</option>
@@ -1729,13 +1729,13 @@ export default function LearningHubPage() {
             </select>
           </div>
           {/* Category Filter */}
-          <div className="flex flex-col md:flex-row gap-2 items-center">
-            <label htmlFor="prompt-category-select" className="text-[#004851] font-semibold text-base mr-2">Category:</label>
+          <div className="flex flex-col gap-2 items-start w-full">
+            <label htmlFor="prompt-category-select" className="text-[#004851] font-semibold text-sm sm:text-base">Category:</label>
             <select
               id="prompt-category-select"
               value={selectedPromptCategory}
               onChange={e => setSelectedPromptCategory(e.target.value)}
-              className="p-2 rounded-lg border border-[#68F6C8] bg-white text-[#004851] font-semibold focus:ring-2 focus:ring-[#68F6C8] focus:outline-none shadow-sm"
+              className="w-full p-2 sm:p-3 rounded-lg border border-[#68F6C8] bg-white text-[#004851] font-semibold focus:ring-2 focus:ring-[#68F6C8] focus:outline-none shadow-sm text-sm sm:text-base"
             >
               {promptCategories.map(cat => (
                 <option key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
@@ -1744,19 +1744,23 @@ export default function LearningHubPage() {
           </div>
         </div>
         {/* Prompt List */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           {filteredPrompts.length === 0 ? (
-            <div className="text-center text-gray-500 py-12 bg-white rounded-xl border border-gray-100 shadow">No prompts found for the selected filters.</div>
+            <div className="text-center text-gray-500 py-6 sm:py-8 lg:py-12 bg-white rounded-xl border border-gray-100 shadow text-sm sm:text-base">No prompts found for the selected filters.</div>
           ) : (
             filteredPrompts.map(prompt => (
               <button
                 key={prompt.id}
-                className="w-full text-left bg-white border border-[#68F6C8] rounded-lg px-5 py-4 shadow-sm hover:bg-[#68F6C8]/10 hover:border-[#004851] transition-colors font-semibold text-[#004851] text-lg focus:outline-none focus:ring-2 focus:ring-[#68F6C8] flex items-center gap-4"
+                className="w-full text-left bg-white border border-[#68F6C8] rounded-lg p-3 sm:px-5 sm:py-4 shadow-sm hover:bg-[#68F6C8]/10 hover:border-[#004851] transition-colors font-semibold text-[#004851] focus:outline-none focus:ring-2 focus:ring-[#68F6C8]"
                 onClick={() => setSelectedPromptDetail(prompt)}
               >
-                <span className="font-bold text-[#004851] text-base mr-2">{prompt.title}</span>
-                <span className="inline-block bg-[#68F6C8]/20 text-[#004851] font-semibold rounded px-3 py-1 mr-2 text-xs">{prompt.tier}</span>
-                <span className="inline-block bg-[#004851]/10 text-[#004851] font-semibold rounded px-3 py-1 text-xs">{prompt.category}</span>
+                <div className="flex flex-col gap-2 sm:gap-3">
+                  <span className="font-bold text-[#004851] text-sm sm:text-lg leading-tight">{prompt.title}</span>
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
+                    <span className="inline-block bg-[#68F6C8]/20 text-[#004851] font-semibold rounded px-2 sm:px-3 py-1 text-xs sm:text-sm">{prompt.tier}</span>
+                    <span className="inline-block bg-[#004851]/10 text-[#004851] font-semibold rounded px-2 sm:px-3 py-1 text-xs sm:text-sm">{prompt.category}</span>
+                  </div>
+                </div>
               </button>
             ))
           )}
@@ -1770,7 +1774,7 @@ export default function LearningHubPage() {
     const [copied, setCopied] = useState(false);
     return (
       <button
-        className={`inline-flex items-center gap-2 bg-[#004851] text-white font-semibold py-2 px-5 rounded-lg shadow hover:bg-[#68F6C8] hover:text-[#004851] focus:outline-none focus:ring-2 focus:ring-[#68F6C8] transition-colors text-base ${copied ? 'opacity-80' : ''}`}
+        className={`inline-flex items-center gap-2 bg-[#004851] text-white font-semibold py-2 sm:py-3 px-4 sm:px-5 rounded-lg shadow hover:bg-[#68F6C8] hover:text-[#004851] focus:outline-none focus:ring-2 focus:ring-[#68F6C8] transition-colors text-sm sm:text-base w-full sm:w-auto justify-center sm:justify-start ${copied ? 'opacity-80' : ''}`}
         onClick={async () => {
           await navigator.clipboard.writeText(promptText);
           setCopied(true);
@@ -1779,7 +1783,7 @@ export default function LearningHubPage() {
         }}
         type="button"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15V5a2 2 0 012-2h10" /></svg>
+        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15V5a2 2 0 012-2h10" /></svg>
         {copied ? 'Copied!' : 'Copy Prompt'}
       </button>
     );

@@ -861,16 +861,14 @@ export default function Home() {
         // Try to navigate to results without a reportId, relying on session data
         console.log('>>> FRONTEND: Attempting fallback navigation without reportId at:', new Date().toISOString());
 
-        // Add delay for fallback navigation too
-        setTimeout(() => {
-          console.log('>>> FRONTEND: Executing delayed fallback navigation to /scorecard/results');
-          try {
-            window.location.href = `/scorecard/results`;
-          } catch (navError) {
-            console.error('Fallback navigation failed, trying alternate method:', navError);
-            window.open(`/scorecard/results`, '_self');
-          }
-        }, 1000);
+        // Immediate fallback navigation
+        console.log('>>> FRONTEND: Executing immediate fallback navigation to /scorecard/results');
+        try {
+          window.location.href = `/scorecard/results`;
+        } catch (navError) {
+          console.error('Fallback navigation failed, trying alternate method:', navError);
+          window.location.replace(`/scorecard/results`);
+        }
       }
     } catch (error) {
       console.error(`FRONTEND: Error in generateReport at: ${new Date().toISOString()}`, error);

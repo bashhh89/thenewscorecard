@@ -13,8 +13,8 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  // Disable font optimization to prevent Google Fonts timeouts
-  optimizeFonts: false,
+  // Enable font optimization
+  optimizeFonts: true,
   // Set specific settings to help with build errors
   reactStrictMode: true,
   swcMinify: true,
