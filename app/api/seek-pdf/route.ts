@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 }
 
 async function generatePDF(html: string): Promise<Buffer> {
-  const serviceUrl = 'http://168.231.86.114:5001/generate-pdf'; // Use the correct server IP
+  const serviceUrl = process.env.WEASYPRINT_SERVICE_URL || 'http://168.231.115.219:5001/generate-pdf';
   console.log(`Using WeasyPrint service at: ${serviceUrl}`);
   
   try {
@@ -57,7 +57,7 @@ async function generatePDF(html: string): Promise<Buffer> {
     const response = await fetch(serviceUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ html_content: html }),
+      body: JSON.stringify({ html: html }),
       signal: controller.signal
     });
     
