@@ -3,27 +3,24 @@ module.exports = {
     {
       name: 'aiscorecard',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3006',
+      args: 'start -p 3007',
+      cwd: '/root/newfixsg',
       instances: 'max',
       exec_mode: 'cluster',
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '1G',
       env: {
         NODE_ENV: 'production',
-        PORT: 3006
+        PORT: 3007
       },
-      // Advanced error handling and logging
-      error_file: './logs/error.log',
-      out_file: './logs/output.log',
-      log_date_format: 'YYYY-MM-DD HH:mm:ss',
-      // Enhanced restart behavior
-      restart_delay: 3000,
-      max_restarts: 10,
-      // Health check to ensure the app is responding correctly
-      exp_backoff_restart_delay: 100,
-      // Graceful shutdown
-      kill_timeout: 5000
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 3007
+      },
+      max_memory_restart: '1G',
+      error_file: '/root/logs/aiscorecard-error.log',
+      out_file: '/root/logs/aiscorecard-out.log',
+      log_file: '/root/logs/aiscorecard-combined.log',
+      time: true,
+      merge_logs: true
     }
   ]
 }; 

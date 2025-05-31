@@ -241,15 +241,15 @@ body {
   .sidebar-nav-item {
     @apply flex items-center px-4 py-3 text-sg-dark-teal hover:bg-sg-light-mint transition-colors;
   }
-
+  
   .sidebar-nav-item.active {
     @apply bg-sg-light-mint border-r-2 border-sg-bright-green;
   }
-
+  
   .sidebar-nav-item .icon {
     @apply w-5 h-5 mr-3 text-sg-gray-500;
   }
-
+  
   .sidebar-nav-item:hover .icon,
   .sidebar-nav-item.active .icon {
     @apply text-sg-bright-green;
@@ -280,20 +280,20 @@ body {
   }
 
   /* Mobile responsive styles using Tailwind's mobile-first approach */
-  .sg-sidebar {
+    .sg-sidebar {
     @apply w-64 transform -translate-x-full md:translate-x-0;
-  }
-
-  .sg-sidebar-collapsed {
+    }
+    
+    .sg-sidebar-collapsed {
     @apply transform translate-x-0 md:-translate-x-full;
-  }
-
-  .sg-sidebar-visible {
+    }
+    
+    .sg-sidebar-visible {
     @apply transform translate-x-0;
-  }
-
-  .main-content-wrapper,
-  .main-content-wrapper-expanded {
+    }
+    
+    .main-content-wrapper,
+    .main-content-wrapper-expanded {
     @apply ml-0 md:ml-64;
   }
 
@@ -349,12 +349,12 @@ body {
   .sg-badge-accent {
     @apply bg-sg-light-blue/10 text-sg-accent-blue;
   }
-
+  
   /* Typography utilities */
   .title-text {
     @apply text-2xl font-bold text-sg-dark-teal mb-4;
   }
-
+  
   .section-text {
     @apply text-lg font-semibold text-sg-dark-teal mb-3;
   }
@@ -398,13 +398,13 @@ body {
   .sg-answer-option.selected {
     @apply border-sg-bright-green bg-sg-light-mint text-sg-dark-teal;
   }
-
+  
   /* Mobile responsive answer options */
-  .sg-answer-option {
+    .sg-answer-option {
     @apply text-sm;
-  }
-
-  .sg-answer-option span {
+    }
+    
+    .sg-answer-option span {
     @apply block;
   }
 
@@ -690,19 +690,19 @@ body {
 }
 
 /* Mobile-specific responsive adjustments using min-width */
-.sg-answer-option-enhanced {
+  .sg-answer-option-enhanced {
   @apply text-sm md:text-base;
-}
-
-.sg-button-enhanced-primary {
+  }
+  
+  .sg-button-enhanced-primary {
   @apply px-4 py-2 md:px-6 md:py-3;
-}
-
-.text-brand-title {
+  }
+  
+  .text-brand-title {
   @apply text-2xl md:text-3xl lg:text-4xl;
-}
-
-.text-brand-section {
+  }
+  
+  .text-brand-section {
   @apply text-lg md:text-xl lg:text-2xl;
 }
 
