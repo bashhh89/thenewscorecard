@@ -472,6 +472,7 @@ export default function Home() {
     isLoading: false,
     error: null,
     reportMarkdown: null, // No pre-populated report
+    reportId: null, // Added missing required property
     overall_status: 'assessment-in-progress', // Start in progress
     reasoningText: null, // Initialize as null
     industry: "Property/Real Estate",
@@ -1042,7 +1043,7 @@ export default function Home() {
           phaseName: currentPhaseName,
           answerType: scorecardState.answerType || undefined,
           options: scorecardState.options || null,
-          answerSource: 'Manual',
+          answerSource: 'Manual' as AnswerSourceType,
           reasoningText: reasoning
         };
         localHistory = [...localHistory, entry].slice(0, MAX_QUESTIONS);
@@ -1158,21 +1159,7 @@ export default function Home() {
   }, [leadCaptured, scorecardState.reportId]);
 
   // --- TEMPORARY FOR TESTING RESULTS PAGE ---
-  // Auto-fill lead capture form for testing
-  useEffect(() => {
-    if (currentStep === 'results' && !leadCaptured) {
-      setLeadCaptured(true);
-      setLeadName('John Doe'); // Test name
-      setTimeout(() => {
-        const reportId = sessionStorage.getItem('reportId') || sessionStorage.getItem('currentReportID');
-        if (reportId) {
-          window.location.replace(`/scorecard/results?reportId=${reportId}`);
-        } else {
-          window.location.replace('/scorecard/results');
-        }
-      }, 3000);
-    }
-  }, [currentStep, leadCaptured]);
+  // (REMOVED: Auto-fill lead capture form for testing. Now, real lead capture form will show as intended.)
   // --- END TEMPORARY CHANGES ---
 
   return (
@@ -1361,15 +1348,35 @@ export default function Home() {
                   <Button
                     onClick={async () => {
                       if (!scorecardState.reportMarkdown) return;
-                      const blob = new Blob([scorecardState.reportMarkdown], { type: 'text/markdown' });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `AI_Efficiency_Report_${new Date().toISOString().slice(0, 10)}.md`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
+                      try {
+                        const response = await fetch('/api/generate-scorecard-weasyprint-report', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            reportMarkdown: scorecardState.reportMarkdown,
+                            industry: selectedIndustry,
+                            reportId: scorecardState.reportId,
+                            leadName: leadName || null
+                          })
+                        });
+                        if (!response.ok) {
+                          const errorText = await response.text();
+                          alert('Failed to generate PDF: ' + errorText);
+                          return;
+                        }
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `AI_Efficiency_Report_${new Date().toISOString().slice(0, 10)}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      } catch (err) {
+                        alert('An error occurred while downloading the PDF.');
+                        console.error(err);
+                      }
                     }}
                     variant="outline"
                     size="lg"
