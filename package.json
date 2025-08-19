@@ -8,7 +8,7 @@
     "dev:windows": "powershell -Command \"next dev -p 3006\"",
     "build": "next build",
     "postbuild": "node copy-public-assets.js",
-    "start": "node start-production.js",
+    "start": "node server.js",
     "lint": "next lint",
     "test-pdf": "node test-pdf-generation.js",
     "verify": "node verify-deploy-readiness.js",

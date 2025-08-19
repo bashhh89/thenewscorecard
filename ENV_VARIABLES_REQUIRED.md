@@ -1,28 +1,23 @@
-# Required Environment Variables for Deployment
+# Production Environment Variables Required for EasyPanel
 
-Copy these variables to your Netlify environment variables settings in the Netlify dashboard:
+## Core Configuration
+- `PORT=3006` - Must match Dockerfile EXPOSE and NODE_ENV port
+- `NODE_ENV=production` - Ensures production optimizations
 
-```
-# OpenAI API
-OPENAI_API_KEY=your_openai_key
+## Security & Authentication
+- `NEXTAUTH_SECRET` - Generate with `openssl rand -base64 32`
+- `NEXTAUTH_URL=https://yourdomain.com` - Base URL of live application
+- `FIREBASE_CONFIG` - Firebase Admin SDK JSON credentials
 
-# Firebase Config
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+## Services Integration
+- `DATABASE_URL` - PostgreSQL connection string
+- `RESEND_API_KEY` - Email service API key
+- `WEASYPRINT_PATH=/usr/bin/weasyprint` - PDF renderer path in container
 
-# Firebase Admin
-FIREBASE_CLIENT_EMAIL=your_firebase_client_email
-FIREBASE_PRIVATE_KEY=your_firebase_private_key
+## Domain Configuration  
+- `NEXT_PUBLIC_API_BASE=https://yourdomain.com/api`
+- `NEXT_PUBLIC_SITE_URL=https://yourdomain.com`
 
-# Resend Email
-RESEND_API_KEY=your_resend_api_key
-```
-
-**Important Notes:**
-1. Environment variables from your local `.env.local` file are NOT automatically transferred to Netlify
-2. You must manually add these in your Netlify project settings under "Site settings" > "Environment variables"
-3. For `FIREBASE_PRIVATE_KEY`, you may need to wrap the value in double quotes and include newlines as `"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"` 
+## File Storage
+- `PDF_SAVE_DIR=/app/pdf-storage` - Absolute path in container
+- `FIREBASE_STORAGE_BUCKET=your-bucket.appspot.com`
