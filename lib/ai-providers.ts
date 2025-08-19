@@ -463,9 +463,12 @@ export class AIProviderManager {
     this.useGeorgeKey = process.env.USE_GEORGE_KEY === 'true';
     logger.debug(`Initializing AI Provider Manager (UseGeorgeKey: ${this.useGeorgeKey ? 'true - OpenAI Required' : 'false - OpenAI Still Required'})...`);
     
-    // Initialize OpenAI Provider with more robust error handling
+    // Initialize OpenAI Provider with direct key from environment
     try {
       const openAIAPIKey = process.env.OPENAI_API_KEY || '';
+      if (!openAIAPIKey) {
+        throw new Error('OPENAI_API_KEY environment variable is required');
+      }
       const openAIModel = process.env.OPENAI_MODEL || 'gpt-4o';
       
       // Log information without exposing the actual key
