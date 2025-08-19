@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "npx kill-port 3006",
-    "dev": "cross-env next dev -p 3006",
+    "dev": "cross-env next dev -p 3006 -H 0.0.0.0",
     "dev:windows": "powershell -Command \"next dev -p 3006\"",
     "build": "next build",
     "postbuild": "node copy-public-assets.js",
