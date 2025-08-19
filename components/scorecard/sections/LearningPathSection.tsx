@@ -68,7 +68,7 @@ export const LearningPathSection: React.FC<LearningPathSectionProps> = ({
    - Assessing your current data capabilities
    - Essential steps for improving data quality and accessibility`,
 
-      unknown: `Our Learning Hub provides resources for organizations at all AI maturity levels:
+      unknown: `Our Learning Hub provides resources for organizations at all AI efficiency levels:
 
 1. **AI Fundamentals and Strategy**
    - Key AI concepts, use cases, and strategic planning approaches
@@ -206,7 +206,7 @@ export const LearningPathSection: React.FC<LearningPathSectionProps> = ({
         </h3>
         <p className="text-[#103138]/80 leading-relaxed mb-4">
           Based on your assessment results, we've created a personalized learning path to help you 
-          advance your AI maturity. These resources are tailored to your specific needs and current tier.
+          advance your AI efficiency. These resources are tailored to your specific needs and current tier.
         </p>
       </div>
       

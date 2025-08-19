@@ -76,7 +76,7 @@ const AssessmentLanding: React.FC<AssessmentLandingProps> = ({
         <div className="md:w-1/2">
           <h1 className="text-4xl md:text-5xl font-extrabold text-sg-dark-teal mb-4 leading-tight">
             Assess Your Organization's 
-            <span className="text-sg-mint-green"> AI Maturity</span>
+            <span className="text-sg-mint-green"> AI Efficiency Assessment</span>
           </h1>
           <p className="text-gray-600 text-lg mb-8 leading-relaxed">
             Take our comprehensive assessment to understand where your organization stands in its AI journey and discover actionable insights to advance your capabilities.
@@ -114,33 +114,175 @@ const AssessmentLanding: React.FC<AssessmentLandingProps> = ({
               </div>
               
               {/* Sample tiers */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {["Beginner", "Explorer", "Enabler", "Leader"].map((tier, index) => (
-                  <div key={tier} className="bg-sg-off-white rounded-lg p-3 border border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sg-mint-green to-[#00C4B8] text-white flex items-center justify-center font-bold">
-                        {index + 1}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Dabbler Tier */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-sg-orange/20 to-sg-orange/5 rounded-divine blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative p-8 bg-white rounded-divine shadow-divine-card border border-gray-100 h-full overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 -mt-8 -mr-8 bg-sg-orange/10 rounded-full"></div>
+                    
+                    <div className="relative">
+                      <div className="flex items-center mb-6">
+                        <span className="flex items-center justify-center w-10 h-10 bg-sg-orange/20 text-sg-orange rounded-full mr-4 font-semibold">1</span>
+                        <h3 className="text-2xl font-bold text-sg-dark-teal">Dabbler</h3>
                       </div>
-                      <span className="font-medium text-sg-dark-teal">{tier}</span>
+                      
+                      <p className="text-gray-600 mb-6">
+                        You're just starting to explore AI tools. The scorecard will help you identify your current level and provide resources to get started.
+                      </p>
+                      
+                      <div className="mb-6">
+                        <div className="h-2 w-full bg-gray-200 rounded-full mb-2">
+                          <div className="h-full bg-sg-orange rounded-full" style={{ width: '40%' }}></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Curious</span>
+                          <span>Experimenting</span>
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-semibold text-sg-dark-teal mb-3">Personalized Resources Include:</h4>
+                      <ul className="space-y-2 text-gray-600 mb-6">
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>AI Implementation Fundamentals Course</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Basic AI Tool Selection Guide</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Prompting 101 Templates</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
-                ))}
+                </div>
+                
+                {/* Enabler Tier */}
+                <div className="relative group mt-10 md:mt-0">
+                  <div className="absolute inset-0 bg-gradient-to-br from-sg-light-blue/20 to-sg-light-blue/5 rounded-divine blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative p-8 bg-white rounded-divine shadow-divine-card border border-gray-100 h-full overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 -mt-8 -mr-8 bg-sg-light-blue/10 rounded-full"></div>
+                    
+                    <div className="relative">
+                      <div className="flex items-center mb-6">
+                        <span className="flex items-center justify-center w-10 h-10 bg-sg-light-blue/20 text-sg-light-blue rounded-full mr-4 font-semibold">2</span>
+                        <h3 className="text-2xl font-bold text-sg-dark-teal">Enabler</h3>
+                      </div>
+                      
+                      <p className="text-gray-600 mb-6">
+                        You have some AI solutions in place but need to optimize and expand. The scorecard will help you scale your AI initiatives strategically.
+                      </p>
+                      
+                      <div className="mb-6">
+                        <div className="h-2 w-full bg-gray-200 rounded-full mb-2">
+                          <div className="h-full bg-sg-light-blue rounded-full" style={{ width: '65%' }}></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Scaling</span>
+                          <span>Optimizing</span>
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-semibold text-sg-dark-teal mb-3">Personalized Resources Include:</h4>
+                      <ul className="space-y-2 text-gray-600 mb-6">
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Advanced Prompting Techniques Course</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>AI Strategy Integration Playbook</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>AI Workflow Automation Templates</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Leader Tier */}
+                <div className="relative group mt-10 md:mt-0">
+                  <div className="absolute inset-0 bg-gradient-to-br from-sg-bright-green/20 to-sg-bright-green/5 rounded-divine blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative p-8 bg-white rounded-divine shadow-divine-card border border-gray-100 h-full overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 -mt-8 -mr-8 bg-sg-bright-green/10 rounded-full"></div>
+                    
+                    <div className="relative">
+                      <div className="flex items-center mb-6">
+                        <span className="flex items-center justify-center w-10 h-10 bg-sg-bright-green/20 text-sg-bright-green rounded-full mr-4 font-semibold">3</span>
+                        <h3 className="text-2xl font-bold text-sg-dark-teal">Leader</h3>
+                      </div>
+                      
+                      <p className="text-gray-600 mb-6">
+                        You've established sophisticated AI capabilities. The scorecard will help you maintain your competitive edge and discover cutting-edge opportunities.
+                      </p>
+                      
+                      <div className="mb-6">
+                        <div className="h-2 w-full bg-gray-200 rounded-full mb-2">
+                          <div className="h-full bg-sg-bright-green rounded-full" style={{ width: '90%' }}></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Innovating</span>
+                          <span>Market Leading</span>
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-semibold text-sg-dark-teal mb-3">Personalized Resources Include:</h4>
+                      <ul className="space-y-2 text-gray-600 mb-6">
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>AI Model Fine-Tuning Masterclass</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Enterprise AI Governance Framework</span>
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Advanced AI Integration Architecture</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               {/* Sample score indicator */}
-              <div className="bg-sg-light-mint p-4 rounded-xl border border-[#E0F7F0]">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-sg-dark-teal">Your AI Maturity Score</span>
-                  <span className="text-sg-dark-teal font-bold">?</span>
-                </div>
-                <div className="w-full bg-white rounded-full h-2.5">
-                  <div className="bg-gradient-to-r from-sg-mint-green to-[#00C4B8] h-2.5 rounded-full w-0"></div>
-                </div>
-                <div className="flex justify-between mt-1 text-xs text-gray-500">
-                  <span>Beginner</span>
-                  <span>Leader</span>
-                </div>
-              </div>
+                  <div className="bg-sg-light-mint p-4 rounded-xl border border-[#E0F7F0]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-sg-dark-teal">Your AI Efficiency Score</span>
+                      <span className="text-sg-dark-teal font-bold">?</span>
+                    </div>
+                    <div className="w-full bg-white rounded-full h-2.5">
+                      <div className="bg-gradient-to-r from-sg-mint-green to-[#00C4B8] h-2.5 rounded-full w-0"></div>
+                    </div>
+                    <div className="flex justify-between mt-1 text-xs text-gray-500">
+                      <span>Beginner</span>
+                      <span>Leader</span>
+                    </div>
+                  </div>
             </div>
           </div>
         </div>
@@ -207,4 +349,4 @@ const AssessmentLanding: React.FC<AssessmentLandingProps> = ({
   );
 };
 
-export default AssessmentLanding; 
+export default AssessmentLanding;

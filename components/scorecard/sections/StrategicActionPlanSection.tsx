@@ -210,7 +210,7 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
         <CardContent>
           <div className="prose prose-lg max-w-none text-sg-dark-teal/80">
             <p>
-              Based on your assessment, we've developed this prioritized action plan to help you advance your organization's AI maturity. Each recommendation is designed to build on your strengths and address key improvement areas.
+              Based on your assessment, we've developed this prioritized action plan to help you advance your organization's AI efficiency. Each recommendation is designed to build on your strengths and address key improvement areas.
             </p>
           </div>
         </CardContent>

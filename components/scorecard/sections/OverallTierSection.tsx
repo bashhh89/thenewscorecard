@@ -12,7 +12,7 @@ interface OverallTierSectionProps {
   userName?: string;
 }
 
-// All possible tiers for the AI maturity model
+// All possible tiers for the AI efficiency model
 const allTiers = ['Dabbler', 'Enabler', 'Leader'];
 
 // Define tier colors and descriptions for consistency
@@ -94,10 +94,10 @@ const OverallTierSection: React.FC<OverallTierSectionProps> = ({
         </CardContent>
       </Card>
       
-      {/* AI Maturity Tier Progression Visualization */}
+      {/* AI Efficiency Tier Progression Visualization */}
       <Card className="p-6">
         <CardHeader>
-          <CardTitle>Your AI Maturity Journey</CardTitle>
+          <CardTitle>Your AI Efficiency Journey</CardTitle>
         </CardHeader>
         <CardContent className="p-0 mt-4">
           <div className="flex items-center justify-between mb-8">
@@ -164,7 +164,7 @@ const OverallTierSection: React.FC<OverallTierSectionProps> = ({
               <p className="font-medium mb-2 text-sg-dark-teal">What this means:</p>
               <p className="font-body-md">
                 {extractedTier && extractedTier in tierConfig && tierConfig[extractedTier as keyof typeof tierConfig].description}
-                {!extractedTier && 'Complete your assessment to discover where you are on your AI maturity journey.'}
+                {!extractedTier && 'Complete your assessment to discover where you are on your AI efficiency journey.'}
               </p>
             </CardContent>
           </Card>

@@ -226,7 +226,7 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ markdow
         </h3>
         <p className="text-[#103138]">
           Based on your assessment results, we've identified the following key recommendations 
-          to help you enhance your organization's AI capabilities and maturity.
+          to help you enhance your organization's AI capabilities and efficiency.
         </p>
       </div>
 

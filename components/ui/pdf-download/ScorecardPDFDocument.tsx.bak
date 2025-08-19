@@ -304,7 +304,7 @@ const ScorecardPDFDocument: React.FC<ScorecardPDFDocumentProps> = ({ reportData 
 
   // Prepare report details with styled separator
   const detailItems = [];
-  if (displayTier !== 'N/A') detailItems.push({ label: 'AI Maturity Tier', value: displayTier });
+  if (displayTier !== 'N/A') detailItems.push({ label: 'AI Efficiency Tier', value: displayTier });
   if (displayScore !== 'N/A') detailItems.push({ label: 'Final Score', value: displayScore });
   if (reportId) detailItems.push({ label: 'Report ID', value: reportId });
   detailItems.push({ label: 'Generated', value: new Date().toLocaleDateString() });

@@ -122,7 +122,7 @@ export const QAndASection: React.FC<QAndASectionProps> = ({
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 className="text-lg font-semibold mb-4 text-[#103138]">Your Assessment Responses</h3>
         <p className="text-[#103138]/80 leading-relaxed">
-          This section displays the questions asked during your AI maturity assessment and the answers you provided.
+          This section displays the questions asked during your AI efficiency assessment and the answers you provided.
           These responses formed the basis for your tier classification and recommendations.
         </p>
       </div>
@@ -217,7 +217,7 @@ export const QAndASection: React.FC<QAndASectionProps> = ({
           About Your Assessment
         </h4>
         <p className="text-sm text-[#103138]/80 mb-3">
-          Your answers were analyzed using our proprietary AI maturity model to determine your organization's current tier and provide tailored recommendations.
+          Your answers were analyzed using our proprietary AI efficiency model to determine your organization's current tier and provide tailored recommendations.
         </p>
         <p className="text-sm text-[#103138]/80">
           If you'd like to retake the assessment or provide updated answers, you can start a new assessment from your dashboard.

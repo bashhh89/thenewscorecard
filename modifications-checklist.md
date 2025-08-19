@@ -6,6 +6,6 @@ Based on the provided screenshots, the following modifications are needed:
 - [ ] Remove neon glow from the "AI Efficiency Scorecard" section
 - [ ] Remove wave divider
 - [ ] Remove shapes
-- [ ] Move the "Discover Your AI Maturity Level" section up
-- [ ] Simpler layout for the "Get tailored resources for your AI maturity" section
+- [ ] Move the "Discover Your AI Efficiency Level" section up
+- [ ] Simpler layout for the "Get tailored resources for your AI efficiency" section
 - [ ] Remove the "Why use our AI efficiency section" (Ready to level up your marketing with AI?) section

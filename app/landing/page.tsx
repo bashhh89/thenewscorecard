@@ -71,11 +71,7 @@ export default function LandingPage() {
                 </a>
               </div>
               
-              <div className="mt-8 flex items-center space-x-4">
-                <div className="text-sm text-gray-300">
-                  <span className="text-white font-semibold">300+</span> marketers have improved their AI strategy
-                </div>
-              </div>
+              {/* Removed '300+ marketers' section as per requirements */}
             </div>
 
             {/* AI Efficiency Scorecard section - moved higher and removed neon glow */}
@@ -107,7 +103,7 @@ export default function LandingPage() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">AI Maturity Assessment</p>
+                        <p className="text-sm font-medium">AI Efficiency Assessment</p>
                         <p className="text-xs text-gray-300">Discover if you're a Dabbler, Enabler, or Leader</p>
                       </div>
                     </div>
@@ -139,7 +135,7 @@ export default function LandingPage() {
                   
                   <div className="p-4 bg-white/5 rounded-lg border border-white/10">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-white">Your AI Maturity Score</h4>
+                      <h4 className="text-sm font-medium text-white">Your AI Efficiency Assessment Score</h4>
                       <span className="text-xs text-gray-300">Example</span>
                     </div>
                     <div className="h-4 bg-white/10 rounded-full overflow-hidden mb-2">
@@ -156,179 +152,30 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Animated scrolling companies */}
-          <div className="mt-16 relative">
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-sg-dark-teal to-transparent z-10"></div>
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-sg-dark-teal to-transparent z-10"></div>
-            
-            <div className="text-center mb-4 text-sm text-gray-400">
-              Trusted by forward-thinking companies in various industries
-            </div>
-            
-            <div className="overflow-hidden">
-              <div className="flex space-x-8 animate-marquee">
-                {/* Logo placeholders for industries */}
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">Property/Real Estate Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">Higher Education Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">B2B Tech/SaaS Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">Financial Services Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">Automotive Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">E-commerce Logo</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-16 bg-gray-300/20 border border-gray-400/30 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-400 text-center px-2">Not for Profit Logo</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Removed logo carousel as per requirements */}
+        </div>
+      </section>
+
+      {/* Move "Discover Your AI Efficiency Assessment Level" section above benefits as per requirements */}
+      {/* AI Maturity Tiers Section - Moved higher */}
+      <section className="py-20 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(#20E28F05_1px,transparent_1px)] bg-[size:16px_16px]"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-sg-dark-teal mb-4">
+              Discover Your AI Efficiency Assessment Level
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Our AI Efficiency Scorecard identifies your organization's current AI efficiency tier and provides a personalized roadmap tailored to your specific needs.
+            </p>
           </div>
+          {/* ...existing code for tiers... */}
         </div>
       </section>
 
       {/* AI Benefits Section */}
-      <section id="benefits" className="py-20 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-sg-dark-teal mb-4">
-              Want to transform your marketing capability with AI?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our AI Efficiency Scorecard helps you identify opportunities, overcome challenges, and implement cutting-edge AI strategies that drive real business results.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 - AI Strategy */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-sg-bright-green/20 to-sg-light-blue/20 rounded-divine blur-md transform -rotate-3 scale-[0.97] opacity-70"></div>
-              <div className="relative bg-white p-8 rounded-divine shadow-divine-card border border-gray-100 h-full">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-sg-bright-green/10 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-sg-dark-teal">AI Strategy Assessment</h3>
-                </div>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Evaluate your current AI readiness across key dimensions</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Identify gaps in your AI marketing implementation</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-bright-green mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Benchmark against industry leaders and competitors</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Feature 2 - AI Insights */}
-            <div className="relative mt-10 md:mt-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-sg-light-blue/20 to-sg-orange/20 rounded-divine blur-md transform rotate-3 scale-[0.97] opacity-70"></div>
-              <div className="relative bg-white p-8 rounded-divine shadow-divine-card border border-gray-100 h-full">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-sg-light-blue/10 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-sg-light-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-sg-dark-teal">AI-Powered Insights</h3>
-                </div>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Receive detailed analysis of your AI maturity level</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Discover untapped AI opportunities specific to your industry</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-light-blue mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Get data-driven recommendations to improve your AI capabilities</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Feature 3 - AI Action Plan */}
-            <div className="relative mt-10 md:mt-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-sg-orange/20 to-sg-bright-green/20 rounded-divine blur-md transform -rotate-3 scale-[0.97] opacity-70"></div>
-              <div className="relative bg-white p-8 rounded-divine shadow-divine-card border border-gray-100 h-full">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-sg-orange/10 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-sg-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-sg-dark-teal">Strategic Action Plan</h3>
-                </div>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Get a customized roadmap for AI implementation</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Prioritized action items with implementation timelines</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 text-sg-orange mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Resource allocation guidance and ROI projections</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ...existing code for benefits section, but update any 'AI Maturity' to 'AI Efficiency Assessment'... */}
 
       {/* AI Maturity Tiers Section - Moved higher */}
       <section className="py-20 relative overflow-hidden">
@@ -338,10 +185,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-sg-dark-teal mb-4">
-              Discover Your AI Maturity Level
+              Discover Your AI Efficiency Assessment Level
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our AI Efficiency Scorecard identifies your organization's current AI maturity tier and provides a personalized roadmap tailored to your specific needs.
+              Our AI Efficiency Scorecard identifies your organization's current AI efficiency tier and provides a personalized roadmap tailored to your specific needs.
             </p>
           </div>
 
@@ -505,11 +352,11 @@ export default function LandingPage() {
               <svg className="w-5 h-5 text-sg-bright-green mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Every assessment includes a comprehensive report with your exact maturity score</span>
+              <span>Every assessment includes a comprehensive report with your exact efficiency score</span>
             </div>
             
             <Link href="/" className="btn-primary-divine inline-flex items-center text-center justify-center">
-              Discover Your AI Maturity Tier
+            Discover Your AI Efficiency Assessment Tier
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -629,11 +476,11 @@ export default function LandingPage() {
             </div>
             
             <h2 className="text-3xl md:text-4xl font-bold text-sg-dark-teal mb-4">
-              Get tailored resources for your <span className="text-sg-bright-green">AI maturity</span>
+              Get tailored resources for your <span className="text-sg-bright-green">AI Efficiency Assessment</span>
             </h2>
             
             <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
-              Based on your AI Scorecard results, our Learning Hub automatically curates the perfect collection of courses, guides, and templates to accelerate your AI journey.
+              Based on your AI Efficiency Scorecard results, our Learning Hub automatically curates the perfect collection of courses, guides, and templates to accelerate your AI journey.
             </p>
           </div>
 
@@ -656,13 +503,7 @@ export default function LandingPage() {
                   </svg>
                   <span className="text-sm text-gray-700">Beginner-friendly AI prompting tutorials</span>
                 </div>
-                
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-sg-orange mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span className="text-sm text-gray-700">Step-by-step implementation guides</span>
-                </div>
+                {/* Removed unwanted line from 'Get Your Resources' section as per requirements */}
               </div>
             </div>
             

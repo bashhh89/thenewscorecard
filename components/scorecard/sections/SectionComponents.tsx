@@ -18,7 +18,7 @@ export const OverallTierSection = ({
     leader: "Your organization is at the forefront of AI adoption, with strategic implementation across multiple business areas. You have well-established processes and are likely seeing significant ROI from AI initiatives.",
     enabler: "Your organization has begun meaningful implementation of AI solutions in several areas. You have established processes but may have opportunities to expand scope or increase strategic alignment.",
     dabbler: "Your organization is in the early stages of AI adoption. You may have experimented with AI tools but likely lack comprehensive strategy or full organizational integration.",
-    unknown: "Based on your responses, your organization's AI maturity tier couldn't be precisely determined. The recommendations in this report will help guide your next steps."
+    unknown: "Based on your responses, your organization's AI efficiency tier couldn't be precisely determined. The recommendations in this report will help guide your next steps."
   };
 
   return (
@@ -29,14 +29,14 @@ export const OverallTierSection = ({
           <path d="M12 22V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M20 7L12 12L4 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        Overall AI Maturity Assessment
+        Overall AI Efficiency Assessment
       </h2>
       
       <div className="tier-card">
         <div className="tier-header">
           <span className={`tier-badge`} data-tier={tierLower}>{tier || 'Unknown'}</span>
           <h3 className="tier-title">
-            {userName ? `${userName}, your` : 'Your'} Organization is {tier === 'Leader' ? 'Leading' : tier === 'Enabler' ? 'Advancing' : tier === 'Dabbler' ? 'Beginning' : 'Developing'} in AI Maturity
+            {userName ? `${userName}, your` : 'Your'} Organization is {tier === 'Leader' ? 'Leading' : tier === 'Enabler' ? 'Advancing' : tier === 'Dabbler' ? 'Beginning' : 'Developing'} in AI Efficiency
           </h3>
         </div>
         
@@ -67,7 +67,7 @@ export const KeyFindingsSection = ({
       </h2>
       
       <div className="p-6 bg-white rounded-lg shadow mb-8">
-        <h3 className="text-xl font-semibold mb-4 text-sg-dark-teal">Summary of Your AI Maturity Assessment</h3>
+        <h3 className="text-xl font-semibold mb-4 text-sg-dark-teal">Summary of Your AI Efficiency Assessment</h3>
         <p className="mb-6 text-sg-dark-teal/80">
           Based on your responses, we've identified key areas where your organization excels and areas that present opportunities for improvement.
           These insights provide a foundation for the strategic recommendations in the next section.
@@ -156,7 +156,7 @@ export const RecommendationsSection = ({
       <div className="p-6 bg-white rounded-lg shadow mb-8">
         <h3 className="text-xl font-semibold mb-4 text-sg-dark-teal">Strategic Next Steps</h3>
         <p className="mb-6 text-sg-dark-teal/80">
-          Based on your assessment results, we've developed these targeted recommendations to help you advance your AI maturity.
+          Based on your assessment results, we've developed these targeted recommendations to help you advance your AI efficiency.
           These actionable steps focus on the highest-impact opportunities for your organization.
         </p>
       </div>
@@ -273,16 +273,16 @@ export const DetailedAnalysisSection = ({
       </h2>
       
       <div className="mb-8 p-6 bg-white rounded-lg shadow">
-        <h3 className="text-xl font-semibold mb-4 text-sg-dark-teal">Comprehensive AI Maturity Breakdown</h3>
+        <h3 className="text-xl font-semibold mb-4 text-sg-dark-teal">Comprehensive AI Efficiency Breakdown</h3>
         <p className="mb-4 text-sg-dark-teal/80">
-          This detailed analysis breaks down your assessment results across five key dimensions of AI maturity. 
+          This detailed analysis breaks down your assessment results across five key dimensions of AI efficiency. 
           Each dimension is evaluated based on your responses and includes specific insights.
         </p>
         
         {tier && (
           <div className="mt-4 p-4 bg-sg-light-mint rounded-lg">
             <p className="font-medium">
-              <span className="text-sg-bright-green font-semibold">Current AI Maturity Tier:</span> {tier}
+              <span className="text-sg-bright-green font-semibold">Current AI Efficiency Tier:</span> {tier}
             </p>
           </div>
         )}

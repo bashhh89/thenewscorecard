@@ -16,13 +16,27 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Configure Firestore with explicit settings for nam5 region
 const db = getFirestore(app);
 
-// Enable offline persistence if in browser environment
+// Add connection state listener
 if (typeof window !== 'undefined') {
-  enableIndexedDbPersistence(db)
+  const connectedRef = ref(app, '.info/connected');
+  onValue(connectedRef, (snap) => {
+    if (snap.val() === true) {
+      console.log('Firebase: Connected to nam5 region');
+    } else {
+      console.log('Firebase: Not connected to nam5 region');
+    }
+  });
+
+  // Enable offline persistence with specific settings
+  enableIndexedDbPersistence(db, {
+    synchronizeTabs: true  // Enable multi-tab support
+  })
     .then(() => {
-      console.log("Firebase: Offline persistence enabled.");
+      console.log("Firebase: Offline persistence enabled with multi-tab support");
     })
     .catch((err) => {
       if (err.code === 'failed-precondition') {

@@ -7,7 +7,7 @@ import LeadCaptureForm from '@/components/scorecard/LeadCaptureForm';
 import NoSidebarLayout from '@/components/NoSidebarLayout';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/firebase'; // Fixed path to firebase.ts
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/navigation'; // For navigating to results page with reportId
 import ReportLoadingIndicator from '@/components/scorecard/ReportLoadingIndicator'; // Add import for loading indicator
 
@@ -191,6 +191,7 @@ interface ScorecardState {
   error: string | null;
   overall_status: string; // 'assessment-in-progress' | 'assessment-completed' | 'results-generated' etc.
   reportMarkdown: string | null;
+  reportId: string | null; // Added to store the Firestore document ID
   reasoningText: string | null; // Added for AI thinking display
   industry: string;
   currentQuestionNumber: number;
@@ -221,7 +222,7 @@ const IndustrySelection = ({
         {/* Simple Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-sg-dark-teal font-plus-jakarta mb-6">
-            AI Maturity Assessment
+            AI Efficiency Assessment
           </h1>
           <p className="text-xl text-sg-dark-teal/70 font-plus-jakarta max-w-2xl mx-auto">
             {scorecardState.isLoading ? 'Preparing your personalized assessment...' : 'Select your industry to begin'}
@@ -392,7 +393,7 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-4 w-4 sm:h-5 sm:w-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
             <div className="ml-2 sm:ml-3">
@@ -455,6 +456,11 @@ export default function Home() {
 
   // Define state for selected industry
   const [selectedIndustry, setSelectedIndustry] = useState<string>("Property/Real Estate");
+
+  // Log currentStep for debugging
+  useEffect(() => {
+    console.log(`[DEBUG] Current Step: ${currentStep}`);
+  }, [currentStep]);
 
   // Define the initial state for the scorecard
   const initialScorecardState: ScorecardState = {
@@ -636,25 +642,39 @@ export default function Home() {
       }
 
       console.log('Frontend: Received first question data, updating state:', data);
-      
+
+      // Normalize possible server response shapes (support camelCase and snake_case and alternate keys)
+      const normalized = {
+        questionText: (data && (data.questionText ?? data.question_text ?? data.question)) ?? null,
+        answerType: (data && (data.answerType ?? data.answer_type)) ?? null,
+        options: (data && (data.options ?? data.opts ?? data.choices)) ?? null,
+        currentPhaseName: (data && (data.currentPhaseName ?? data.current_phase_name)) ?? initialScorecardState.currentPhaseName,
+        overall_status: (data && (data.overall_status ?? data.overallStatus)) ?? (data && data.overall_status) ?? 'assessment-in-progress',
+        reasoningText: (data && (data.reasoningText ?? data.reasoning_text ?? data.explanation)) ?? null
+      };
+
+      // Debug log normalized values to help diagnose mismatched keys
+      console.log('Frontend: Normalized first question payload:', normalized);
+
       // Only update state and change step when we have a valid question
-      if (data.questionText && data.questionText.trim() !== '') {
+      if (normalized.questionText && String(normalized.questionText).trim() !== '') {
         setScorecardState(prev => ({
           ...prev,
           isLoading: false,
-          currentQuestion: data.questionText,
-          answerType: data.answerType,
-          options: data.options,
-          currentPhaseName: data.currentPhaseName,
-          overall_status: data.overall_status,
-          reasoningText: data.reasoning_text,
+          currentQuestion: String(normalized.questionText),
+          answerType: normalized.answerType,
+          options: normalized.options,
+          currentPhaseName: normalized.currentPhaseName,
+          overall_status: normalized.overall_status,
+          reasoningText: normalized.reasoningText,
           currentQuestionNumber: 1
         }));
         
         // NOW change the step to assessment since we have a valid question
         setCurrentStep('assessment');
       } else {
-        // If no valid question, show error
+        // If no valid question, show error and include full server response in logs for debugging
+        console.error('Frontend: No valid question received from server. Full response:', data, 'Normalized:', normalized);
         setScorecardState(prev => ({
           ...prev,
           isLoading: false,
@@ -670,6 +690,7 @@ export default function Home() {
       }));
 
       // Re-enable the button in case of error
+      const button = document.getElementById('begin-assessment-button');
       if (button) {
         button.removeAttribute('disabled');
         button.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -778,460 +799,386 @@ export default function Home() {
         systemPromptUsed: reportData.systemPromptUsed?.substring(0, 100) + '... [truncated]'
       }, null, 2));
 
-      // Save to Firestore
+      // Send report to server-side API which uses Firebase Admin SDK
       try {
-        console.log(`FRONTEND: Calling saveScorecardReport at: ${new Date().toISOString()}`);
-        const firestoreSaveStartTime = Date.now();
+        console.log(`FRONTEND: Sending report to server API /api/save-report at: ${new Date().toISOString()}`);
 
-        const docRef = await addDoc(collection(db, "scorecardReports"), reportData);
-        const reportID = docRef.id;
-        
-        console.log(`FRONTEND: saveScorecardReport completed at: ${new Date().toISOString()}. Duration: ${(Date.now() - firestoreSaveStartTime) / 1000}s`);
-        console.log(">>> FRONTEND: Report saved to Firestore with ID: ", reportID);
-
-        // Store data in sessionStorage
-        sessionStorage.setItem('reportMarkdown', data.reportMarkdown);
-        sessionStorage.setItem('questionAnswerHistory', JSON.stringify(finalHistory.slice(0, MAX_QUESTIONS)));
-        sessionStorage.setItem('systemPromptUsed', data.systemPromptUsed);
-        sessionStorage.setItem('reportId', reportID);
-        sessionStorage.setItem('currentReportID', reportID);
-        sessionStorage.setItem('userAITier', data.userAITier || 'Unknown');
-        sessionStorage.setItem('aiTier', data.userAITier || 'Unknown');
-        sessionStorage.setItem('tier', data.userAITier || 'Unknown');
-        sessionStorage.setItem('userTier', data.userAITier || 'Unknown');
-        sessionStorage.setItem('finalScore', data.finalScore || '');
-        sessionStorage.setItem('industry', selectedIndustry || '');
-
-        // Create and store consolidated userData object for debug session
-        const userData = {
-          leadName: leadName || '',
-          name: leadName || '',
-          companyName: sessionStorage.getItem('scorecardLeadCompany') || '',
-          email: sessionStorage.getItem('scorecardLeadEmail') || '',
-          phone: sessionStorage.getItem('scorecardLeadPhone') || '',
-          industry: selectedIndustry || '',
-          tier: data.userAITier || 'Unknown',
-        };
-        sessionStorage.setItem('userData', JSON.stringify(userData));
-        console.log('>>> FRONTEND: Stored user data in sessionStorage:', userData);
-
-        // Also store in localStorage as backup with identical keys
-        localStorage.setItem('reportMarkdown', data.reportMarkdown);
-        localStorage.setItem('questionAnswerHistory', JSON.stringify(finalHistory.slice(0, MAX_QUESTIONS)));
-        localStorage.setItem('systemPromptUsed', data.systemPromptUsed);
-        localStorage.setItem('reportId', reportID);
-        localStorage.setItem('currentReportID', reportID);
-        localStorage.setItem('userAITier', data.userAITier || 'Unknown');
-        localStorage.setItem('aiTier', data.userAITier || 'Unknown');
-        localStorage.setItem('tier', data.userAITier || 'Unknown');
-        localStorage.setItem('userTier', data.userAITier || 'Unknown');
-        localStorage.setItem('finalScore', data.finalScore || '');
-        localStorage.setItem('industry', selectedIndustry || '');
-        localStorage.setItem('userData', JSON.stringify(userData));
-
-        console.log('>>> FRONTEND: Successfully saved report data to storage.');
-
-        // Clear the safety timeout since we're proceeding normally
-        clearTimeout(safetyTimeout);
-
-        // Hide the loading modal FIRST before navigation
-        setIsGeneratingFinalReport(false);
-
-        // CRITICAL FIX: Force immediate navigation to results page with reportId
-        console.log(`FRONTEND: Attempting navigation to results page at: ${new Date().toISOString()}`);
-        console.log(`>>> FRONTEND: 🔴 Forcing navigation to /scorecard/results?reportId=${reportID}`);
-
-        // Add delay before navigation to ensure all state is properly saved
-        setTimeout(() => {
-          console.log(`>>> FRONTEND: Executing delayed navigation to /scorecard/results?reportId=${reportID}`);
-          // Use Next.js router if available, fallback to direct location change
-          try {
-            window.location.href = `/scorecard/results?reportId=${reportID}`;
-          } catch (navError) {
-            console.error('Navigation failed, trying alternate method:', navError);
-            window.open(`/scorecard/results?reportId=${reportID}`, '_self');
-          }
-        }, 1000); // 1 second delay to ensure storage operations complete
-      } catch (firestoreError) {
-        console.error(`FRONTEND: Error saving report to Firestore at: ${new Date().toISOString()}`, firestoreError);
-        // Even if Firestore save fails, we should attempt to navigate with session data
-        setIsGeneratingFinalReport(false);
-        clearTimeout(safetyTimeout);
-
-        // Try to navigate to results without a reportId, relying on session data
-        console.log('>>> FRONTEND: Attempting fallback navigation without reportId at:', new Date().toISOString());
-
-        // Immediate fallback navigation
-        console.log('>>> FRONTEND: Executing immediate fallback navigation to /scorecard/results');
-        try {
-          window.location.href = `/scorecard/results`;
-        } catch (navError) {
-          console.error('Fallback navigation failed, trying alternate method:', navError);
-          window.location.replace(`/scorecard/results`);
-        }
-      }
-    } catch (error) {
-      console.error(`FRONTEND: Error in generateReport at: ${new Date().toISOString()}`, error);
-      setIsGeneratingFinalReport(false);
-      clearTimeout(safetyTimeout);
-    }
-    
-    // At the very end of generateReport (even if error or success)
-    console.log(`FRONTEND: generateReport function ended at: ${new Date().toISOString()}. Total duration: ${(Date.now() - startTime) / 1000}s`);
-  }, [selectedIndustry, leadName, MAX_QUESTIONS]);
-
-  // Modified lead capture success handler
-  const handleLeadCaptureSuccess = useCallback((capturedName: string) => {
-    console.log("Frontend: Lead capture successful. Captured name:", capturedName);
-    
-    // Set loading state for report generation first
-    setIsGeneratingFinalReport(true);
-    
-    // Update lead capture state
-    setLeadCaptured(true);
-    setLeadName(capturedName);
-
-    // Store the name in sessionStorage for use in results page
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('scorecardUserName', capturedName);
-    }
-
-    console.log("Frontend: Lead capture successful. Generating report immediately.");
-    
-    // Use the current history to generate the report
-    const currentHistory = scorecardState.history;
-    
-    // Generate the report with exactly MAX_QUESTIONS answers or current answers if fewer
-    generateReport(currentHistory.slice(0, MAX_QUESTIONS));
-    
-    // Set the current step to results to ensure proper navigation
-    setCurrentStep('results');
-  }, [setLeadCaptured, setLeadName, scorecardState.history, MAX_QUESTIONS, setIsGeneratingFinalReport, generateReport, setCurrentStep]);
-
-  const handlePostAssessmentLeadCaptureSuccess = useCallback(() => {
-    console.log("Post-assessment lead capture successful. Moving to results.");
-    setCurrentStep('results');
-  }, [setCurrentStep]);
-  
-  // Extract tier from report markdown if available
-  const extractedTier = useMemo(() => {
-    if (!scorecardState.reportMarkdown) return null;
-
-    const tierMatch = scorecardState.reportMarkdown.match(/## Overall Tier:?\s*(.+?)($|\n)/i);
-    if (tierMatch && tierMatch[1]) {
-      return tierMatch[1].trim();
-    }
-
-    // Fallback to searching for Leader, Enabler, or Dabbler in the markdown   
-    const tierKeywords = ["Leader", "Enabler", "Dabbler"];
-    for (const keyword of tierKeywords) {
-      if (scorecardState.reportMarkdown.includes(keyword)) {
-        return keyword;
-      }
-    }
-
-    return null;
-  }, [scorecardState.reportMarkdown]);
-
-  // NEW: Add a failsafe effect to ensure currentStep is set to results when a report is completed
-  useEffect(() => {
-    // Synchronize current step with overall status - this is a critical backup to ensure UI flow proceeds
-    if (scorecardState.overall_status === 'completed' && scorecardState.reportMarkdown && currentStep === 'assessment') {
-      console.log('>>> FRONTEND: BACKUP STATE SYNC - Forcing currentStep to "results" because report is completed');
-      setCurrentStep('results');
-    }
-  }, [scorecardState.overall_status, scorecardState.reportMarkdown, currentStep, setCurrentStep]);
-
-  // --- Stabilize handleAnswerSubmit using Functional Updates ---
-  const handleAnswerSubmit = useCallback(async (answer: any, answerSource?: AnswerSourceType) => {
-    let submittedQuestion = '';
-    let currentPhase = '';
-    let currentAnswerType: string | null = null;
-    let currentOptions: string[] | null = null;
-    let currentReasoning: string | null = null;
-
-    // Capture current history length to check if we need to proceed after adding this answer
-    let currentHistoryLength = 0;
-
-    setScorecardState(prev => {
-      if (!prev.currentQuestion) {
-        console.error('Submit attempted with no current question (inside functional update)');
-        return prev;
-      }
-      submittedQuestion = prev.currentQuestion;
-      currentPhase = prev.currentPhaseName;
-      currentAnswerType = prev.answerType ?? '';
-      currentOptions = prev.options;
-      currentReasoning = prev.reasoningText;
-      currentHistoryLength = prev.history.length;
-
-      const newHistory = [...prev.history, {
-        question: submittedQuestion,
-        answer: answer,
-        phaseName: currentPhase,
-        answerType: currentAnswerType,
-        options: currentOptions,
-        reasoningText: currentReasoning,
-        answerSource: answerSource || 'Manual',
-      }];
-      return { ...prev, isLoading: true, error: null, history: newHistory };
-    });
-
-    try {
-      const updatedHistory = (await new Promise<ScorecardState>(resolve => setScorecardState(prev => { resolve(prev); return prev; }))).history;
-
-      // After adding this answer, check if we've reached MAX_QUESTIONS
-      // currentHistoryLength + 1 should be the new length after adding one answer
-      const newHistoryLength = currentHistoryLength + 1;
-      console.log(`>>> FRONTEND: Question ${newHistoryLength}/${MAX_QUESTIONS} completed. Auto-completing: ${isAutoCompleting}`);
-
-      // MODIFIED: Check if we need to show lead capture form
-      // Show lead form exactly after 20 questions are answered
-      if (!leadCaptured && newHistoryLength === LEAD_FORM_THRESHOLD) {
-        console.log(`>>> FRONTEND: Reached lead form threshold (${LEAD_FORM_THRESHOLD}). Showing lead capture form.`);
-        
-        // Stop auto-complete if it's running
-        if (isAutoCompleting) {
-          console.log('[Parent] Pausing for lead capture, disabling auto-complete.');
-          setIsAutoCompleting(false);
-        }
-        
-        setScorecardState(prev => ({
-          ...prev,
-          isLoading: false,
-          overall_status: 'lead-capture-required', // Add status to indicate lead capture is required
-          currentQuestionNumber: MAX_QUESTIONS // Set to max questions to prevent showing more
-        }));
-        
-        // Show lead capture form
-        setCurrentStep('leadCapture');
-        return;
-      }
-
-      if (newHistoryLength >= MAX_QUESTIONS) {
-        console.log(`>>> FRONTEND: Reached maximum questions (${MAX_QUESTIONS}). Completing assessment.`);
-
-        // CRITICAL FIX: Immediately set currentStep to 'results' to prevent showing question screens
-        setCurrentStep('results');
-
-        setScorecardState(prev => ({
-          ...prev,
-          isLoading: false,
-          overall_status: 'completed',
-          currentQuestionNumber: MAX_QUESTIONS
-        }));
-
-        // CRITICAL FIX: EXPLICIT additional check to ensure we change step when hitting MAX_QUESTIONS
-        console.log(`>>> FRONTEND: MAX_QUESTIONS REACHED: Direct transition enforcement in handleAnswerSubmit`);
-
-        // Generate the report with exactly MAX_QUESTIONS answers
-        generateReport(updatedHistory.slice(0, MAX_QUESTIONS));
-
-        // The generateReport function now handles navigation directly with window.location.href
-        return;
-      }
-
-      // Only fetch the next question if we haven't reached MAX_QUESTIONS
-      try {
-        const response = await fetch('/api/scorecard-ai', {
+        const saveStart = Date.now();
+        const saveResp = await fetch('/api/save-report', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            currentPhaseName: currentPhase,
-            history: updatedHistory,
-            industry: selectedIndustry
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reportData),
+          cache: 'no-store'
         });
 
-        // Check response content type before trying to parse JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          const textResponse = await response.text();
-          console.error('Non-JSON response received:', textResponse.substring(0, 200));
-          const errorMessage = `Server returned non-JSON response: ${contentType || 'unknown'}`;
+        const saveDuration = (Date.now() - saveStart) / 1000;
+        console.log(`FRONTEND: /api/save-report responded in ${saveDuration}s status=${saveResp.status}`);
 
-          setScorecardState(prev => ({
-            ...prev,
-            isLoading: false,
-            error: errorMessage
-          }));
-
-          if (isAutoCompleting) {
-            console.log('Stopping auto-complete due to content type error');
-            setIsAutoCompleting(false);
-            setAutoCompleteError(`Auto-complete failed: ${errorMessage}`);
-          }
-          return;
+        if (!saveResp.ok) {
+          const text = await saveResp.text();
+          throw new Error(`Server save failed: ${saveResp.status} ${text}`);
         }
 
-        if (!response.ok) {
-          const errorBody = await response.text();
-          console.error('>>> FRONTEND: Raw API Error Response Body:', errorBody);
-          const detailedErrorMessage = `Failed to submit answer. Status: ${response.status}. Body: ${errorBody}`;
-          console.error(detailedErrorMessage);
-          setScorecardState(prev => ({
-            ...prev,
-            isLoading: false,
-            error: detailedErrorMessage + ". Please try restarting the assessment."
-          }));
-          if (isAutoCompleting) {
-            console.log('Stopping auto-complete due to API error');
-            setIsAutoCompleting(false);
-            setAutoCompleteError(`Auto-complete failed: ${detailedErrorMessage}`);
-          }
-          return;
-        }
+        const saveJson = await saveResp.json();
+        const reportID = saveJson.id;
+        if (!reportID) throw new Error('Server did not return report ID');
 
-        let data;
+        // Update client state once with the returned ID
+        setScorecardState(prev => ({
+          ...prev,
+          reportMarkdown: data.reportMarkdown,
+          reportId: reportID,
+          overall_status: 'completed'
+        }));
+
+        // Persist to storage
         try {
-          data = await response.json();
-        } catch (jsonError: any) {
-          console.error('JSON parse error:', jsonError);
-          const errorMessage = `Failed to parse server response as JSON. Error: ${jsonError.message}`;
+          sessionStorage.setItem('reportMarkdown', data.reportMarkdown);
+          sessionStorage.setItem('questionAnswerHistory', JSON.stringify(finalHistory.slice(0, MAX_QUESTIONS)));
+          sessionStorage.setItem('reportId', reportID);
+          sessionStorage.setItem('currentReportID', reportID);
+          localStorage.setItem('reportMarkdown', data.reportMarkdown);
+          localStorage.setItem('questionAnswerHistory', JSON.stringify(finalHistory.slice(0, MAX_QUESTIONS)));
+          localStorage.setItem('reportId', reportID);
+          localStorage.setItem('currentReportID', reportID);
+        } catch (storageErr) {
+          console.warn('FRONTEND: Warning saving to storage:', storageErr);
+        }
 
+        // Clear timeout and loading
+        clearTimeout(safetyTimeout);
+        setIsGeneratingFinalReport(false);
+
+        // Navigate to results using authoritative server id
+        console.log(`FRONTEND: Navigating to /scorecard/results?reportId=${reportID}`);
+        window.location.replace(`/scorecard/results?reportId=${reportID}`);
+
+      } catch (saveError: any) {
+        console.error('FRONTEND: Error saving report via server API:', saveError);
+
+        // Persist backup locally for recovery
+        try {
+          localStorage.setItem('lastReportBackup', JSON.stringify({
+            data: reportData,
+            error: saveError?.message || String(saveError),
+            ts: new Date().toISOString()
+          }));
+        } catch (bkErr) {
+          console.error('FRONTEND: Failed to write backup data:', bkErr);
+        }
+
+        // Clear loading and timeout
+        clearTimeout(safetyTimeout);
+        setIsGeneratingFinalReport(false);
+
+        // Prompt user with actionable message
+        alert('We were unable to save your report to the server. Please retry. If the problem persists, copy any error messages and contact support.');
+
+        // Keep user on results step so they can retry or view saved session data
+        setScorecardState(prev => ({ ...prev, isLoading: false, overall_status: 'completed' }));
+        // Try to navigate to results page without id so user can see session-based content
+        const fallbackId = sessionStorage.getItem('reportId') || sessionStorage.getItem('currentReportID');
+        const fallbackUrl = fallbackId ? `/scorecard/results?reportId=${fallbackId}&fallback=true` : `/scorecard/results?fallback=true`;
+        window.location.replace(fallbackUrl);
+      }
+    } catch (error) {
+      console.error('FRONTEND: Unexpected error in report generation:', error);
+      setIsGeneratingFinalReport(false);
+      alert('An unexpected error occurred while generating the report. Please try again later.');
+    }
+  }, [selectedIndustry, leadName, scorecardState.isLoading]);
+
+  // --- Add missing handlers: handleAnswerSubmit and handleStartAutoComplete ---
+  const handleAnswerSubmit = useCallback(async (answer: any, answerSource: AnswerSourceType = 'Manual') => {
+    try {
+      const questionText = scorecardState.currentQuestion || '';
+      const entry: ScorecardHistoryEntry = {
+        question: questionText,
+        answer,
+        phaseName: scorecardState.currentPhaseName,
+        answerType: scorecardState.answerType || undefined,
+        options: scorecardState.options || null,
+        answerSource
+      };
+
+      // Build the new history (limit to MAX_QUESTIONS)
+      const newHistory = [...(scorecardState.history || []), entry].slice(0, MAX_QUESTIONS);
+
+      // Optimistically set history and a temporary reasoning placeholder
+      setScorecardState(prev => ({
+        ...prev,
+        history: newHistory,
+        reasoningText: 'Generating reasoning...'
+      }));
+
+      // Ask the server to generate an explanation / reasoning for the answer
+      try {
+        const explainResp = await fetch('/api/scorecard-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'explainAnswer',
+            question: questionText,
+            answer,
+            history: newHistory.slice(0, MAX_QUESTIONS),
+            industry: selectedIndustry
+          }),
+          cache: 'no-store'
+        });
+
+        if (explainResp.ok) {
+          const explainData = await explainResp.json();
+          const reasoning = explainData.reasoningText || explainData.explanation || null;
+
+          // Attach reasoning to the last history entry and update state.reasoningText
           setScorecardState(prev => ({
             ...prev,
-            isLoading: false,
-            error: errorMessage
+            history: prev.history ? prev.history.map((h, i) => i === prev.history.length - 1 ? { ...h, reasoningText: reasoning } : h) : newHistory,
+            reasoningText: reasoning
           }));
+        } else {
+          const txt = await explainResp.text();
+          console.warn('Explain API responded with non-OK status:', explainResp.status, txt);
+          setScorecardState(prev => ({ ...prev, reasoningText: null }));
+        }
+      } catch (explainErr) {
+        console.error('Error calling explain API:', explainErr);
+        setScorecardState(prev => ({ ...prev, reasoningText: null }));
+      }
 
-          if (isAutoCompleting) {
-            console.log('Stopping auto-complete due to JSON parse error');
-            setIsAutoCompleting(false);
-            setAutoCompleteError(`Auto-complete failed: ${errorMessage}`);
-          }
-          return;
+      // Compute next question number based on current state (use latest from state to avoid off-by-one)
+      const nextQuestionNumber = (scorecardState.currentQuestionNumber || 1) + 1;
+
+      // If we've reached the end, generate the final report
+      if (nextQuestionNumber > MAX_QUESTIONS) {
+        setScorecardState(prev => ({ ...prev, isLoading: true, overall_status: 'generating-report' }));
+        await generateReport(newHistory);
+        // Move to results step after generation
+        setCurrentStep('results');
+        return;
+      }
+
+      // Otherwise request the next question from the API
+      setScorecardState(prev => ({ ...prev, isLoading: true, currentQuestion: null }));
+
+      try {
+        const resp = await fetch('/api/scorecard-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'nextQuestion',
+            history: newHistory,
+            industry: selectedIndustry,
+            currentPhaseName: scorecardState.currentPhaseName,
+            currentQuestionNumber: nextQuestionNumber
+          }),
+          cache: 'no-store'
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`Failed to fetch next question: ${resp.status} ${txt}`);
         }
 
-        if (data.overall_status) {
-          console.log('API response overall_status:', data.overall_status);
+        const data = await resp.json();
 
-          // Check if we should generate the report based on API response or if MAX_QUESTIONS is reached during auto-complete
-          if (
-            (data.overall_status === 'assessment-completed' ||
-            data.overall_status === 'completed' ||
-            data.overall_status.includes('complet')) ||
-            (isAutoCompleting && updatedHistory.length >= MAX_QUESTIONS) // Explicitly check history length for auto-complete
-          ) {
-            if (isAutoCompleting) {
-              console.log('[Parent] Assessment completed detected or MAX_QUESTIONS reached, disabling auto-complete.');
-              setIsAutoCompleting(false);
-            }
-            setScorecardState(prev => ({
-              ...prev,
-              isLoading: false,
-              overall_status: data.overall_status // Use API status or force 'completed' if MAX_QUESTIONS reached? Let's stick to API status for now.
-            }));
-
-            // Ensure we use exactly MAX_QUESTIONS answers for the report
-            generateReport(updatedHistory.slice(0, MAX_QUESTIONS));
-          }
-          // Otherwise, update state with the next question
-          else {
-            if (!data.questionText) {
-              throw new Error("API returned success but no question was provided");
-            }
-
-            // Normalize the answer type to ensure consistency
-            const normalizedAnswerType = normalizeAnswerType(data.answerType);
-            
-            setScorecardState(prev => ({
-              ...prev,
-              isLoading: false,
-              currentQuestion: data.questionText,
-              answerType: normalizedAnswerType, // Use normalized answer type
-              options: data.options,
-              currentPhaseName: data.currentPhaseName,
-              overall_status: data.overall_status,
-              reasoningText: data.reasoning_text,
-              currentQuestionNumber: Math.min(updatedHistory.length + 1, MAX_QUESTIONS)
-            }));
-          }
-        }
-      } catch (apiError: any) {
-        console.error('API error in handleAnswerSubmit:', apiError);
         setScorecardState(prev => ({
           ...prev,
           isLoading: false,
-          error: `An API error occurred: ${apiError.message || 'Unknown error'}`
+          currentQuestion: data.questionText || null,
+          answerType: data.answerType,
+          options: data.options,
+          currentPhaseName: data.currentPhaseName || prev.currentPhaseName,
+          currentQuestionNumber: nextQuestionNumber
         }));
+      } catch (err) {
+        console.error('Error fetching next question:', err);
+        setScorecardState(prev => ({ ...prev, isLoading: false, error: String(err) }));
       }
-    } catch (error: any) {
-      console.error('Error in handleAnswerSubmit:', error);
-      setScorecardState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: `An unexpected error occurred in handleAnswerSubmit: ${error.message || 'Unknown error'}`
-      }));
+    } catch (err) {
+      console.error('handleAnswerSubmit unexpected error:', err);
+      setScorecardState(prev => ({ ...prev, isLoading: false, error: String(err) }));
     }
-  }, [selectedIndustry, MAX_QUESTIONS, isAutoCompleting, setIsAutoCompleting, setAutoCompleteError, generateReport, leadName, leadCaptured, LEAD_FORM_THRESHOLD]);
+  }, [scorecardState, selectedIndustry, generateReport]);
 
-  // --- Stabilize handleStartAutoComplete using Functional Updates ---
-  const handleStartAutoComplete = useCallback(() => {
-    // Enhanced check for auto-complete feature
-    const isProd = typeof window !== 'undefined' && process.env.NODE_ENV === 'production';
-    const forceDisabled = isProd && process.env.NEXT_PUBLIC_ENABLE_AUTO_COMPLETE !== 'true';
-    
-    // Log environment details
-    console.log(`[DEBUG] handleStartAutoComplete: NODE_ENV=${process.env.NODE_ENV}, ENABLE=${process.env.NEXT_PUBLIC_ENABLE_AUTO_COMPLETE}`);
-    
-    // Don't allow auto-complete if feature is disabled
-    if (!autoCompleteFeatureEnabled || forceDisabled) {
-      console.log('>>> FRONTEND: Auto-complete feature is disabled in this environment');
-      return;
-    }
-    
-    // Prevent starting auto-complete if already in progress or app is loading
-    if (isAutoCompleting || scorecardState.isLoading) {
-      console.log('>>> FRONTEND: Already auto-completing or loading, ignoring duplicate click');
-      return;
-    }
-
-    console.log('>>> FRONTEND: Starting auto-complete from question', scorecardState.currentQuestionNumber);
+  const handleStartAutoComplete = useCallback(async () => {
     setIsAutoCompleting(true);
     setAutoCompleteError(null);
-  }, [autoCompleteFeatureEnabled, isAutoCompleting, scorecardState.isLoading, scorecardState.currentQuestionNumber]);
+    setAutoCompleteCount(c => c + 1);
 
-  // --- Stabilize autoCompleteCount using Functional Updates ---
-  const handleAutoCompleteCount = useCallback((count: number) => {
-    setAutoCompleteCount(count);
-  }, []);
+    try {
+      let done = false;
+      let localHistory = [...(scorecardState.history || [])];
+      let currentQuestion = scorecardState.currentQuestion;
+      let currentPhaseName = scorecardState.currentPhaseName;
+      let currentQuestionNumber = scorecardState.currentQuestionNumber;
 
-  // Create a function to normalize answer types for consistency
-  const normalizeAnswerType = (apiAnswerType: string): string => {
-    if (!apiAnswerType) return 'text';
-    
-    const type = apiAnswerType.toLowerCase().trim();
-    
-    if (type === 'radio') return 'radio';
-    if (type === 'checkbox') return 'checkbox';
-    if (type === 'scale') return 'scale';
-    if (type === 'text') return 'text';
-    
-    if (type === 'single-choice' || type === 'single' || type === 'choice' || type === 'select') return 'radio';
-    if (type === 'multiple-choice' || type === 'multiple' || type === 'multi') return 'checkbox';
-    if (type === 'rating' || type === 'number' || type === 'numeric') return 'scale';
-    if (type === 'textarea' || type === 'longtext' || type === 'freetext' || type === 'free-text' || type === 'input') return 'text';
-    
-    console.warn(`Unexpected answer type: ${apiAnswerType}, defaulting to text input`);
-    return 'text';
-  };
+      while (!done && currentQuestion && localHistory.length < MAX_QUESTIONS) {
+        // 1. Get suggested answer and reasoning
+        const resp = await fetch('/api/scorecard-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'autoComplete',
+            history: localHistory,
+            industry: selectedIndustry
+          }),
+          cache: 'no-store'
+        });
 
-  // Add the renderContent function which was missing
-  const renderContent = () => {
-    console.log(`RENDER_CONTENT: currentStep=${currentStep}, overall_status=${scorecardState.overall_status}`);
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`Auto-complete API failed: ${resp.status} ${txt}`);
+        }
 
-    // Show loading overlay for report generation
-    if (isGeneratingFinalReport) {
-      return <ReportLoadingIndicator isLoading={true} />;
+        const data = await resp.json();
+        const reasoning = data.reasoningText || data.explanation || null;
+        const suggestedAnswer = data.suggestedAnswer || null;
+
+        // 2. Add answer to history
+        const entry = {
+          question: currentQuestion,
+          answer: suggestedAnswer,
+          phaseName: currentPhaseName,
+          answerType: scorecardState.answerType || undefined,
+          options: scorecardState.options || null,
+          answerSource: 'Manual',
+          reasoningText: reasoning
+        };
+        localHistory = [...localHistory, entry].slice(0, MAX_QUESTIONS);
+
+        // 3. Show reasoning for this answer
+        setScorecardState(prev => ({
+          ...prev,
+          reasoningText: reasoning,
+          history: localHistory
+        }));
+
+        // 4. If last question, finish
+        if (localHistory.length >= MAX_QUESTIONS) {
+          setScorecardState(prev => ({ ...prev, isLoading: true, overall_status: 'generating-report' }));
+          await generateReport(localHistory);
+          done = true;
+          break;
+        }
+
+        // 5. Get next question
+        setScorecardState(prev => ({ ...prev, isLoading: true, currentQuestion: null }));
+        const nextResp = await fetch('/api/scorecard-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'nextQuestion',
+            history: localHistory,
+            industry: selectedIndustry,
+            currentPhaseName: currentPhaseName,
+            currentQuestionNumber: localHistory.length + 1
+          }),
+          cache: 'no-store'
+        });
+
+        if (!nextResp.ok) {
+          const txt = await nextResp.text();
+          throw new Error(`Failed to fetch next question: ${nextResp.status} ${txt}`);
+        }
+
+        const nextData = await nextResp.json();
+        currentQuestion = nextData.questionText || nextData.question || null;
+        currentPhaseName = nextData.currentPhaseName || currentPhaseName;
+        currentQuestionNumber = localHistory.length + 1;
+
+        setScorecardState(prev => ({
+          ...prev,
+          isLoading: false,
+          currentQuestion,
+          answerType: nextData.answerType,
+          options: nextData.options,
+          currentPhaseName,
+          currentQuestionNumber
+        }));
+
+        // Small delay for UI update (optional, can be removed)
+        await new Promise(res => setTimeout(res, 100));
+      }
+    } catch (err: any) {
+      console.error('handleStartAutoComplete error:', err);
+      setAutoCompleteError(String(err.message || err));
+    } finally {
+      setIsAutoCompleting(false);
+    }
+  }, [scorecardState, selectedIndustry, generateReport]);
+
+  // --- Stabilize lead capture (Dependency: scorecardState.overall_status) ---
+  const handleLeadCapture = useCallback(async (leadData: {
+    name: string;
+    email: string;
+    phone: string;
+    company?: string;
+  }) => {
+    // Ignore if already captured
+    if (leadCaptured) return;
+
+    // Basic validation
+    if (!leadData.email || !leadData.name) {
+      alert('Name and email are required to access the report.');
+      return;
     }
 
-    // Industry Selection
-    if (currentStep === 'industrySelection') {
-      return (
+    // Proceed with lead capture
+    setLeadCaptured(true);
+    setLeadName(leadData.name); // Set lead name for personalization
+
+    try {
+      // Save lead data to Firestore
+      const docRef = await addDoc(collection(db, 'leads'), {
+        ...leadData,
+        createdAt: serverTimestamp(),
+        reportId: scorecardState.reportId // Associate with report
+      });
+
+      console.log('Lead captured with ID:', docRef.id);
+
+      // Optionally, navigate or show a success message
+      alert('Thank you for providing your details. Your report is being generated and will be sent to your email shortly.');
+
+      // Navigate to results page after a short delay
+      setTimeout(() => {
+        // Use the stored report ID if available
+        const reportId = sessionStorage.getItem('reportId') || sessionStorage.getItem('currentReportID');
+        if (reportId) {
+          window.location.replace(`/scorecard/results?reportId=${reportId}`);
+        } else {
+          window.location.replace('/scorecard/results');
+        }
+      }, 3000);
+    } catch (error) {
+      console.error('Error capturing lead:', error);
+      alert('An error occurred while capturing your details. Please try again.');
+    }
+  }, [leadCaptured, scorecardState.reportId]);
+
+  // --- TEMPORARY FOR TESTING RESULTS PAGE ---
+  // Auto-fill lead capture form for testing
+  useEffect(() => {
+    if (currentStep === 'results' && !leadCaptured) {
+      setLeadCaptured(true);
+      setLeadName('John Doe'); // Test name
+      setTimeout(() => {
+        const reportId = sessionStorage.getItem('reportId') || sessionStorage.getItem('currentReportID');
+        if (reportId) {
+          window.location.replace(`/scorecard/results?reportId=${reportId}`);
+        } else {
+          window.location.replace('/scorecard/results');
+        }
+      }, 3000);
+    }
+  }, [currentStep, leadCaptured]);
+  // --- END TEMPORARY CHANGES ---
+
+  return (
+    <NoSidebarLayout>
+      {/* --- STEP 1: Industry Selection --- */}
+      {currentStep === 'industrySelection' && (
         <IndustrySelection
           industries={industries}
           selectedIndustry={selectedIndustry}
@@ -1240,81 +1187,219 @@ export default function Home() {
           leadCaptured={leadCaptured}
           scorecardState={scorecardState}
         />
-      );
-    }
+      )}
 
-    // Lead Capture
-    if (currentStep === 'leadCapture') {
-      return (
-        <div className="mt-12">
-          <LeadCaptureForm
-            aiTier={null} // Pass null for now, tier is determined after assessment
-            onSubmitSuccess={handleLeadCaptureSuccess} // This will now generate report and navigate
-            reportMarkdown={null} // Not available at this stage
-            questionAnswerHistory={scorecardState.history} // Pass history for context
-            industry={selectedIndustry} // Pass the selected industry to the form
-          />
+      {/* --- STEP 2: Assessment Questions --- */}
+      {currentStep === 'assessment' && (
+        <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream-1">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+            
+            {/* Simple Header */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-sg-dark-teal font-plus-jakarta mb-6">
+                AI Efficiency Assessment
+              </h1>
+              <p className="text-xl text-sg-dark-teal/70 font-plus-jakarta max-w-2xl mx-auto">
+                {scorecardState.isLoading ? 'Preparing your personalized assessment...' : 'Answer the following questions'}
+              </p>
+            </div>
+            
+            {/* Loading Overlay - For questions */}
+            {/* Show progress loader if auto-completing, else show default loader */}
+            {isAutoCompleting ? (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+                  <div className="mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-sg-bright-green to-sg-dark-teal rounded-full mb-4">
+                      <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-sg-dark-teal font-plus-jakarta mb-2">
+                      Auto-Completing Assessment
+                    </h3>
+                    <p className="text-sg-dark-teal/70 font-plus-jakarta">
+                      Auto-completing: {scorecardState.history.length + 1} / {scorecardState.maxQuestions}
+                    </p>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div className="bg-sg-bright-green h-2.5 rounded-full transition-all duration-300" style={{width: `${Math.min(100, Math.round(((scorecardState.history.length + 1) / scorecardState.maxQuestions) * 100))}%`}}></div>
+                  </div>
+                </div>
+              </div>
+            ) : scorecardState.isLoading && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+                  <div className="mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-sg-bright-green to-sg-dark-teal rounded-full mb-4">
+                      <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-sg-dark-teal font-plus-jakarta mb-2">
+                      Preparing Your Assessment
+                    </h3>
+                    <p className="text-sg-dark-teal/70 font-plus-jakarta">
+                      We're generating personalized questions for the {selectedIndustry} industry...
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center space-x-1">
+                    <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-sg-bright-green rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Assessment Question - Enhanced */}
+            <AssessmentQuestion
+              scorecardState={scorecardState}
+              memoizedOptions={memoizedOptions}
+              memoizedReasoningText={memoizedReasoningText}
+              handleAnswerSubmit={handleAnswerSubmit}
+              isAutoCompleting={isAutoCompleting}
+              memoizedSetIsAutoCompleting={memoizedSetIsAutoCompleting}
+              memoizedSetAutoCompleteError={memoizedSetAutoCompleteError}
+              handleStartAutoComplete={handleStartAutoComplete}
+              autoCompleteCount={autoCompleteCount}
+              memoizedHistory={memoizedHistory}
+              selectedIndustry={selectedIndustry}
+              autoCompleteError={autoCompleteError}
+            />
+          </div>
         </div>
-      );
-    }
+      )}
 
-    // Assessment Questions - Only show if not reached max questions and lead form not required
-    if (currentStep === 'assessment' && 
-        scorecardState.currentQuestionNumber <= MAX_QUESTIONS && 
-        scorecardState.overall_status !== 'lead-capture-required' &&
-        scorecardState.overall_status !== 'completed') {
-      return (
-        <AssessmentQuestion
-          scorecardState={scorecardState}
-          memoizedOptions={memoizedOptions}
-          memoizedReasoningText={memoizedReasoningText}
-          handleAnswerSubmit={handleAnswerSubmit}
-          isAutoCompleting={isAutoCompleting}
-          memoizedSetIsAutoCompleting={memoizedSetIsAutoCompleting}
-          memoizedSetAutoCompleteError={memoizedSetAutoCompleteError}
-          handleStartAutoComplete={handleStartAutoComplete}
-          autoCompleteCount={autoCompleteCount}
-          memoizedHistory={memoizedHistory}
-          selectedIndustry={selectedIndustry}
-          autoCompleteError={autoCompleteError} // Pass autoCompleteError from parent state
-        />
-      );
-    }
+      {/* --- STEP 3: Results & Lead Capture --- */}
+      {currentStep === 'results' && (
+        <div className="min-h-screen bg-gradient-to-br from-sg-light-mint via-white to-sg-cream-1">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+            {/* Simple Header */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-sg-dark-teal font-plus-jakarta mb-6">
+                Your AI Efficiency Report
+              </h1>
+              <p className="text-xl text-sg-dark-teal/70 font-plus-jakarta max-w-2xl mx-auto">
+                {scorecardState.isLoading ? 'Generating your report...' : 'Review your personalized report'}
+              </p>
+            </div>
 
-    // Results (fallback if not already redirected)
-    if (currentStep === 'results' || scorecardState.overall_status === 'completed') {
-      return <ReportLoadingIndicator isLoading={true} />;
-    }
+            {/* Green percentage loader during report generation */}
+            {scorecardState.isLoading && (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 mx-4 text-center border border-sg-bright-green/30">
+                  <div className="mb-6">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-sg-bright-green to-sg-dark-teal rounded-full mb-4">
+                      <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-sg-dark-teal font-plus-jakarta mb-2">
+                      Generating Your Personalized Report
+                    </h3>
+                    <p className="text-sg-dark-teal/70 font-plus-jakarta mb-2">
+                      Please wait while we analyze your answers and create your custom AI Efficiency Report.
+                    </p>
+                    {/* Progress bar and percentage (simulate 95% until done) */}
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                      <div className="bg-sg-bright-green h-3 rounded-full transition-all duration-300" style={{width: '95%'}}></div>
+                    </div>
+                    <div className="text-sg-bright-green font-bold text-lg font-plus-jakarta">95%</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-    // Default: Show industry selection
-    return (
-      <IndustrySelection
-        industries={industries}
-        selectedIndustry={selectedIndustry}
-        handleIndustryChange={setSelectedIndustry}
-        startAssessment={startActualAssessment}
-        leadCaptured={leadCaptured}
-        scorecardState={scorecardState}
-      />
-    );
-  };
+            {/* Lead Capture Form - Show when not loading, no reportMarkdown, and not leadCaptured */}
+            {!scorecardState.isLoading && !scorecardState.reportMarkdown && !leadCaptured && (
+              <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+                <p className="text-center text-sg-dark-teal font-medium font-plus-jakarta mb-4">
+                  Almost there! We just need your details to generate the report.
+                </p>
+                <LeadCaptureForm
+                  aiTier={null}
+                  onSubmitSuccess={(capturedName: string) => {
+                    setLeadCaptured(true);
+                    setLeadName(capturedName || '');
+                    const reportId = sessionStorage.getItem('reportId') || sessionStorage.getItem('currentReportID') || scorecardState.reportId;
+                    setTimeout(() => {
+                      if (reportId) {
+                        window.location.replace(`/scorecard/results?reportId=${reportId}`);
+                      } else {
+                        window.location.replace('/scorecard/results');
+                      }
+                    }, 1000);
+                  }}
+                  reportMarkdown={scorecardState.reportMarkdown}
+                  questionAnswerHistory={scorecardState.history || []}
+                  industry={selectedIndustry}
+                  reportId={scorecardState.reportId}
+                />
+              </div>
+            )}
 
-  // Main application render
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Professional Header */}
-      <AssessmentHeader />
-      
-      {/* Main Content */}
-      <main className="flex-1">
-        <NoSidebarLayout>
-          {/* Existing content rendering logic */}
-          {renderContent()}
-        </NoSidebarLayout>
-      </main>
-      
-      {/* Professional Footer */}
-      <AssessmentFooter />
-    </div>
+            {/* Results Display - Show on successful report generation and after lead captured (or not required) */}
+            {!scorecardState.isLoading && scorecardState.reportMarkdown && (
+              <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 mb-8">
+                <div className="prose max-w-none mb-6">
+                  {/* Render the Markdown content as HTML */}
+                  <div dangerouslySetInnerHTML={{ __html: scorecardState.reportMarkdown }} />
+                </div>
+                <details className="mb-6">
+                  <summary className="font-medium text-sg-dark-teal cursor-pointer">
+                    Debug: Show raw report Markdown
+                  </summary>
+                  <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                    {scorecardState.reportMarkdown}
+                  </pre>
+                </details>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <Button
+                    onClick={async () => {
+                      if (!scorecardState.reportMarkdown) return;
+                      const blob = new Blob([scorecardState.reportMarkdown], { type: 'text/markdown' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `AI_Efficiency_Report_${new Date().toISOString().slice(0, 10)}.md`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16v4a2 2 0 002 2h10a2 2 0 002-2v-4m-6-4l6 6m-6-6l-6 6" />
+                    </svg>
+                    Download Report
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      if (!scorecardState.reportMarkdown) return;
+                      alert('Email report feature is not yet implemented.');
+                    }}
+                    variant="default"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12l4-4m0 0l-4-4m4 4H4" />
+                    </svg>
+                    Email Report
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </NoSidebarLayout>
   );
 }

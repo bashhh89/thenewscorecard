@@ -454,14 +454,14 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
     
     try {
       // Construct system prompt for the AI
-      const systemPrompt = `You are simulating the responses of a ${testPersonaTier} tier organization in the ${industry} industry taking an AI maturity assessment. 
+      const systemPrompt = `You are simulating the responses of a ${testPersonaTier} tier organization in the ${industry} industry taking an AI efficiency assessment. 
 Based on the question type and content, provide a realistic answer that reflects the typical AI adoption level, tools, processes, and challenges of a ${testPersonaTier.toLowerCase()} organization.
 
 ${testPersonaTier === 'Dabbler' ? 
   'RESPONSE STYLE GUIDE: Your answers should reflect minimal AI adoption, basic tools usage, limited strategy, and early exploration phases. Use phrases like "exploring", "beginning to", "limited", "basic", "minimal", "occasional", "ad hoc", or "no formal process". Keep answers brief but realistic.' :
   testPersonaTier === 'Enabler' ? 
   'RESPONSE STYLE GUIDE: Your answers should reflect moderate AI adoption, regular tool usage, developing strategies, and established processes that are still being optimized. Use phrases like "developing", "established", "regular", "multiple tools", "organized", "some", or "moderate". Provide balanced, realistic responses.' :
-  'RESPONSE STYLE GUIDE: Your answers should reflect sophisticated AI adoption, extensive tools integration, comprehensive strategies, and advanced processes. Use phrases like "comprehensive", "integrated", "enterprise-wide", "sophisticated", "extensive", "strategic", "automated", or "advanced". Show depth and maturity in your responses.'}
+  'RESPONSE STYLE GUIDE: Your answers should reflect sophisticated AI adoption, extensive tools integration, comprehensive strategies, and advanced processes. Use phrases like "comprehensive", "integrated", "enterprise-wide", "sophisticated", "extensive", "strategic", "automated", or "advanced". Show depth and efficiency in your responses.'}
 
 For scale questions (1-5), return only the number: ${testPersonaTier === 'Dabbler' ? '1 or 2' : testPersonaTier === 'Enabler' ? '3 or 4' : '4 or 5'}.
 For radio/single choice questions, select the option that best matches a ${testPersonaTier.toLowerCase()} organization.
@@ -615,7 +615,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                 </svg>
               </div>
               <div>
-                <h1 className="text-sm sm:text-lg font-bold text-sg-dark-teal font-plus-jakarta">AI Maturity Assessment</h1>
+                <h1 className="text-sm sm:text-lg font-bold text-sg-dark-teal font-plus-jakarta">AI Efficiency Assessment</h1>
                 <div className="inline-flex items-center px-3 py-1.5 bg-sg-dark-teal/10 text-sg-dark-teal rounded-full text-sm font-medium font-plus-jakarta mb-3 sm:mb-4">
                   <span className="w-2 h-2 bg-sg-dark-teal rounded-full mr-2 animate-pulse"></span>
                   {currentPhaseName}
@@ -674,7 +674,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
                 {question}
               </h2>
           <p className="text-base sm:text-lg text-sg-dark-teal/70 leading-relaxed font-plus-jakarta max-w-4xl">
-                Select your response to continue building your AI maturity profile.
+                Select your response to continue building your AI efficiency profile.
               </p>
             </div>
 

@@ -2,17 +2,17 @@
 
 ## What We're Building
 
-The AI Efficiency Scorecard is a user-friendly web application designed to help companies understand and improve their AI maturity level. Think of it as a personalized assessment that:
+The AI Efficiency Scorecard is a user-friendly web application designed to help companies understand and improve their AI efficiency level. Think of it as a personalized assessment that:
 
 1. **Asks questions** about how your organization currently uses AI technology
-2. **Analyzes your responses** to determine your current AI maturity level
+2. **Analyzes your responses** to determine your current AI efficiency level
 3. **Creates a detailed report** with customized recommendations for improvement
 
 This tool is especially valuable for organizations that want to:
 - Understand where they stand in their AI journey
 - Identify strengths and weaknesses in their current AI approach
 - Get practical, actionable advice on how to advance to the next level
-- Compare their AI maturity against industry benchmarks
+- Compare their AI efficiency against industry benchmarks
 
 The final product delivers professional-looking, branded reports that can be shared with stakeholders to drive AI transformation initiatives.
 
@@ -46,11 +46,11 @@ We've successfully implemented several key improvements to enhance the user expe
    - For testing purposes, users can select the "Auto-Complete" option to automatically generate answers
 
 3. **Results & Recommendations**
-   - Upon completion, users receive their AI maturity tier (Dabbler, Enabler, or Leader)
+   - Upon completion, users receive their AI efficiency tier (Dabbler, Enabler, or Leader)
    - The report includes:
      - Key findings highlighting strengths and weaknesses
      - A strategic action plan with specific, prioritized recommendations
-     - Getting started resources relevant to their industry and maturity level
+     - Getting started resources relevant to their industry and efficiency level
      - Illustrative benchmarks showing what organizations at different tiers typically achieve
    - Users can expand the Q&A history section to review all their answers or share this information with their team
 
@@ -61,9 +61,9 @@ We've successfully implemented several key improvements to enhance the user expe
    - Questions are organized into logical phases to cover all aspects of AI implementation
 
 2. **AI-Powered Analysis**
-   - Responses are processed through an AI model that evaluates maturity across multiple dimensions.
+   - Responses are processed through an AI model that evaluates efficiency across multiple dimensions.
    - The AI considers industry-specific nuances and best practices.
-   - The system weighs different factors to determine the overall maturity tier (**Dabbler, Enabler, or Leader**).
+   - The system weighs different factors to determine the overall efficiency tier (**Dabbler, Enabler, or Leader**).
 
 3. **Dynamic Report Generation**
    - Based on the analysis, the system creates a completely customized report
