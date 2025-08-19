@@ -11,10 +11,12 @@ RUN npm install -g pnpm && \
 # Build stage
 FROM base AS builder
 WORKDIR /app
+RUN npm install -g pnpm
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED 1
-RUN pnpm run build
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm install --frozen-lockfile && \
+    pnpm run build
 
 # Production stage
 FROM base AS runner
