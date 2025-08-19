@@ -1,34 +1,16 @@
-# Install base Node image
-FROM node:18 AS base
+FROM node:18
 
-# Install dependencies stage
-FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
 
-# Build stage
-FROM base AS builder
-WORKDIR /app
 RUN npm install -g pnpm
-COPY --from=deps /app/node_modules ./node_modules
+RUN pnpm install --frozen-lockfile
+
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm install --frozen-lockfile && \
-    pnpm run build
 
-# Production stage
-FROM base AS runner
-WORKDIR /app
-ENV NODE_ENV production
-ENV PORT 3006
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+ENV NODE_ENV=development
+ENV PORT=3006
 
-USER nextjs
 EXPOSE 3006
-CMD ["node", "server.js"]
+
+CMD ["pnpm", "dev"]
