@@ -30,10 +30,24 @@ export async function POST(request: Request) {
     const pdfBuffer = await generatePDF(html);
     console.log('PDF generated successfully, size:', pdfBuffer.byteLength, 'bytes');
     
+    // Extract company name for the filename if available
+    let fileName = 'seek-report.pdf';
+    try {
+      const companyName = reportData?.UserInformation?.CompanyName;
+      if (companyName && companyName !== 'N/A') {
+        const sanitizedName = companyName.replace(/[^\w\s-]/g, '').trim();
+        if (sanitizedName) {
+          fileName = `seek-report-${sanitizedName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
+        }
+      }
+    } catch (e) {
+      console.error('Error extracting company name:', e);
+    }
+    
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="seek-report.pdf"'
+        'Content-Disposition': `attachment; filename="${fileName}"`
       }
     });
     
@@ -47,30 +61,89 @@ export async function POST(request: Request) {
 }
 
 async function generatePDF(html: string): Promise<Buffer> {
-  const serviceUrl = process.env.WEASYPRINT_SERVICE_URL || 'http://168.231.115.219:5001/generate-pdf';
+  const serviceUrl = process.env.WEASYPRINT_SERVICE_URL || 'https://sg-weasyprint.w5oak9.easypanel.host/pdf';
   console.log(`Using WeasyPrint service at: ${serviceUrl}`);
   
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 180000); // 180s timeout (3 minutes)
     
-    const response = await fetch(serviceUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ html: html }),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
+    try {
+      // Make request to WeasyPrint service
+      const response = await fetch(serviceUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/pdf'
+        },
+        body: JSON.stringify({
+          html_content: html,
+          pdf_options: {
+            margin: {
+              top: "20mm",
+              right: "15mm",
+              bottom: "20mm",
+              left: "15mm"
+            },
+            format: "A4",
+            landscape: false,
+            preferCssPageSize: true,
+            printBackground: true,
+            presentational_hints: true,
+            optimize_size: ['fonts', 'images'],
+            font_config: {
+              font_map: {
+                'Plus Jakarta Sans': '/app/fonts/PlusJakartaSans-Regular.ttf',
+                'Plus Jakarta Sans Bold': '/app/fonts/PlusJakartaSans-Bold.ttf'
+              }
+            }
+          }
+        }),
+        signal: controller.signal
+      });
+      
+      // Clear timeout
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      console.error('WeasyPrint error:', await response.text());
-      throw new Error('PDF conversion failed');
+      if (!response.ok) {
+        let errorDetails = "";
+        try {
+          const errorData = await response.json();
+          errorDetails = JSON.stringify(errorData);
+        } catch {
+          errorDetails = await response.text();
+        }
+        
+        console.error(`WeasyPrint service error (${response.status}): ${errorDetails}`);
+        throw new Error(`WeasyPrint service error: ${response.status} - ${errorDetails.substring(0, 300)}`);
+      }
+      
+      // Check if the response is actually a PDF
+      const contentType = response.headers.get('Content-Type');
+      if (!contentType || !contentType.includes('application/pdf')) {
+        console.error(`WeasyPrint returned wrong content type: ${contentType}`);
+        throw new Error(`WeasyPrint service error: Expected PDF but got ${contentType}`);
+      }
+      
+      // Get PDF as buffer
+      const pdfBuffer = await response.arrayBuffer();
+      if (!pdfBuffer || pdfBuffer.byteLength === 0) {
+        throw new Error("WeasyPrint service returned empty PDF");
+      }
+      
+      console.log(`PDF generated successfully: ${pdfBuffer.byteLength} bytes`);
+      return Buffer.from(pdfBuffer);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      throw fetchError;
     }
-
-    return Buffer.from(await response.arrayBuffer());
   } catch (error) {
     console.error('PDF generation failed:', error);
+    
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("WeasyPrint service request timed out after 3 minutes");
+    }
+    
     console.log('Falling back to simple PDF generation...');
     
     // Fallback: Return a simple PDF with a message

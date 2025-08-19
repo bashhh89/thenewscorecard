@@ -1450,9 +1450,19 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                         isLoading={isPresentationPdfLoading}
                         className="btn-primary-divine bg-[#20E28F] text-[#103138] hover:bg-[#20E28F]/90 hidden"
                       />
+                      {/* Primary PDF button - Using WeasyPrint which works correctly */}
+                      <WeasyprintPDFButton 
+                        scorecardData={formatReportDataForPDF()}
+                        className="bg-gradient-to-r from-[#20E28F] to-[#01CEFE] text-white font-bold py-3 px-7 rounded-xl shadow-lg flex items-center gap-2 hover:from-[#1CC47E] hover:to-[#01B6D6] transition-all duration-200 border-2 border-[#20E28F] focus:outline-none focus:ring-2 focus:ring-[#20E28F]/50"
+                      >
+                        {/* Download icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v12" /></svg>
+                        Download Report
+                      </WeasyprintPDFButton>
+                      {/* SeekPDF button - Hidden as backup */}
                       <SeekPDFButton
                         scorecardData={{
-                          reportMarkdown: processedReportMarkdown, // Use processed markdown
+                          reportMarkdown: processedReportMarkdown,
                           questionAnswerHistory: questionAnswerHistory,
                           userName: userName,
                           userTier: userTier,
@@ -1463,21 +1473,12 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                           finalScore: finalScore,
                           reportId: reportId,
                           userEmail: userEmail,
-                          userCompany: userCompany, // Include userCompany in scorecardData
+                          userCompany: userCompany,
                         }}
-                        className="bg-gradient-to-r from-[#20E28F] to-[#01CEFE] text-white font-bold py-3 px-7 rounded-xl shadow-lg flex items-center gap-2 hover:from-[#1CC47E] hover:to-[#01B6D6] transition-all duration-200 border-2 border-[#20E28F] focus:outline-none focus:ring-2 focus:ring-[#20E28F]/50"
+                        className="hidden"
                       >
-                        {/* Download icon */}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v12" /></svg>
-                        Download Report
+                        Download Report (Backup)
                       </SeekPDFButton>
-                      {/* WeasyPrint PDF button - Hidden but implementation preserved */}
-                      <WeasyprintPDFButton 
-                        scorecardData={formatReportDataForPDF()}
-                        className="btn-primary-divine bg-[#FEC401] text-[#103138] hover:bg-[#FEC401]/90 hidden"
-                      >
-                        download pdf 2
-                      </WeasyprintPDFButton>
                     </div>
                   </div>
                 </div>
@@ -1568,28 +1569,15 @@ export default function NewResultsPage({ initialUserName }: NewResultsPageProps 
                         </Link>
 
                         <div onClick={() => setIsMobileMenuOpen(false)}>
-                          <SeekPDFButton
-                            scorecardData={{
-                              reportMarkdown: processedReportMarkdown,
-                              questionAnswerHistory: questionAnswerHistory,
-                              userName: userName,
-                              userTier: userTier,
-                              userIndustry: userIndustry,
-                              strengths: strengths,
-                              weaknesses: weaknesses,
-                              actionItems: actionItems,
-                              finalScore: finalScore,
-                              reportId: reportId,
-                              userEmail: userEmail,
-                              userCompany: userCompany,
-                            }}
+                          <WeasyprintPDFButton
+                            scorecardData={formatReportDataForPDF()}
                             className="w-full bg-gradient-to-r from-[#20E28F] to-[#01CEFE] text-white font-bold py-3 px-4 rounded-lg shadow-lg flex items-center justify-center gap-2 hover:from-[#1CC47E] hover:to-[#01B6D6] transition-all duration-200"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v12" />
                             </svg>
                             Download Report
-                          </SeekPDFButton>
+                          </WeasyprintPDFButton>
                         </div>
                       </div>
                     </div>

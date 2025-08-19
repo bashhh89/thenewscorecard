@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getDatabase, ref, onValue } from 'firebase/database';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -17,12 +18,23 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Configure Firestore with explicit settings for nam5 region
+// Configure Firestore and Realtime DB
 const db = getFirestore(app);
+const realtimeDb = getDatabase(app);
+
+// Initialize Realtime Database connection listener
+if (typeof window !== 'undefined') {
+  const connectedRef = ref(realtimeDb, '.info/connected');
+  onValue(connectedRef, (snap) => {
+    console.log(snap.val() ? 'Firebase: Connected' : 'Firebase: Disconnected');
+  });
+}
+// Enable Firestore offline persistence
+enableIndexedDbPersistence(db)
 
 // Add connection state listener
 if (typeof window !== 'undefined') {
-  const connectedRef = ref(app, '.info/connected');
+  const connectedRef = ref(realtimeDb, '.info/connected');
   onValue(connectedRef, (snap) => {
     if (snap.val() === true) {
       console.log('Firebase: Connected to nam5 region');
@@ -49,4 +61,4 @@ if (typeof window !== 'undefined') {
     });
 }
 
-export { db }; 
+export { db };

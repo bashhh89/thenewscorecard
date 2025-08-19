@@ -22,7 +22,7 @@ async function testWeasyPrint() {
   try {
     console.log('Testing WeasyPrint service...');
     
-    const response = await fetch('http://168.231.115.219:5001/generate-pdf', {
+    const response = await fetch('https://sg-weasyprint.w5oak9.easypanel.host/pdf', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
